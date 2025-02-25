@@ -11,9 +11,10 @@ communication for the USA National Phenology Network (NPN) API.
 import json
 import logging
 from enum import Enum
+from typing import Any, Dict
+from urllib.parse import quote
 
 import httpx
-import requests
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
 from mcp.types import (
@@ -53,7 +54,7 @@ class NPNTools(str, Enum):
     OBSERVATION_COMMENT = "observation_comment"
 
 
-async def base_fetch(endpoint: str, **kwargs):
+async def base_fetch(endpoint: str, **kwargs: Any) -> str:
     """
     Fetch data from a specified NPN API endpoint using JSON.
 
@@ -68,9 +69,7 @@ async def base_fetch(endpoint: str, **kwargs):
     kwargs["request_src"] = "vectorMCP"
     # Remove None or empty values from parameters and put together API httpx URL query
     query_params = {k: v for k, v in kwargs.items() if v is not None and v != ""}
-    query_string = "&".join(
-        f"{k}={requests.utils.quote(str(v))}" for k, v in query_params.items()
-    )
+    query_string = "&".join(f"{k}={quote(str(v))}" for k, v in query_params.items())
     query_url = f"{API_BASE_URL}{endpoint}.json?{query_string}"  # Always using json for the moment
     logger.info(f"Fetching data from URL: {query_url}")
     async with httpx.AsyncClient(timeout=httpx.Timeout(10.0)) as client:
@@ -87,7 +86,9 @@ async def base_fetch(endpoint: str, **kwargs):
 
 async def serve() -> None:
     """Start the MCP server for the NPN API."""
-    server = Server("usa-npn-mcp-server")
+    server: Server[None] = Server(  # mypy demands type parameters for Server here
+        "usa-npn-mcp-server"
+    )
     logger.info("Starting MCP NPN Server...")
 
     @server.list_tools()
@@ -96,17 +97,17 @@ async def serve() -> None:
             Tool(
                 name=NPNTools.OBSERVATIONS,
                 description="Query NPN API for raw observation data (getObservations)",
-                inputSchema=ObservationsQuery.schema(),
+                inputSchema=ObservationsQuery.model_json_schema(),
             ),
             Tool(
                 name=NPNTools.OBSERVATION_COMMENT,
                 description="Retrieve the comment for a given observation (getObservationComment)",
-                inputSchema=ObservationCommentQuery.schema(),
+                inputSchema=ObservationCommentQuery.model_json_schema(),
             ),
         ]
 
     @server.call_tool()
-    async def call_tool(name: str, arguments: dict) -> list[TextContent]:
+    async def call_tool(name: str, arguments: Dict[str, Any]) -> list[TextContent]:
         # Clean up the arguments.
         query_params = {k: v for k, v in arguments.items() if v is not None}
         logger.info(f"Calling tool {name} with parameters: {query_params}")
