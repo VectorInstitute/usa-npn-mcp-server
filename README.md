@@ -54,7 +54,7 @@ Add to your `claude_desktop_config.json`, found easiest through the Claude Deskt
     "args": [
       "-c",
       # replace /absolute/path/to/usa-npn-mcp-server/ with local path to repo dir
-      "source /absolute/path/to/usa-npn-mcp-server/.venv/bin/activate && uv run usa-npn-mcp-server"
+      "source /absolute/path/to/usa-npn-mcp-server/.venv/bin/activate && uv run usa_npn_mcp_server"
     ]
   }
 }
@@ -71,10 +71,10 @@ Each time you create a new chat that queries NPN's API through the MCP Server, y
 **Debugging with MCP Inspector**: To run a locally hosted MCP interpreter for debugging, use:
 
    ```bash
-   npx @modelcontextprotocol/inspector uvx usa-npn-mcp-server
+   npx @modelcontextprotocol/inspector uvx usa_npn_mcp_server
    ```
-  
-The first time you run this command you'll be prompted to download `@modelcontextprotocol/inspector`. 
+
+The first time you run this command you'll be prompted to download `@modelcontextprotocol/inspector`.
 
 This command starts the MCP inspector within the `uv`-managed environment. The inspector can be used locally in-browser to inspect/test the server.
 
