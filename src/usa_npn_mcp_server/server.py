@@ -10,22 +10,25 @@ communication for the USA National Phenology Network (NPN) API.
 
 import json
 import logging
-from enum import Enum
-from typing import Any, Dict
-from urllib.parse import quote
+from typing import Dict
 
-import httpx
 from mcp.server import Server
+from mcp.server.models import InitializationOptions
 from mcp.server.stdio import stdio_server
 from mcp.types import (
+    EmbeddedResource,
+    ImageContent,
+    Resource,
+    ResourcesCapability,
+    ServerCapabilities,
     TextContent,
+    TextResourceContents,
     Tool,
-    # Prompt,
-    # PromptArgument,
-    # GetPromptResult,
-    # PromptMessage,
+    ToolsCapability,
 )
+from pydantic import AnyUrl
 
+from usa_npn_mcp_server.api_client import APIClient, NPNTools
 from usa_npn_mcp_server.endpoint_classes import (
     ObservationCommentQuery,
     ObservationsQuery,
@@ -35,93 +38,110 @@ from usa_npn_mcp_server.endpoint_classes import (
 # Base URL for the NPN API observations endpoints.
 API_BASE_URL = "https://services.usanpn.org:443/npn_portal/observations/"
 
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+
 logger = logging.getLogger(__name__)
-
-
-class NPNTools(str, Enum):
-    """
-    An enumeration of tools available for querying the NPN API.
-
-    Attributes
-    ----------
-    OBSERVATIONS : str
-        Tool for querying raw observation data.
-    OBSERVATION_COMMENT : str
-        Tool for retrieving comments associated with specific observations.
-    """
-
-    OBSERVATIONS = "observations"
-    OBSERVATION_COMMENT = "observation_comment"
-
-
-async def base_fetch(endpoint: str, **kwargs: Any) -> str:
-    """
-    Fetch data from a specified NPN API endpoint using JSON.
-
-    Builds the URL from the base URL, endpoint, and query parameters.
-
-    Parameters
-    ----------
-    - endpoint (str): The API endpoint to fetch data from.
-    - **kwargs: Query parameters to pass to the API.
-    """
-    # Ensure 'request_src' is always 'vectorMCP'
-    kwargs["request_src"] = "vectorMCP"
-    # Remove None or empty values from parameters and put together API httpx URL query
-    query_params = {k: v for k, v in kwargs.items() if v is not None and v != ""}
-    query_string = "&".join(f"{k}={quote(str(v))}" for k, v in query_params.items())
-    query_url = f"{API_BASE_URL}{endpoint}.json?{query_string}"  # Always using json for the moment
-    logger.info(f"Fetching data from URL: {query_url}")
-    async with httpx.AsyncClient(timeout=httpx.Timeout(10.0)) as client:
-        try:
-            response = await client.get(query_url)
-            response.raise_for_status()
-            # Return the JSON data as a JSON string.
-            json_data = response.json()
-            return json.dumps(json_data)
-        except Exception as exc:
-            logger.error(f"Error fetching data: {exc}")
-            return json.dumps({"message": f"Error fetching data: {str(exc)}"})
 
 
 async def serve() -> None:
     """Start the MCP server for the NPN API."""
-    server: Server[None] = Server(  # mypy demands type parameters for Server here
-        "usa-npn-mcp-server"
-    )
+    server: Server[None] = Server("usa-npn-mcp-server")
     logger.info("Starting MCP NPN Server...")
+    api_client = APIClient(base_url=API_BASE_URL)
 
     @server.list_tools()
     async def list_tools() -> list[Tool]:
+        logger.info("Handling list_tools request")
         return [
             Tool(
                 name=NPNTools.OBSERVATIONS,
-                description="Query NPN API for raw observation data (getObservations)",
+                description="Query NPN API for raw observation data (getObservations), results stored as readable Resource 'observations'",
                 inputSchema=ObservationsQuery.model_json_schema(),
             ),
             Tool(
                 name=NPNTools.OBSERVATION_COMMENT,
-                description="Retrieve the comment for a given observation (getObservationComment)",
+                description="Retrieve the comment for a given observation (getObservationComment), results store as readable Resource 'observation_comment'",
                 inputSchema=ObservationCommentQuery.model_json_schema(),
             ),
         ]
 
+    @server.list_resources()
+    async def handle_list_resources() -> list[Resource]:
+        logger.info("Handling list_resources request")
+        return [
+            Resource(
+                uri=AnyUrl("npn-mcp://observations"),
+                name="observations_resource",
+                description="Resource updated by 'observations' Tool and used to read JSON results",
+                mimeType="plain/text",
+            ),
+            Resource(
+                uri=AnyUrl("npn-mcp://observation_comment"),
+                name="observation_comment_resource",
+                description="Resource updated by 'observation_comment' Tool and used to read JSON results",
+                mimeType="plain/text",
+            ),
+        ]
+
+    @server.read_resource()
+    async def handle_read_resource(
+        uri: AnyUrl,
+    ) -> Dict[str, list[TextResourceContents | ImageContent]]:
+        logger.info(f"Handling read_resource request for URI: {uri}")
+        if uri.scheme != "npn-mcp":
+            logger.error(f"Unsupported URI scheme: {uri.scheme}")
+            raise ValueError(f"Unsupported URI scheme: {uri.scheme}")
+        name = str(uri).replace("npn-mcp://", "")
+        last_resource = api_client.read_last_response(name=name)
+        return {
+            "contents": [
+                TextResourceContents(
+                    uri=uri,
+                    mimeType="plain/text",
+                    text=json.dumps(last_resource),
+                ),
+            ]
+        }
+
     @server.call_tool()
-    async def call_tool(name: str, arguments: Dict[str, Any]) -> list[TextContent]:
-        # Clean up the arguments.
-        query_params = {k: v for k, v in arguments.items() if v is not None}
-        logger.info(f"Calling tool {name} with parameters: {query_params}")
+    async def handle_call_tool(
+        name: str, arguments: Dict[str, str] | None
+    ) -> list[TextContent | ImageContent | EmbeddedResource]:
+        logger.info(f"Calling tool {name} with parameters: {arguments}")
+        if arguments is None:
+            raise ValueError("Arguments cannot be None")
         match name:
             case NPNTools.OBSERVATIONS:
-                data = await base_fetch("getObservations", **query_params)
-                return [TextContent(type="text", text=f"Returned:\n{data}")]
+                await api_client.query_api("getObservations", arguments)
             case NPNTools.OBSERVATION_COMMENT:
-                data = await base_fetch("getObservationComment", **query_params)
-                return [TextContent(type="text", text=f"Returned:\n{data}")]
+                await api_client.query_api("getObservationComment", arguments)
             case _:
                 logger.error(f"Unknown tool requested: {name}")
-                raise ValueError(f"Unknown tool: {name}")
+                raise ValueError(f"Unknown tool requested: {name}")
+        await server.request_context.session.send_resource_updated(
+            AnyUrl(f"npn-mcp://{name}")
+        )
+        return [  # Consider adding output schema as embedded resource
+            # Consider adding TextContent with a message
+            EmbeddedResource(
+                type="resource",
+                resource=TextResourceContents(
+                    uri=AnyUrl(f"npn-mcp://{name}"),
+                    mimeType="plain/text",
+                    text=json.dumps(api_client.read_last_response(name=name)),
+                ),
+            ),
+        ]
 
-    options = server.create_initialization_options()
+    options = InitializationOptions(
+        server_name="usa-npn-mcp-server",
+        server_version="0.1.0",
+        capabilities=ServerCapabilities(
+            resources=ResourcesCapability(subscribe=True, listChanged=True),
+            tools=ToolsCapability(listChanged=True),
+        ),
+    )
     async with stdio_server() as (read_stream, write_stream):
         await server.run(read_stream, write_stream, options)
