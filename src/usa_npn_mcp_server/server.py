@@ -53,6 +53,7 @@ async def serve() -> None:
 
     @server.list_tools()
     async def list_tools() -> list[Tool]:
+        """Client can call this to get a list of available tools."""
         logger.info("Handling list_tools request")
         return [
             Tool(
@@ -69,6 +70,7 @@ async def serve() -> None:
 
     @server.list_resources()
     async def handle_list_resources() -> list[Resource]:
+        """Client can call this to get a list of available resources."""
         logger.info("Handling list_resources request")
         return [
             Resource(
@@ -89,7 +91,9 @@ async def serve() -> None:
     async def handle_read_resource(
         uri: AnyUrl,
     ) -> Dict[str, list[TextResourceContents | ImageContent]]:
+        """Client can call this to read a resource."""
         logger.info(f"Handling read_resource request for URI: {uri}")
+        # Throw error if the URI scheme is not supported
         if uri.scheme != "npn-mcp":
             logger.error(f"Unsupported URI scheme: {uri.scheme}")
             raise ValueError(f"Unsupported URI scheme: {uri.scheme}")
@@ -109,9 +113,11 @@ async def serve() -> None:
     async def handle_call_tool(
         name: str, arguments: Dict[str, str] | None
     ) -> list[TextContent | ImageContent | EmbeddedResource]:
+        """Client can call this to use a tool."""
         logger.info(f"Calling tool {name} with parameters: {arguments}")
         if arguments is None:
             raise ValueError("Arguments cannot be None")
+        # Call tool by name
         match name:
             case NPNTools.OBSERVATIONS:
                 await api_client.query_api("getObservations", arguments)
@@ -120,6 +126,7 @@ async def serve() -> None:
             case _:
                 logger.error(f"Unknown tool requested: {name}")
                 raise ValueError(f"Unknown tool requested: {name}")
+        # Notify client of resource update
         await server.request_context.session.send_resource_updated(
             AnyUrl(f"npn-mcp://{name}")
         )
@@ -135,6 +142,7 @@ async def serve() -> None:
             ),
         ]
 
+    # Initialize server to listen for resource changes
     options = InitializationOptions(
         server_name="usa-npn-mcp-server",
         server_version="0.1.0",

@@ -172,7 +172,7 @@ class APIClient:
         logger.info(f"Response stored for {endpoint}.")
 
     def read_last_response(self, name: str) -> Dict[str, Any]:
-        """Get the last response from the API."""
+        """Get the last response from the API by tool name."""
         logger.info(f"Reading {name} resource")
         match name:
             case "observations":
