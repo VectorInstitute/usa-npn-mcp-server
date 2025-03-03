@@ -5,7 +5,6 @@
 [![code checks](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/code_checks.yml/badge.svg)](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/code_checks.yml)
 [![integration tests](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/integration_tests.yml/badge.svg)](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/integration_tests.yml)
 [![docs](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/docs_deploy.yml/badge.svg)](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/docs_deploy.yml)
-[![codecov](https://codecov.io/github/VectorInstitute/usa-npn-mcp-server/graph/badge.svg?token=83MYFZ3UPA)](https://codecov.io/github/VectorInstitute/usa-npn-mcp-server)
 ![GitHub License](https://img.shields.io/github/license/VectorInstitute/usa-npn-mcp-server)
 
 ### Available Tools
@@ -15,15 +14,29 @@
 
 ## 🧑🏿‍💻 Developing
 
+### Clone the repository
+
+Using HTTPS (recommended for most users):
+   ```bash
+   git clone https://github.com/VectorInstitute/usa-npn-mcp-server.git
+   ```
+
+Using SSH (if you have SSH keys configured with GitHub):
+   ```bash
+   git clone git@github.com:VectorInstitute/usa-npn-mcp-server.git
+   ```
+
+After cloning with either method:
+  ```bash
+  cd usa-npn-mcp-server
+  ```
+
 ### Installing dependencies
 
 The development environment can be set up using
-[uv](https://github.com/astral-sh/uv?tab=readme-ov-file#installation). Hence, make sure it is
-installed and then run:
+[uv](https://github.com/astral-sh/uv?tab=readme-ov-file#installation). Hence, make sure it is installed and then run:
 
 ```bash
-git clone https://github.com/VectorInstitute/usa-npn-mcp-server.git
-cd usa-npn-mcp-server
 uv sync
 source .venv/bin/activate
 ```
@@ -36,16 +49,27 @@ uv sync --dev
 source .venv/bin/activate
 ```
 
-These commands set up the `.venv` environment as specified in the `pyproject.toml` and `uv.lock` files.
+These commands set up and activate the `.venv` environment as specified in the `pyproject.toml` and `uv.lock` files.
 
 ## Configuration
 
 ### Configure for Claude Desktop App
 
-Add to your `claude_desktop_config.json`, found easiest through the Claude Desktop settings:
+You will need to modify your `claude_desktop_config.json` to make it aware of the MCP Server:
 
 <details>
-<summary>Add to claude config: </summary>
+<summary>How to easily find claude_desktop_config.json on macOS:</summary>
+
+1. Open Claude Desktop app
+2. Click on "Claude" in the menu bar and select "Settings"
+3. In the Settings window, click on the "Developer" tab in the left sidebar
+4. Click the "Edit Config" button
+5. This will open a Finder window showing the location of the `claude_desktop_config.json` file
+6. Open the file with your preferred text editor
+</details>
+
+<details>
+<summary>Add to claude config:</summary>
 
 ```json
 "mcpServers": {
@@ -62,7 +86,7 @@ Add to your `claude_desktop_config.json`, found easiest through the Claude Deskt
 </details>
 
 
-You'll need to restart Claude Desktop, you should see a new :electric_plug: icon and/or :hammer: icons in your chat prompt that confirms the MCP Server is detected.
+After saving the changes, restart Claude Desktop. You should see a new :electric_plug: icon and/or :hammer: icons in your chat prompt that confirms the MCP Server is detected.
 
 Each time you create a new chat that queries NPN's API through the MCP Server, you will have to agree to permit access to the MCP Server's Tool.
 
@@ -71,7 +95,7 @@ Each time you create a new chat that queries NPN's API through the MCP Server, y
 **Debugging with MCP Inspector**: To run a locally hosted MCP interpreter for debugging, use:
 
    ```bash
-   npx @modelcontextprotocol/inspector uvx usa_npn_mcp_server
+   npx @modelcontextprotocol/inspector uv run usa_npn_mcp_server
    ```
 
 The first time you run this command you'll be prompted to download `@modelcontextprotocol/inspector`.
