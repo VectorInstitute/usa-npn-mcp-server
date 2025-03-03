@@ -7,6 +7,8 @@ class ObservationsQuery(BaseModel):
     """
     Input parameters for the getObservations endpoint.
 
+    URL: https://services.usanpn.org:443/npn_portal/observations/getObservations
+
     Only a subset of available parameters is included.
     """
 
@@ -38,7 +40,10 @@ class ObservationsQuery(BaseModel):
 
 
 class ObservationCommentQuery(BaseModel):
-    """Input parameters for the getObservationComment endpoint."""
+    """Input parameters for the getObservationComment endpoint.
+
+    URL: https://services.usanpn.org:443/npn_portal/observations/getObservationComment
+    """
 
     observation_id: int = Field(
         description="The ID of the observation for which to retrieve the comment"
