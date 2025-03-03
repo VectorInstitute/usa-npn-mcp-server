@@ -35,9 +35,6 @@ from usa_npn_mcp_server.endpoint_classes import (
 )
 
 
-# Base URL for the NPN API observations endpoints.
-API_BASE_URL = "https://services.usanpn.org:443/npn_portal/observations/"
-
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
@@ -49,7 +46,7 @@ async def serve() -> None:
     """Start the MCP server for the NPN API."""
     server: Server[None] = Server("usa-npn-mcp-server")
     logger.info("Starting MCP NPN Server...")
-    api_client = APIClient(base_url=API_BASE_URL)
+    api_client = APIClient()
 
     @server.list_tools()
     async def list_tools() -> list[Tool]:

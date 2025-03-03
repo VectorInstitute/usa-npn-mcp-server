@@ -73,9 +73,11 @@ class NPNTools(str, Enum):
 class APIClient:
     """API Client for mediating MCP server and NPN API interactions."""
 
-    def __init__(self, base_url: str) -> None:
-        self.base_url = base_url.rstrip("/")
-        self.client = httpx.AsyncClient(timeout=20.0, base_url=base_url)
+    # Base URL for the NPN API observations endpoints.
+    API_BASE_URL = "https://services.usanpn.org:443/npn_portal/observations/"
+
+    def __init__(self) -> None:
+        self.client = httpx.AsyncClient(timeout=20.0, base_url=self.API_BASE_URL)
         self.obs_responses: list[str] = []
         self.obs_com_responses: list[str] = []
 
@@ -144,7 +146,7 @@ class APIClient:
         # Ensure 'request_src' is always 'vectorMCP'
         params["request_src"] = "vectorMCP"
         query_params = urlencode(params)
-        request_url = f"{self.base_url}/{endpoint}.json?{query_params}"
+        request_url = f"{self.API_BASE_URL}/{endpoint}.json?{query_params}"
         response = await self.client.get(request_url)
         logger.info(f"Querying APIClient's _get with: {request_url}")
         try:
