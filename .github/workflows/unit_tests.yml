@@ -61,5 +61,3 @@ jobs:
       - name: Install dependencies and check code
         run: |
           uv run pytest -m "not integration_test" --cov src/usa_npn_mcp_server --cov-report=xml tests
-
-      # Uncomment this once this repo is configured on Codecov
