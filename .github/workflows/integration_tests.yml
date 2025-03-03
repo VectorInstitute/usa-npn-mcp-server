@@ -63,10 +63,3 @@ jobs:
           uv run pytest -m "integration_test" --cov src/usa_npn_mcp_server --cov-report=xml tests
 
       # Uncomment this once this repo is configured on Codecov
-      # - name: Upload coverage to Codecov
-      #   uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3
-      #   with:
-      #     token: ${{ secrets.CODECOV_TOKEN }}
-      #     slug: VectorInstitute/usa-npn-mcp-server
-      #     fail_ci_if_error: true
-      #     verbose: true
