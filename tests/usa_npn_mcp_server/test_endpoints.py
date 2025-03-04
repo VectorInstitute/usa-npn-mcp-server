@@ -1,6 +1,6 @@
 """Unit tests for endpoint classes in usa_npn_mcp_server."""
 
-from usa_npn_mcp_server.endpoint_classes import (
+from usa_npn_mcp_server.utils.endpoints import (
     ObservationCommentQuery,
     ObservationsQuery,
 )

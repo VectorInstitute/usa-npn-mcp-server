@@ -28,11 +28,8 @@ from mcp.types import (
 )
 from pydantic import AnyUrl
 
-from usa_npn_mcp_server.api_client import APIClient, NPNTools
-from usa_npn_mcp_server.endpoint_classes import (
-    ObservationCommentQuery,
-    ObservationsQuery,
-)
+from usa_npn_mcp_server.api_client import APIClient
+from usa_npn_mcp_server.utils.endpoints import NPNTools
 
 
 logging.basicConfig(
@@ -54,14 +51,29 @@ async def serve() -> None:
         logger.info("Handling list_tools request")
         return [
             Tool(
-                name=NPNTools.OBSERVATIONS,
-                description="Query NPN API for raw observation data (getObservations), results stored as readable Resource 'observations'",
-                inputSchema=ObservationsQuery.model_json_schema(),
+                name=NPNTools.Observations.name,
+                description=NPNTools.Observations.description,
+                inputSchema=NPNTools.Observations.input_schema,
             ),
             Tool(
-                name=NPNTools.OBSERVATION_COMMENT,
-                description="Retrieve the comment for a given observation (getObservationComment), results store as readable Resource 'observation_comment'",
-                inputSchema=ObservationCommentQuery.model_json_schema(),
+                name=NPNTools.ObservationComment.name,
+                description=NPNTools.ObservationComment.description,
+                inputSchema=NPNTools.ObservationComment.input_schema,
+            ),
+            Tool(
+                name=NPNTools.SummarizedData.name,
+                description=NPNTools.SummarizedData.description,
+                inputSchema=NPNTools.SummarizedData.input_schema,
+            ),
+            Tool(
+                name=NPNTools.MagnitudeData.name,
+                description=NPNTools.MagnitudeData.description,
+                inputSchema=NPNTools.MagnitudeData.input_schema,
+            ),
+            Tool(
+                name=NPNTools.SiteLevelData.name,
+                description=NPNTools.SiteLevelData.description,
+                inputSchema=NPNTools.SiteLevelData.input_schema,
             ),
         ]
 
@@ -71,15 +83,33 @@ async def serve() -> None:
         logger.info("Handling list_resources request")
         return [
             Resource(
-                uri=AnyUrl("npn-mcp://observations"),
-                name="observations_resource",
+                uri=AnyUrl(f"npn-mcp://{NPNTools.Observations.name}"),
+                name=f"{NPNTools.Observations.name}_resource",
                 description="Resource updated by 'observations' Tool and used to read JSON results",
                 mimeType="plain/text",
             ),
             Resource(
-                uri=AnyUrl("npn-mcp://observation_comment"),
-                name="observation_comment_resource",
+                uri=AnyUrl(f"npn-mcp://{NPNTools.ObservationComment.name}"),
+                name=f"{NPNTools.ObservationComment.name}_resource",
                 description="Resource updated by 'observation_comment' Tool and used to read JSON results",
+                mimeType="plain/text",
+            ),
+            Resource(
+                uri=AnyUrl(f"npn-mcp://{NPNTools.SummarizedData.name}"),
+                name=f"{NPNTools.SummarizedData.name}_resource",
+                description="Resource updated by 'summarized_data' Tool and used to read JSON results",
+                mimeType="plain/text",
+            ),
+            Resource(
+                uri=AnyUrl(f"npn-mcp://{NPNTools.MagnitudeData.name}"),
+                name=f"{NPNTools.MagnitudeData.name}_resource",
+                description="Resource updated by 'magnitude_data' Tool and used to read JSON results",
+                mimeType="plain/text",
+            ),
+            Resource(
+                uri=AnyUrl(f"npn-mcp://{NPNTools.SiteLevelData.name}"),
+                name=f"{NPNTools.SiteLevelData.name}_resource",
+                description="Resource updated by 'site_level_data' Tool and used to read JSON results",
                 mimeType="plain/text",
             ),
         ]
@@ -116,10 +146,18 @@ async def serve() -> None:
             raise ValueError("Arguments cannot be None")
         # Call tool by name
         match name:
-            case NPNTools.OBSERVATIONS:
-                await api_client.query_api("getObservations", arguments)
-            case NPNTools.OBSERVATION_COMMENT:
-                await api_client.query_api("getObservationComment", arguments)
+            case NPNTools.Observations.name:
+                await api_client.query_api(NPNTools.Observations.endpoint, arguments)
+            case NPNTools.ObservationComment.name:
+                await api_client.query_api(
+                    NPNTools.ObservationComment.endpoint, arguments
+                )
+            case NPNTools.SummarizedData.name:
+                await api_client.query_api(NPNTools.SummarizedData.endpoint, arguments)
+            case NPNTools.MagnitudeData.name:
+                await api_client.query_api(NPNTools.MagnitudeData.endpoint, arguments)
+            case NPNTools.SiteLevelData.name:
+                await api_client.query_api(NPNTools.SiteLevelData.endpoint, arguments)
             case _:
                 logger.error(f"Unknown tool requested: {name}")
                 raise ValueError(f"Unknown tool requested: {name}")
@@ -128,7 +166,7 @@ async def serve() -> None:
             AnyUrl(f"npn-mcp://{name}")
         )
         return [  # Consider adding output schema as embedded resource
-            # Consider adding TextContent with a message
+            # Consider adding TextContent with a message about state
             EmbeddedResource(
                 type="resource",
                 resource=TextResourceContents(
