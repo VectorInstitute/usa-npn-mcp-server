@@ -5,13 +5,14 @@ from __future__ import annotations
 import logging
 import traceback
 from datetime import datetime
-from enum import Enum
 from functools import wraps
 from types import TracebackType
 from typing import Any, Dict, Optional, Type
 from urllib.parse import urlencode
 
 import httpx
+
+from usa_npn_mcp_server.utils.endpoints import NPNTools
 
 
 logging.basicConfig(
@@ -54,32 +55,19 @@ def log_call(func: Any) -> Any:
     return wrapper
 
 
-class NPNTools(str, Enum):
-    """
-    An enumeration of tools available for querying the NPN API.
-
-    Attributes
-    ----------
-    OBSERVATIONS : str
-        Tool name for querying raw observation data.
-    OBSERVATION_COMMENT : str
-        Tool name for retrieving comments associated with specific observations.
-    """
-
-    OBSERVATIONS = "observations"
-    OBSERVATION_COMMENT = "observation_comment"
-
-
 class APIClient:
     """API Client for mediating MCP server and NPN API interactions."""
 
     # Base URL for the NPN API observations endpoints.
-    API_BASE_URL = "https://services.usanpn.org:443/npn_portal/observations/"
+    API_BASE_URL = "https://services.usanpn.org/npn_portal/observations"
 
     def __init__(self) -> None:
         self.client = httpx.AsyncClient(timeout=20.0, base_url=self.API_BASE_URL)
-        self.obs_responses: list[str] = []
-        self.obs_com_responses: list[str] = []
+        self.obs_responses: list[Dict[str, Any]] = []
+        self.obs_com_responses: list[Dict[str, Any]] = []
+        self.mag_data_responses: list[Dict[str, Any]] = []
+        self.site_level_data_responses: list[Dict[str, Any]] = []
+        self.summarized_data_responses: list[Dict[str, Any]] = []
 
     async def __aenter__(self) -> APIClient:
         """
@@ -167,18 +155,30 @@ class APIClient:
         """
         response = await self._get(endpoint, params=arguments)
         match endpoint:
-            case "getObservations":
+            case NPNTools.Observations.endpoint:
                 self.obs_responses.append(response)
-            case "getObservationComment":
+            case NPNTools.ObservationComment.endpoint:
                 self.obs_com_responses.append(response)
+            case NPNTools.MagnitudeData.endpoint:
+                self.mag_data_responses.append(response)
+            case NPNTools.SiteLevelData.endpoint:
+                self.site_level_data_responses.append(response)
+            case NPNTools.SummarizedData.endpoint:
+                self.summarized_data_responses.append(response)
         logger.info(f"Response stored for {endpoint}.")
 
     def read_last_response(self, name: str) -> Dict[str, Any]:
         """Get the last response from the API by tool name."""
         logger.info(f"Reading {name} resource")
         match name:
-            case "observations":
+            case NPNTools.Observations.name:
                 responses = self.obs_responses
-            case "observation_comment":
+            case NPNTools.ObservationComment.name:
                 responses = self.obs_com_responses
+            case NPNTools.MagnitudeData.name:
+                responses = self.mag_data_responses
+            case NPNTools.SiteLevelData.name:
+                responses = self.site_level_data_responses
+            case NPNTools.SummarizedData.name:
+                responses = self.summarized_data_responses
         return {"result": responses[-1]} if responses else {"result": None}
