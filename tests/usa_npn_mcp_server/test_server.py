@@ -81,7 +81,7 @@ async def test_query_site_level_data(mocker):
 @pytest.mark.integration_test
 @pytest.mark.asyncio
 async def test_query_magnitude_data(mocker):
-    """Test the query_api function to fetch site-level data."""
+    """Test the query_api function to fetch magnitude data."""
     mock_response = mocker.Mock()
     mock_response.json.return_value = {"magnitude_data": []}
     mock_response.status_code = 200
@@ -97,4 +97,4 @@ async def test_query_magnitude_data(mocker):
             "frequency": 7,
         },
     )
-    assert data == '{"site_level_data": []}'
+    assert data == '{"magnitude_data": []}'
