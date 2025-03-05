@@ -5,39 +5,79 @@ from typing import Any, List, Optional
 from pydantic import BaseModel, Field
 
 
-class ObservationsQuery(BaseModel):
+class BaseQuery(BaseModel):
+    """Base class for endpoint queries."""
+
+    start_date: str = Field(
+        ..., description="Start date in YYYY-MM-DD format. Must be used with end_date."
+    )
+    end_date: str = Field(
+        ..., description="End date in YYYY-MM-DD format. Must be used with start_date."
+    )
+    bottom_left_x1: Optional[float] = Field(
+        default=None,
+        description="X coordinate of the bottom left corner for bounding box filtering.",
+    )
+    bottom_left_y1: Optional[float] = Field(
+        default=None,
+        description="Y coordinate of the bottom left corner for bounding box filtering.",
+    )
+    upper_right_x2: Optional[float] = Field(
+        default=None,
+        description="X coordinate of the upper right corner for bounding box filtering.",
+    )
+    upper_right_y2: Optional[float] = Field(
+        default=None,
+        description="Y coordinate of the upper right corner for bounding box filtering.",
+    )
+    species_id: Optional[int] = Field(
+        default=None, description="Unique species identifier."
+    )
+    station_id: Optional[int] = Field(
+        default=None,
+        description="Unique identifier associated with an observer’s location.",
+    )
+    species_type: Optional[str] = Field(
+        default=None,
+        description="Species type(s) the organism belongs to. Must match values from getAnimalTypes and getPlantTypes.",
+    )
+    network: Optional[str] = Field(
+        default=None,
+        description="Name of the network(s)/group(s) where the organism is observed. Must match values from getPartnerNetworks.",
+    )
+    state: Optional[str] = Field(
+        default=None,
+        description="State where the observation occurred. Uses two-character postal abbreviation.",
+    )
+    phenophase_category: Optional[str] = Field(
+        default=None,
+        description="Phenophase category. Must match values from getPhenophase.",
+    )
+    phenophase_id: Optional[int] = Field(
+        default=None, description="Unique identifier of the phenophase."
+    )
+    functional_type: Optional[str] = Field(
+        default=None,
+        description="Functional types of the species. Must match values from getSpeciesFunctionalTypes.",
+    )
+    additional_field: Optional[List[str]] = Field(
+        default=None,
+        description="Additional optional data fields to be returned as part of the results.",
+    )
+    climate_data: Optional[int] = Field(
+        default=None,
+        description="Flag to indicate whether all climate data fields should be returned.",
+    )
+
+
+class ObservationsQuery(BaseQuery):
     """
     Input parameters for the getObservations endpoint.
 
     URL: https://services.usanpn.org:443/npn_portal/observations/getObservations
-
-    Only a subset of available parameters is included.
     """
 
-    start_date: str = Field(..., description="Start date in YYYY-MM-DD format")
-    end_date: str = Field(..., description="End date in YYYY-MM-DD format")
-    species_id: Optional[str] = Field(
-        description="Comma-separated list of species ids to filter observations",
-    )
-    station_id: Optional[int] = Field(
-        default=None, description="Station identifier to filter observations"
-    )
-    bottom_left_x1: Optional[float] = Field(
-        default=None,
-        description="X coordinate of the bottom left corner for bounding box filtering",
-    )
-    bottom_left_y1: Optional[float] = Field(
-        default=None,
-        description="Y coordinate of the bottom left corner for bounding box filtering",
-    )
-    upper_right_x2: Optional[float] = Field(
-        default=None,
-        description="X coordinate of the upper right corner for bounding box filtering",
-    )
-    upper_right_y2: Optional[float] = Field(
-        default=None,
-        description="Y coordinate of the upper right corner for bounding box filtering",
-    )
+    pass
 
 
 class ObservationCommentQuery(BaseModel):
@@ -51,225 +91,42 @@ class ObservationCommentQuery(BaseModel):
     )
 
 
-class SummarizedDataQuery(BaseModel):
+class SummarizedDataQuery(BaseQuery):
     """
     Input parameters for the getSummarizedData endpoint.
 
     URL: https://services.usanpn.org/npn_portal/observations/getSummarizedData
     """
 
-    start_date: str = Field(
-        ..., description="Start date in YYYY-MM-DD format. Must be used with end_date."
-    )
-    end_date: str = Field(
-        ..., description="End date in YYYY-MM-DD format. Must be used with start_date."
-    )
-    bottom_left_x1: Optional[float] = Field(
-        default=None,
-        description="X coordinate of the bottom left corner for bounding box filtering.",
-    )
-    bottom_left_y1: Optional[float] = Field(
-        default=None,
-        description="Y coordinate of the bottom left corner for bounding box filtering.",
-    )
-    upper_right_x2: Optional[float] = Field(
-        default=None,
-        description="X coordinate of the upper right corner for bounding box filtering.",
-    )
-    upper_right_y2: Optional[float] = Field(
-        default=None,
-        description="Y coordinate of the upper right corner for bounding box filtering.",
-    )
     individual_ids: Optional[List[int]] = Field(
         default=None,
         description="List of unique identifiers of the individuals for which the observations are made.",
     )
-    phenophase_id: Optional[int] = Field(
-        default=None,
-        description="Unique identifier of the phenophase for which the observations are about.",
-    )
-    species_id: Optional[int] = Field(
-        default=None, description="Unique species identifier."
-    )
-    station_id: Optional[int] = Field(
-        default=None,
-        description="Unique identifier associated with an observer’s location.",
-    )
-    species_type: Optional[str] = Field(
-        default=None,
-        description="Species type(s) the organism belongs to. Must match values from getAnimalTypes and getPlantTypes.",
-    )
-    network: Optional[str] = Field(
-        default=None,
-        description="Name of the network(s)/group(s) where the organism is observed. Must match values from getPartnerNetworks.",
-    )
-    state: Optional[str] = Field(
-        default=None,
-        description="State where the observation occurred. Uses two-character postal abbreviation.",
-    )
-    phenophase_category: Optional[str] = Field(
-        default=None,
-        description="Phenophase category. Must match values from getPhenophase.",
-    )
-    functional_type: Optional[str] = Field(
-        default=None,
-        description="Functional types of the species. Must match values from getSpeciesFunctionalTypes.",
-    )
-    additional_field: Optional[List[str]] = Field(
-        default=None,
-        description="Additional optional data fields to be returned as part of the results.",
-    )
-    climate_data: Optional[int] = Field(
-        default=None,
-        description="Flag to indicate whether all climate data fields should be returned.",
-    )
 
 
-class SiteLevelDataQuery(BaseModel):
+class SiteLevelDataQuery(BaseQuery):
     """
     Input parameters for the getSiteLevelData endpoint.
 
     URL: https://services.usanpn.org/npn_portal/observations/getSiteLevelData
     """
 
-    start_date: str = Field(
-        ..., description="Start date in YYYY-MM-DD format. Must be used with end_date."
-    )
-    end_date: str = Field(
-        ..., description="End date in YYYY-MM-DD format. Must be used with start_date."
-    )
-    num_days_quality_filter: Optional[int] = Field(
-        default=30,
-        description="Upper limit on the number of days difference between the first Y value and the previous N value for each individual to be included in the data aggregation.",
-    )
-    bottom_left_x1: Optional[float] = Field(
-        default=None,
-        description="X coordinate of the bottom left corner for bounding box filtering.",
-    )
-    bottom_left_y1: Optional[float] = Field(
-        default=None,
-        description="Y coordinate of the bottom left corner for bounding box filtering.",
-    )
-    upper_right_x2: Optional[float] = Field(
-        default=None,
-        description="X coordinate of the upper right corner for bounding box filtering.",
-    )
-    upper_right_y2: Optional[float] = Field(
-        default=None,
-        description="Y coordinate of the upper right corner for bounding box filtering.",
-    )
     individual_ids: Optional[List[int]] = Field(
         default=None,
         description="List of unique identifiers of the individuals for which the observations are made.",
     )
-    phenophase_id: Optional[int] = Field(
-        default=None,
-        description="Unique identifier of the phenophase for which the observations are about.",
-    )
-    species_id: Optional[int] = Field(
-        default=None, description="Unique species identifier."
-    )
-    station_id: Optional[int] = Field(
-        default=None,
-        description="Unique identifier associated with an observer’s location.",
-    )
-    species_type: Optional[str] = Field(
-        default=None,
-        description="Species type(s) the organism belongs to. Must match values from getAnimalTypes and getPlantTypes.",
-    )
-    network: Optional[str] = Field(
-        default=None,
-        description="Name of the network(s)/group(s) where the organism is observed. Must match values from getPartnerNetworks.",
-    )
-    state: Optional[str] = Field(
-        default=None,
-        description="State where the observation occurred. Uses two-character postal abbreviation.",
-    )
-    phenophase_category: Optional[str] = Field(
-        default=None,
-        description="Phenophase category. Must match values from getPhenophase.",
-    )
-    functional_type: Optional[str] = Field(
-        default=None,
-        description="Functional types of the species. Must match values from getSpeciesFunctionalTypes.",
-    )
-    additional_field: Optional[List[str]] = Field(
-        default=None,
-        description="Additional optional data fields to be returned as part of the results.",
-    )
-    climate_data: Optional[int] = Field(
-        default=None,
-        description="Flag to indicate whether all climate data fields should be returned.",
-    )
 
 
-class MagnitudeDataQuery(BaseModel):
+class MagnitudeDataQuery(BaseQuery):
     """
     Input parameters for the getMagnitudeData endpoint.
 
     URL: https://services.usanpn.org/npn_portal/observations/getMagnitudeData
     """
 
-    start_date: str = Field(
-        ..., description="Start date in YYYY-MM-DD format. Must be used with end_date."
-    )
-    end_date: str = Field(
-        ..., description="End date in YYYY-MM-DD format. Must be used with start_date."
-    )
     frequency: int = Field(
         ...,
         description="Number of days by which to delineate the period of time. Should be less or equal to number of days between start_date and end_date.",
-    )
-    bottom_left_x1: Optional[float] = Field(
-        default=None,
-        description="X coordinate of the bottom left corner for bounding box filtering.",
-    )
-    bottom_left_y1: Optional[float] = Field(
-        default=None,
-        description="Y coordinate of the bottom left corner for bounding box filtering.",
-    )
-    upper_right_x2: Optional[float] = Field(
-        default=None,
-        description="X coordinate of the upper right corner for bounding box filtering.",
-    )
-    upper_right_y2: Optional[float] = Field(
-        default=None,
-        description="Y coordinate of the upper right corner for bounding box filtering.",
-    )
-    phenophase_id: Optional[int] = Field(
-        default=None,
-        description="Unique identifier of the phenophase for which the observations are about.",
-    )
-    species_id: Optional[int] = Field(
-        default=None, description="Unique species identifier."
-    )
-    station_id: Optional[int] = Field(
-        default=None,
-        description="Unique identifier associated with an observer’s location.",
-    )
-    species_type: Optional[str] = Field(
-        default=None,
-        description="Species type(s) the organism belongs to. Must match values from getAnimalTypes and getPlantTypes.",
-    )
-    network: Optional[str] = Field(
-        default=None,
-        description="Name of the network(s)/group(s) where the organism is observed. Must match values from getPartnerNetworks.",
-    )
-    state: Optional[str] = Field(
-        default=None,
-        description="State where the observation occurred. Uses two-character postal abbreviation.",
-    )
-    phenophase_category: Optional[str] = Field(
-        default=None,
-        description="Phenophase category. Must match values from getPhenophase.",
-    )
-    functional_type: Optional[str] = Field(
-        default=None,
-        description="Functional types of the species. Must match values from getSpeciesFunctionalTypes.",
-    )
-    additional_field: Optional[List[str]] = Field(
-        default=None,
-        description="Additional optional data fields to be returned as part of the results.",
     )
 
 
