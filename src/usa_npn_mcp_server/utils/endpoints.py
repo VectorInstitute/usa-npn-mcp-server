@@ -66,7 +66,7 @@ class BaseQuery(BaseModel):
     )
     climate_data: Optional[int] = Field(
         default=None,
-        description="Flag to indicate whether all climate data fields should be returned.",
+        description="Flag to indicate whether all climate data fields should be returned. Accepts 0 or 1.",
     )
 
 
@@ -74,7 +74,7 @@ class ObservationsQuery(BaseQuery):
     """
     Input parameters for the getObservations endpoint.
 
-    URL: https://services.usanpn.org:443/npn_portal/observations/getObservations
+    URL: https://services.usanpn.org/npn_portal/observations/getObservations
     """
 
     pass
@@ -83,7 +83,7 @@ class ObservationsQuery(BaseQuery):
 class ObservationCommentQuery(BaseModel):
     """Input parameters for the getObservationComment endpoint.
 
-    URL: https://services.usanpn.org:443/npn_portal/observations/getObservationComment
+    URL: https://services.usanpn.org/npn_portal/observations/getObservationComment
     """
 
     observation_id: int = Field(
@@ -172,31 +172,31 @@ class NPNTools:
 
     Observations = NPNTool(
         name="observations",
-        description="Query NPN API for raw observation data (getObservations), results stored as readable Resource 'observations'",
+        description="Query NPN API for intensity and status data aka raw observation data (from getObservations endpoint), results stored as readable Resource 'observations'",
         input_schema=ObservationsQuery.model_json_schema(),
         endpoint="getObservations",
     )
     ObservationComment = NPNTool(
         name="observation_comment",
-        description="Retrieve the comment for a given observation (getObservationComment), results store as readable Resource 'observation_comment'",
+        description="Retrieve the comment for a given observation (from getObservationComment endpoint), results store as readable Resource 'observation_comment'",
         input_schema=ObservationCommentQuery.model_json_schema(),
         endpoint="getObservationComment",
     )
     MagnitudeData = NPNTool(
         name="magnitude_data",
-        description="Query NPN API for magnitude data (getMagnitudeData), results stored as readable Resource 'magnitude_data'",
+        description="Query NPN API for magnitude phenometrics aka magnitude data (from getMagnitudeData endpoint), results stored as readable Resource 'magnitude_data'",
         input_schema=MagnitudeDataQuery.model_json_schema(),
         endpoint="getMagnitudeData",
     )
     SiteLevelData = NPNTool(
         name="site_level_data",
-        description="Query NPN API for site level data (getSiteLevelData), results stored as readable Resource 'site_level_data'",
+        description="Query NPN API for site phenometrics aka site level data (from getSiteLevelData endpoint), results stored as readable Resource 'site_level_data'",
         input_schema=SiteLevelDataQuery.model_json_schema(),
         endpoint="getSiteLevelData",
     )
     SummarizedData = NPNTool(
         name="summarized_data",
-        description="Query NPN API for summarized data (getSummarizedData), results stored as readable Resource 'summarized_data'",
+        description="Query NPN API for individual phenometrics aka summarized data (from getSummarizedData endpoint), results stored as readable Resource 'summarized_data'",
         input_schema=SummarizedDataQuery.model_json_schema(),
         endpoint="getSummarizedData",
     )
