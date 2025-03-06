@@ -18,10 +18,11 @@ async def test_query_observations(mocker):
     mocker.patch("httpx.AsyncClient.get", return_value=mock_response)
 
     async with APIClient() as client:
-        data = await client.query_api(
+        await client.query_api(
             endpoint=NPNTools.Observations.endpoint,
             arguments={"start_date": "2025-01-01", "end_date": "2025-01-31"},
         )
+        data = client.read_last_response(name=NPNTools.Observations.name)
         assert data == '{"observations": []}'
 
 
@@ -36,10 +37,11 @@ async def test_query_observation_comment(mocker):
 
     mocker.patch("httpx.AsyncClient.get", return_value=mock_response)
     async with APIClient() as client:
-        data = await client.query_api(
+        await client.query_api(
             endpoint=NPNTools.ObservationComment.endpoint,
             arguments={"observation_id": 1},
         )
+        data = client.read_last_response(name=NPNTools.ObservationComment.name)
         assert data == '{"comments": []}'
 
 
@@ -55,10 +57,11 @@ async def test_query_summarized_data(mocker):
     mocker.patch("httpx.AsyncClient.get", return_value=mock_response)
 
     async with APIClient() as client:
-        data = await client.query_api(
+        await client.query_api(
             endpoint=NPNTools.SummarizedData.endpoint,
             arguments={"start_date": "2025-01-01", "end_date": "2025-01-31"},
         )
+        data = client.read_last_response(name=NPNTools.SummarizedData.name)
         assert data == '{"summarized_data": []}'
 
 
@@ -74,10 +77,11 @@ async def test_query_site_level_data(mocker):
     mocker.patch("httpx.AsyncClient.get", return_value=mock_response)
 
     async with APIClient() as client:
-        data = await client.query_api(
+        await client.query_api(
             endpoint=NPNTools.SiteLevelData.endpoint,
             arguments={"start_date": "2025-01-01", "end_date": "2025-01-31"},
         )
+        data = client.read_last_response(name=NPNTools.SiteLevelData.name)
         assert data == '{"site_level_data": []}'
 
 
@@ -93,7 +97,7 @@ async def test_query_magnitude_data(mocker):
     mocker.patch("httpx.AsyncClient.get", return_value=mock_response)
 
     async with APIClient() as client:
-        data = await client.query_api(
+        await client.query_api(
             endpoint=NPNTools.MagnitudeData.endpoint,
             arguments={
                 "start_date": "2025-01-01",
@@ -101,4 +105,5 @@ async def test_query_magnitude_data(mocker):
                 "frequency": 7,
             },
         )
+        data = client.read_last_response(name=NPNTools.MagnitudeData.name)
         assert data == '{"magnitude_data": []}'
