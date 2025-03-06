@@ -23,7 +23,7 @@ async def test_query_observations(mocker):
             arguments={"start_date": "2025-01-01", "end_date": "2025-01-31"},
         )
         data = client.read_last_response(name=NPNTools.Observations.name)
-        assert data == '{"observations": []}'
+        assert data == {"result": {"observations": []}}
 
 
 @pytest.mark.integration_test
@@ -42,7 +42,7 @@ async def test_query_observation_comment(mocker):
             arguments={"observation_id": 1},
         )
         data = client.read_last_response(name=NPNTools.ObservationComment.name)
-        assert data == '{"comments": []}'
+        assert data == {"result": {"comments": []}}
 
 
 @pytest.mark.integration_test
@@ -62,7 +62,7 @@ async def test_query_summarized_data(mocker):
             arguments={"start_date": "2025-01-01", "end_date": "2025-01-31"},
         )
         data = client.read_last_response(name=NPNTools.SummarizedData.name)
-        assert data == '{"summarized_data": []}'
+        assert data == {"result": {"summarized_data": []}}
 
 
 @pytest.mark.integration_test
@@ -82,7 +82,7 @@ async def test_query_site_level_data(mocker):
             arguments={"start_date": "2025-01-01", "end_date": "2025-01-31"},
         )
         data = client.read_last_response(name=NPNTools.SiteLevelData.name)
-        assert data == '{"site_level_data": []}'
+        assert data == {"result": {"site_level_data": []}}
 
 
 @pytest.mark.integration_test
@@ -106,4 +106,4 @@ async def test_query_magnitude_data(mocker):
             },
         )
         data = client.read_last_response(name=NPNTools.MagnitudeData.name)
-        assert data == '{"magnitude_data": []}'
+        assert data == {"result": {"magnitude_data": []}}
