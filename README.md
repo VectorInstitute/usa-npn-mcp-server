@@ -1,25 +1,40 @@
-# AI Engineering template (with uv)
+# National Phenology Network MCP Server
 
 ----------------------------------------------------------------------------------------
 
-[![code checks](https://github.com/VectorInstitute/aieng-template-uv/actions/workflows/code_checks.yml/badge.svg)](https://github.com/VectorInstitute/aieng-template-uv/actions/workflows/code_checks.yml)
-[![integration tests](https://github.com/VectorInstitute/aieng-template-uv/actions/workflows/integration_tests.yml/badge.svg)](https://github.com/VectorInstitute/aieng-template-uv/actions/workflows/integration_tests.yml)
-[![docs](https://github.com/VectorInstitute/aieng-template-uv/actions/workflows/docs_deploy.yml/badge.svg)](https://github.com/VectorInstitute/aieng-template-uv/actions/workflows/docs_deploy.yml)
-[![codecov](https://codecov.io/github/VectorInstitute/aieng-template-uv/graph/badge.svg?token=83MYFZ3UPA)](https://codecov.io/github/VectorInstitute/aieng-template-uv)
-![GitHub License](https://img.shields.io/github/license/VectorInstitute/aieng-template-uv)
+[![code checks](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/code_checks.yml/badge.svg)](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/code_checks.yml)
+[![integration tests](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/integration_tests.yml/badge.svg)](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/integration_tests.yml)
+[![docs](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/docs_deploy.yml/badge.svg)](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/docs_deploy.yml)
+![GitHub License](https://img.shields.io/github/license/VectorInstitute/usa-npn-mcp-server)
 
-A template repo for AI Engineering projects (using ``python``) and ``uv``. This
-template is like our original AI Engineering [template](https://github.com/VectorInstitute/aieng-template),
-however, unlike how that template uses poetry, this one uses uv for dependency
-management (as well as packaging and publishing).
+### Available Tools
+
+- `observations` - Fetches observations data based on given criteria.
+- `observation_comment` - Fetches observation comments data based on given criteria.
 
 ## 🧑🏿‍💻 Developing
+
+### Clone the repository
+
+Using HTTPS (recommended for most users):
+   ```bash
+   git clone https://github.com/VectorInstitute/usa-npn-mcp-server.git
+   ```
+
+Using SSH (if you have SSH keys configured with GitHub):
+   ```bash
+   git clone git@github.com:VectorInstitute/usa-npn-mcp-server.git
+   ```
+
+After cloning with either method:
+  ```bash
+  cd usa-npn-mcp-server
+  ```
 
 ### Installing dependencies
 
 The development environment can be set up using
-[uv](https://github.com/astral-sh/uv?tab=readme-ov-file#installation). Hence, make sure it is
-installed and then run:
+[uv](https://github.com/astral-sh/uv?tab=readme-ov-file#installation). Hence, make sure it is installed and then run:
 
 ```bash
 uv sync
@@ -34,33 +49,60 @@ uv sync --dev
 source .venv/bin/activate
 ```
 
-If you're coming from `poetry` then you'll notice that the virtual environment
-is actually stored in the project root folder and is by default named as `.venv`.
-The other important note is that while `poetry` uses a "flat" layout of the project,
-`uv` opts for the the "src" layout. (For more info, see [here](https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout/))
+These commands set up and activate the `.venv` environment as specified in the `pyproject.toml` and `uv.lock` files.
 
-### Poetry to UV
+## Configuration
 
-The table below provides the `uv` equivalent counterparts for some of the more
-common `poetry` commands.
+### Configure for Claude Desktop App
 
-| Poetry                                               | UV                                          |
-|------------------------------------------------------|---------------------------------------------|
-| `poetry new <project-name>`  # creates new project   | `uv init <project-name>`                    |
-| `poetry install`  # installs existing project        | `uv sync`                                   |
-| `poetry install --with docs,test`                    | `uv sync --group docs --group test`         |
-| `poetry add numpy`                                   | `uv add numpy`                              |
-| `poetry add pytest pytest-asyncio --groups dev`      | `uv add pytest pytest-asyncio --groups dev` |
-| `poetry remove numpy`                                | `uv remove numpy`                           |
-| `poetry lock`                                        | `uv lock`                                   |
-| `poetry run <cmd>`  # runs cmd with the project venv | `uv run <cmd>`                              |
-| `poetry build`                                       | `uv build`                                  |
-| `poetry publish`                                     | `uv publish`                                |
-| `poetry cache clear pypi --all`                      | `uv cache clean`                            |
+You will need to modify your `claude_desktop_config.json` to make it aware of the MCP Server:
 
-For the full list of `uv` commands, you can visit the official [docs](https://docs.astral.sh/uv/reference/cli/#uv).
+<details>
+<summary>How to easily find claude_desktop_config.json on macOS:</summary>
 
-### Tidbit
+1. Open Claude Desktop app
+2. Click on "Claude" in the menu bar and select "Settings"
+3. In the Settings window, click on the "Developer" tab in the left sidebar
+4. Click the "Edit Config" button
+5. This will open a Finder window showing the location of the `claude_desktop_config.json` file
+6. Open the file with your preferred text editor
+</details>
 
-If you're curious about what "uv" stands for, it appears to have been more or
-less chosen [randomly](https://github.com/astral-sh/uv/issues/1349#issuecomment-1986451785).
+<details>
+<summary>Add to claude config:</summary>
+
+```json
+"mcpServers": {
+  "npn": {
+    "command": "bash",
+    "args": [
+      "-c",
+      # replace /absolute/path/to/usa-npn-mcp-server/ with local path to repo dir
+      "source /absolute/path/to/usa-npn-mcp-server/.venv/bin/activate && uv run usa_npn_mcp_server"
+    ]
+  }
+}
+```
+</details>
+
+
+After saving the changes, restart Claude Desktop. You should see a new :electric_plug: icon and/or :hammer: icons in your chat prompt that confirms the MCP Server is detected.
+
+Each time you create a new chat that queries NPN's API through the MCP Server, you will have to agree to permit access to the MCP Server's Tool.
+
+## Debugging
+
+**Debugging with MCP Inspector**: To run a locally hosted MCP interpreter for debugging, use:
+
+   ```bash
+   npx @modelcontextprotocol/inspector uv run usa_npn_mcp_server
+   ```
+
+The first time you run this command you'll be prompted to download `@modelcontextprotocol/inspector`.
+
+This command starts the MCP inspector within the `uv`-managed environment. The inspector can be used locally in-browser to inspect/test the server.
+
+## Other MCP Servers
+
+For examples of other MCP servers and implementation patterns, see:
+https://github.com/modelcontextprotocol/servers
