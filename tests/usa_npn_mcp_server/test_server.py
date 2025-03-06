@@ -18,7 +18,7 @@ async def test_query_observations(mocker):
     mocker.patch("httpx.AsyncClient.get", return_value=mock_response)
 
     data = await APIClient.query_api(
-        NPNTools.Observations.endpoint,
+        endpoint=NPNTools.Observations.endpoint,
         arguments={"start_date": "2025-01-01", "end_date": "2025-01-31"},
     )
     assert data == '{"observations": []}'
@@ -36,7 +36,7 @@ async def test_query_observation_comment(mocker):
     mocker.patch("httpx.AsyncClient.get", return_value=mock_response)
 
     data = await APIClient.query_api(
-        NPNTools.ObservationComment.endpoint,
+        endpoint=NPNTools.ObservationComment.endpoint,
         arguments={"observation_id": 1},
     )
     assert data == '{"comments": []}'
@@ -54,7 +54,7 @@ async def test_query_summarized_data(mocker):
     mocker.patch("httpx.AsyncClient.get", return_value=mock_response)
 
     data = await APIClient.query_api(
-        NPNTools.SummarizedData.endpoint,
+        endpoint=NPNTools.SummarizedData.endpoint,
         arguments={"start_date": "2025-01-01", "end_date": "2025-01-31"},
     )
     assert data == '{"summarized_data": []}'
@@ -72,7 +72,7 @@ async def test_query_site_level_data(mocker):
     mocker.patch("httpx.AsyncClient.get", return_value=mock_response)
 
     data = await APIClient.query_api(
-        NPNTools.SiteLevelData.endpoint,
+        endpoint=NPNTools.SiteLevelData.endpoint,
         arguments={"start_date": "2025-01-01", "end_date": "2025-01-31"},
     )
     assert data == '{"site_level_data": []}'
@@ -90,7 +90,7 @@ async def test_query_magnitude_data(mocker):
     mocker.patch("httpx.AsyncClient.get", return_value=mock_response)
 
     data = await APIClient.query_api(
-        NPNTools.MagnitudeData.endpoint,
+        endpoint=NPNTools.MagnitudeData.endpoint,
         arguments={
             "start_date": "2025-01-01",
             "end_date": "2025-01-31",
