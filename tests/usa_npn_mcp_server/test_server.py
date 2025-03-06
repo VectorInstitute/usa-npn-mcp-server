@@ -17,11 +17,12 @@ async def test_query_observations(mocker):
 
     mocker.patch("httpx.AsyncClient.get", return_value=mock_response)
 
-    data = await APIClient.query_api(
-        endpoint=NPNTools.Observations.endpoint,
-        arguments={"start_date": "2025-01-01", "end_date": "2025-01-31"},
-    )
-    assert data == '{"observations": []}'
+    async with APIClient() as client:
+        data = await client.query_api(
+            endpoint=NPNTools.Observations.endpoint,
+            arguments={"start_date": "2025-01-01", "end_date": "2025-01-31"},
+        )
+        assert data == '{"observations": []}'
 
 
 @pytest.mark.integration_test
@@ -34,12 +35,12 @@ async def test_query_observation_comment(mocker):
     mock_response.raise_for_status = mocker.Mock()
 
     mocker.patch("httpx.AsyncClient.get", return_value=mock_response)
-
-    data = await APIClient.query_api(
-        endpoint=NPNTools.ObservationComment.endpoint,
-        arguments={"observation_id": 1},
-    )
-    assert data == '{"comments": []}'
+    async with APIClient() as client:
+        data = await client.query_api(
+            endpoint=NPNTools.ObservationComment.endpoint,
+            arguments={"observation_id": 1},
+        )
+        assert data == '{"comments": []}'
 
 
 @pytest.mark.integration_test
@@ -53,11 +54,12 @@ async def test_query_summarized_data(mocker):
 
     mocker.patch("httpx.AsyncClient.get", return_value=mock_response)
 
-    data = await APIClient.query_api(
-        endpoint=NPNTools.SummarizedData.endpoint,
-        arguments={"start_date": "2025-01-01", "end_date": "2025-01-31"},
-    )
-    assert data == '{"summarized_data": []}'
+    async with APIClient() as client:
+        data = await client.query_api(
+            endpoint=NPNTools.SummarizedData.endpoint,
+            arguments={"start_date": "2025-01-01", "end_date": "2025-01-31"},
+        )
+        assert data == '{"summarized_data": []}'
 
 
 @pytest.mark.integration_test
@@ -71,11 +73,12 @@ async def test_query_site_level_data(mocker):
 
     mocker.patch("httpx.AsyncClient.get", return_value=mock_response)
 
-    data = await APIClient.query_api(
-        endpoint=NPNTools.SiteLevelData.endpoint,
-        arguments={"start_date": "2025-01-01", "end_date": "2025-01-31"},
-    )
-    assert data == '{"site_level_data": []}'
+    async with APIClient() as client:
+        data = await client.query_api(
+            endpoint=NPNTools.SiteLevelData.endpoint,
+            arguments={"start_date": "2025-01-01", "end_date": "2025-01-31"},
+        )
+        assert data == '{"site_level_data": []}'
 
 
 @pytest.mark.integration_test
@@ -89,12 +92,13 @@ async def test_query_magnitude_data(mocker):
 
     mocker.patch("httpx.AsyncClient.get", return_value=mock_response)
 
-    data = await APIClient.query_api(
-        endpoint=NPNTools.MagnitudeData.endpoint,
-        arguments={
-            "start_date": "2025-01-01",
-            "end_date": "2025-01-31",
-            "frequency": 7,
-        },
-    )
-    assert data == '{"magnitude_data": []}'
+    async with APIClient() as client:
+        data = await client.query_api(
+            endpoint=NPNTools.MagnitudeData.endpoint,
+            arguments={
+                "start_date": "2025-01-01",
+                "end_date": "2025-01-31",
+                "frequency": 7,
+            },
+        )
+        assert data == '{"magnitude_data": []}'
