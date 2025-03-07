@@ -60,10 +60,6 @@ class BaseQuery(BaseModel):
         default=None,
         description="Functional types of the species. Must match values from getSpeciesFunctionalTypes.",
     )
-    additional_field: Optional[List[str]] = Field(
-        default=None,
-        description="Additional optional data fields to be returned as part of the results.",
-    )
     climate_data: Optional[int] = Field(
         default=None,
         description="Flag to indicate whether all climate data fields should be returned. Accepts 0 or 1.",

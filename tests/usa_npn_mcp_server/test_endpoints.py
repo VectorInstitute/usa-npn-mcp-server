@@ -23,7 +23,6 @@ def test_observations_query_model():
         phenophase_category="leaf",
         phenophase_id=1,
         functional_type="annual",
-        additional_field=["field1", "field2"],
         climate_data=1,
     )
     assert query.start_date == "2025-01-01"
@@ -40,7 +39,6 @@ def test_observations_query_model():
     assert query.phenophase_category == "leaf"
     assert query.phenophase_id == 1
     assert query.functional_type == "annual"
-    assert query.additional_field == ["field1", "field2"]
     assert query.climate_data == 1
 
 
