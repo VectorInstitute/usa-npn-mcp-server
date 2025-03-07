@@ -165,8 +165,16 @@ async def serve() -> None:
         await server.request_context.session.send_resource_updated(
             AnyUrl(f"npn-mcp://{name}")
         )
-        return [  # Consider adding output schema as embedded resource
+        return [
             # Consider adding TextContent with a message about state
+            EmbeddedResource(
+                type="resource",
+                resource=TextResourceContents(
+                    uri=AnyUrl(f"npn-mcp://{name}_output_schema"),
+                    mimeType="plain/text",
+                    text=json.dumps(api_client.read_output_schema(name=name)),
+                ),
+            ),
             EmbeddedResource(
                 type="resource",
                 resource=TextResourceContents(
