@@ -22,11 +22,11 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "dataset_id": {
                 "type": "int",
-                "description": "The unique identifier of the dataset to which the status record belongs. More information can be found in the ancillary data file for 'Dataset'. A value of '-9999' indicates the status record was submitted via the online Nature's Notebook application.",
+                "description": "The unique identifier of the dataset to which the status record belongs. A value of '-9999' indicates the status record was submitted via the online Nature's Notebook application.",
             },
             "observedby_person_id": {
                 "type": "int",
-                "description": "The unique identifier of the person who made the status observation in the field. More information can be found in the ancillary data file for 'Person'. A value of '-1' indicates the identity of the observer is unknown.",
+                "description": "The unique identifier of the person who made the status observation in the field. A value of '-1' indicates the identity of the observer is unknown.",
             },
             "submission_id": {
                 "type": "int",
@@ -34,7 +34,7 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "submittedby_person_id": {
                 "type": "int",
-                "description": "The unique identifier of the person who originally submitted the status record online. More information can be found in the ancillary data file for 'Person'. A value of '-1' indicates the record was added to the database as part of an integrated dataset.",
+                "description": "The unique identifier of the person who originally submitted the status record online. A value of '-1' indicates the record was added to the database as part of an integrated dataset.",
             },
             "submission_datetime": {
                 "type": "string",
@@ -43,7 +43,7 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "updatedby_person_id": {
                 "type": "int",
-                "description": "The unique identifier of the person who last updated the status record after original submission online. More information can be found in the ancillary data file for 'Person'. A value of '-9999' indicates the record has not been updated since this field was established in July 2014.",
+                "description": "The unique identifier of the person who last updated the status record after original submission online. A value of '-9999' indicates the record has not been updated since this field was established in July 2014.",
             },
             "update_datetime": {
                 "type": "string",
@@ -56,7 +56,7 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "site_id": {
                 "type": "int",
-                "description": "The unique identifier of the site at which the status record was made. More information can be found in the ancillary data file for 'Site'.",
+                "description": "The unique identifier of the site at which the status record was made.",
             },
             "site_name": {
                 "type": "string",
@@ -64,19 +64,19 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "latitude": {
                 "type": "number",
-                "description": "The latitude of the site at which the status record was made. Generally lat/long is calculated from the Google Maps API with a datum of WGS84 (https://developers.google.com/maps), unless a plausible user-defined lat/long was submitted. Information about the datum and source of the lat/long value can be found in the 'Site' ancillary data file.",
+                "description": "The latitude of the site at which the status record was made.",
             },
             "longitude": {
                 "type": "number",
-                "description": "The longitude of the site at which the status record was made. Generally lat/long is calculated from the Google Maps API with a datum of WGS84 (https://developers.google.com/maps), unless a plausible user-defined lat/long was submitted. Information about the datum and source of the lat/long value can be found in the 'Site' ancillary data file.",
+                "description": "The longitude of the site at which the status record was made.",
             },
             "elevation_in_meters": {
                 "type": "number",
-                "description": "The elevation (in meters) of the site at which the status record was made. Generally elevation is calculated from the Google Maps Elevation API (https://developers.google.com/maps/documentation/elevation/intro), unless a plausible user-defined elevation was submitted. Information about the source of the elevation value can be found in the 'Site' ancillary data file. A value of '-9999' indicates the elevation could not be calculated.",
+                "description": "The elevation (in meters) of the site at which the status record was made. A value of '-9999' indicates the elevation could not be calculated.",
             },
             "state": {
                 "type": "string",
-                "description": "The U.S. state or territory, Mexican state or Canadian province in which the site is located. The state is calculated from lat/long by the Google Maps Geocoding API (https://developers.google.com/maps/documentation/geocoding/intro). A value of '-9999' indicates the site does not fall within the boundaries of North America.",
+                "description": "The U.S. state or territory, Mexican state or Canadian province in which the site is located. A value of '-9999' indicates the site does not fall within the boundaries of North America.",
             },
             "species_id": {
                 "type": "int",
@@ -84,11 +84,11 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "genus": {
                 "type": "string",
-                "description": "The taxonomic genus of the organism for which the status record was made. Taxonomy follows that in the Integrated Taxonomic Information System (http://itis.gov).",
+                "description": "The taxonomic genus of the organism for which the status record was made.",
             },
             "species": {
                 "type": "string",
-                "description": "The taxonomic species of the organism for which the status record was made. Taxonomy follows that in the Integrated Taxonomic Information System (http://itis.gov). In those rare cases where a taxonomic subspecies or varietal is designated, the subspecies or varietal name is appended to the species name after a hyphen (e.g. Cornus florida-appalachianspring).",
+                "description": "The taxonomic species of the organism for which the status record was made. In those rare cases where a taxonomic subspecies or varietal is designated, the subspecies or varietal name is appended to the species name after a hyphen (e.g. Cornus florida-appalachianspring).",
             },
             "common_name": {
                 "type": "string",
@@ -101,7 +101,7 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "species_functional_type": {
                 "type": "string",
-                "description": "The plant ecological type or animal guild of the species for which the status record was made. These functional types are based on the species' phenology protocol assignment, and in a few cases do not correspond with a plant species' established botanical classification (e.g. sub-shrubs that grow more like forbs because woody parts are belowground). Definitions for plant functional types are available at https://docs.google.com/document/d/1eavZ5UzZxiRmfxlmA6t023Z1UD1ggzPbjxBBjPynB0E/pub",
+                "description": "The plant ecological type or animal guild of the species for which the status record was made. These functional types are based on the species' phenology protocol assignment.",
                 "enum": [
                     "Algae",
                     "Amphibian",
@@ -126,7 +126,7 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "species_category": {
                 "type": "string",
-                "description": "The categories (separated by commas) to which the species has been assigned. Assignment to these categories is primarily to facilitate finding species of interest on the Nature's Notebook Plants and Animals search page and in the Phenology Observation Portal and Visualization Tool.",
+                "description": "The categories (separated by commas) to which the species has been assigned.",
                 "enum": [
                     "Allergen",
                     "Aquatic",
@@ -144,11 +144,11 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "lifecycle_duration": {
                 "type": "string",
-                "description": "The possible lifecycle durations of the species for which the status record was made. This information is only included for plant species and is gathered from the USDA PLANTS Database (http://plants.usda.gov).",
+                "description": "The possible lifecycle durations of the species for which the status record was made.",
             },
             "growth_habit": {
                 "type": "string",
-                "description": "The possible growth habits of the species for which the status record was made. This information is only included for plant species and is gathered from the USDA PLANTS Database (http://plants.usda.gov).",
+                "description": "The possible growth habits of the species for which the status record was made.",
             },
             "usda_plants_symbol": {
                 "type": "string",
@@ -160,7 +160,7 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "individual_id": {
                 "type": "int",
-                "description": "The unique identifier of the individual plant or the animal species at a site for which the status record was made. Note that for plants, individuals are tracked separately, while for animals, the species as a whole (rather than unique individuals) is tracked at a site. More information can be found in the ancillary data file for 'Individual Plant'.",
+                "description": "The unique identifier of the individual plant or the animal species at a site for which the status record was made. Note that for plants, individuals are tracked separately, while for animals, the species as a whole (rather than unique individuals) is tracked at a site.",
             },
             "plant_nickname": {
                 "type": "string",
@@ -169,7 +169,7 @@ API_SCHEMAS: Dict[str, Any] = {
             "patch": {
                 "type": "int",
                 "description": "For plants, indicates whether a delineated patch of many individual stems is the unit of observation instead of a single individual plant.",
-                "enum": [1],
+                "enum": [1, 0],
             },
             "protocol_id": {
                 "type": "int",
@@ -177,7 +177,7 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "phenophase_id": {
                 "type": "int",
-                "description": "The unique identifier of the phenophase for which the status record was made. Note that there can be several names and definitions for a given phenophase as they vary between datasets and can change over time within datasets. All definitions lumped under the same Phenophase_ID are considered equivalent for the purposes of general phenological analysis. More information can be found in the ancillary data files for 'Phenophase' and 'Phenophase Definition'.",
+                "description": "The unique identifier of the phenophase for which the status record was made. Note that there can be several names and definitions for a given phenophase as they vary between datasets and can change over time within datasets. All definitions lumped under the same Phenophase_ID are considered equivalent for the purposes of general phenological analysis.",
             },
             "phenophase_category": {
                 "type": "string",
@@ -205,20 +205,18 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "phenophase_definition_id": {
                 "type": "int",
-                "description": "The unique identifier of the descriptive definition used to define the phenophase at the time the status observation was made in the field. More information can be found in the ancillary data files for 'Phenophase' and 'Phenophase Definition'.",
+                "description": "The unique identifier of the descriptive definition used to define the phenophase at the time the status observation was made in the field.",
             },
             "species-specific_info_id": {
                 "type": "int",
-                "description": "The unique identifier of the record which includes species-specific information (additional, species-specific phenophase definition and/or intensity category) assigned to the phenophase for this species at the time the status observation was made in the field. A value of '-9999' indicates there was no species-specific information assigned to this phenophase for this species at the time the observation was made. More information can be found in the ancillary data file for 'Species-Specific Information'.",
+                "description": "The unique identifier of the record which includes species-specific information (additional, species-specific phenophase definition and/or intensity category) assigned to the phenophase for this species at the time the status observation was made in the field. A value of '-9999' indicates there was no species-specific information assigned to this phenophase for this species at the time the observation was made.",
             },
             "observation_date": {
                 "type": "string",
-                "format": "date",
                 "description": "The date the status observation was made in the field.",
             },
             "observation_time": {
                 "type": "string",
-                "format": "time",
                 "description": "The time of day the status observation was made in the field. A value of '0:00:00' indicates either that no time was specified, or that the time of midnight was reported.",
             },
             "day_of_year": {
@@ -232,11 +230,11 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "intensity_category_id": {
                 "type": "int",
-                "description": "The unique identifier of the intensity category assigned to the phenophase for this species at the time the status observation was made in the field. Intensity measures allow reporting of the degree to which a phenophase is expressed. More information can be found in the ancillary data file for 'Intensity'. A value of '-9999' indicates there was no intensity category assigned to this phenophase for this species at the time the observation was made.",
+                "description": "The unique identifier of the intensity category assigned to the phenophase for this species at the time the status observation was made in the field. Intensity measures allow reporting of the degree to which a phenophase is expressed. A value of '-9999' indicates there was no intensity category assigned to this phenophase for this species at the time the observation was made.",
             },
             "intensity_value": {
                 "type": "number",
-                "description": "The value reported in response to the intensity category question assigned to the phenophase for this species at the time the status observation was made in the field. The list of allowable responses for this intensity category question can be found in the ancillary data file for 'Intensity'.",
+                "description": "The value reported in response to the intensity category question assigned to the phenophase for this species at the time the status observation was made in the field.",
             },
             "abundance_value": {
                 "type": "number",
@@ -244,7 +242,7 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "site_visit_id": {
                 "type": "int",
-                "description": "The unique identifier for the group of all status observations made at the site during the same visit. Information about survey time, methods, and site conditions at the time of the visit can be found in the ancillary data file for 'Site Visit'.",
+                "description": "The unique identifier for the group of all status observations made at the site during the same visit.",
             },
             "observation_comments": {
                 "type": "string",
@@ -266,11 +264,11 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "genus": {
                 "type": "string",
-                "description": "The taxonomic genus of the organism for which the data were recorded. Taxonomy follows that in the Integrated Taxonomic Information System (http://itis.gov).",
+                "description": "The taxonomic genus of the organism for which the data were recorded. ",
             },
             "species": {
                 "type": "string",
-                "description": "The taxonomic species of the organism for which the data were recorded. Taxonomy follows that in the Integrated Taxonomic Information System (http://itis.gov). In those rare cases where a taxonomic subspecies or varietal is designated, the subspecies or varietal name is appended to the species name after a hyphen (e.g. Cornus florida-appalachianspring).",
+                "description": "The taxonomic species of the organism for which the data were recorded. In those rare cases where a taxonomic subspecies or varietal is designated, the subspecies or varietal name is appended to the species name after a hyphen (e.g. Cornus florida-appalachianspring).",
             },
             "common_name": {
                 "type": "string",
@@ -283,7 +281,7 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "species_functional_type": {
                 "type": "string",
-                "description": "The plant ecological type or animal guild of the species for which the data were recorded. These functional types are based on the species' phenology protocol assignment, and in a few cases do not correspond with a plant species' established botanical classification (e.g. sub-shrubs that grow more like forbs because woody parts are belowground). Definitions for plant functional types are available at https://docs.google.com/document/d/1eavZ5UzZxiRmfxlmA6t023Z1UD1ggzPbjxBBjPynB0E/pub",
+                "description": "The plant ecological type or animal guild of the species for which the data were recorded.",
                 "enum": [
                     "Algae",
                     "Amphibian",
@@ -308,7 +306,7 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "species_category": {
                 "type": "string",
-                "description": "The categories (separated by commas) to which the species has been assigned. Assignment to these categories is primarily to facilitate finding species of interest on the Nature's Notebook Plants and Animals search page and in the Phenology Observation Portal and Visualization Tool.",
+                "description": "The categories (separated by commas) to which the species has been assigned.",
                 "enum": [
                     "Allergen",
                     "Aquatic",
@@ -326,11 +324,11 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "lifecycle_duration": {
                 "type": "string",
-                "description": "The possible lifecycle durations of the species for which the data were recorded. This information is only included for plant species and is gathered from the USDA PLANTS Database (http://plants.usda.gov).",
+                "description": "The possible lifecycle durations of the species for which the data were recorded.",
             },
             "growth_habit": {
                 "type": "string",
-                "description": "The possible growth habits of the species for which the data were recorded. This information is only included for plant species and is gathered from the USDA PLANTS Database (http://plants.usda.gov).",
+                "description": "The possible growth habits of the species for which the data were recorded.",
             },
             "usda_plants_symbol": {
                 "type": "string",
@@ -342,7 +340,7 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "phenophase_id": {
                 "type": "int",
-                "description": "The unique identifier of the phenophase for which the data were recorded. More information can be found in the ancillary data files for 'Phenophase' and 'Phenophase Definition'.",
+                "description": "The unique identifier of the phenophase for which the data were recorded.",
             },
             "phenophase_category": {
                 "type": "string",
@@ -392,7 +390,7 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "individuals_sample_size": {
                 "type": "int",
-                "description": "The number of individuals with at least one 'yes' or 'no' status record for the species and phenophase within the selected time period. This metric is not available for animal species.",
+                "description": "The number of individuals with at least one 'yes' or 'no' status record for the species and phenophase within the selected time period.",
             },
             "sites_sample_size": {
                 "type": "int",
@@ -404,7 +402,7 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "num_individuals_with_yes_record": {
                 "type": "int",
-                "description": "The number of individual plants with at least one 'yes' status record for the species and phenophase within the selected time period. This metric is not available for animal species.",
+                "description": "The number of individual plants with at least one 'yes' status record for the species and phenophase within the selected time period.",
             },
             "num_sites_with_yes_record": {
                 "type": "int",
@@ -416,15 +414,15 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "proportion_individuals_with_yes_record": {
                 "type": "number",
-                "description": "The number of individual plants with at least one 'yes' record, divided by the number of individuals with any 'yes' or 'no' status records for the species and phenophase within the selected time period. This metric is not available for animal species.",
+                "description": "The number of individual plants with at least one 'yes' record, divided by the number of individuals with any 'yes' or 'no' status records for the species and phenophase within the selected time period.",
             },
             "proportion_sites_with_yes_record": {
                 "type": "number",
-                "description": "The number of sites with at least one 'yes' record, divided by the number of sites with any 'yes' or 'no' status records for the species and phenophase within the selected time period. This metric is not calculated for plant species.",
+                "description": "The number of sites with at least one 'yes' record, divided by the number of sites with any 'yes' or 'no' status records for the species and phenophase within the selected time period.",
             },
             "in-phase_search_method": {
                 "type": "string",
-                "description": "The search method(s) (separated by commas) used to collect the records which contribute to the calculation of Total_NumAnimals_In-Phase and Mean_NumAnimals_In-Phase. This metric is not available for plant species.",
+                "description": "The search method(s) (separated by commas) used to collect the records which contribute to the calculation of Total_NumAnimals_In-Phase and Mean_NumAnimals_In-Phase.",
                 "enum": [
                     "Incidental [described as 'chance sighting while not specifically searching']",
                     "Stationary [described as 'standing or sitting at a single point']",
@@ -434,31 +432,31 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "in-phase_sites_sample_size": {
                 "type": "int",
-                "description": "The number of sites which contribute records to the calculation of Total_NumAnimals_In-Phase and Mean_NumAnimals_In-Phase. This metric is not calculated for plant species.",
+                "description": "The number of sites which contribute records to the calculation of Total_NumAnimals_In-Phase and Mean_NumAnimals_In-Phase.",
             },
             "in-phase_site_visits_sample_size": {
                 "type": "int",
-                "description": "The number of site visits included in the calculation of Total_NumAnimals_In-Phase and Mean_NumAnimals_In-Phase. This metric is not calculated for plant species.",
+                "description": "The number of site visits included in the calculation of Total_NumAnimals_In-Phase and Mean_NumAnimals_In-Phase.",
             },
             "total_num_animals_in-phase": {
                 "type": "int",
-                "description": "The sum of animal abundance from each site visit for the species and phenophase within the selected time period. Records with a phenophase status of 'uncertain' are not included in the calculation. This metric is not calculated for plant species.",
+                "description": "The sum of animal abundance from each site visit for the species and phenophase within the selected time period. Records with a phenophase status of 'uncertain' are not included in the calculation.",
             },
             "mean_num_animals_in-phase": {
                 "type": "number",
-                "description": "The mean of animal abundance from each site visit for the species and phenophase within the selected time period. 'No' records are assigned an abundance of zero. 'Yes' records with no abundance reported and records with a status of 'uncertain' are not included in the calculation. This metric is not calculated for plant species.",
+                "description": "The mean of animal abundance from each site visit for the species and phenophase within the selected time period. 'No' records are assigned an abundance of zero. 'Yes' records with no abundance reported and records with a status of 'uncertain' are not included in the calculation.",
             },
             "se_num_animals_in-phase": {
                 "type": "number",
-                "description": "Standard error of the calculated Mean_NumAnimals_In-Phase. This metric is not calculated for plant species.",
+                "description": "Standard error of the calculated Mean_NumAnimals_In-Phase.",
             },
             "sd_num_animals_in-phase": {
                 "type": "number",
-                "description": "Standard deviation of the calculated Mean_NumAnimals_In-Phase. This metric is not calculated for plant species.",
+                "description": "Standard deviation of the calculated Mean_NumAnimals_In-Phase.",
             },
             "in-phase_per_hr_search_method": {
                 "type": "string",
-                "description": "The search method(s) (separated by commas) used to collect the records which contribute to the calculation of Mean_NumAnimals_In-Phase_per_Hr. This metric is not available for plant species.",
+                "description": "The search method(s) (separated by commas) used to collect the records which contribute to the calculation of Mean_NumAnimals_In-Phase_per_Hr.",
                 "enum": [
                     "Stationary [described as 'standing or sitting at a single point']",
                     "Walking [described as 'a single pass or transect through your site']",
@@ -467,43 +465,43 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "in-phase_per_hr_sites_sample_size": {
                 "type": "int",
-                "description": "The number of sites which contribute records to the calculation of Mean_NumAnimals_In-Phase_per_Hr. This metric is not calculated for plant species.",
+                "description": "The number of sites which contribute records to the calculation of Mean_NumAnimals_In-Phase_per_Hr.",
             },
             "in-phase_per_hr_site_visits_sample_size": {
                 "type": "int",
-                "description": "The number of site visits included in the calculation of Mean_NumAnimals_In-Phase_per_Hr. This metric is not calculated for plant species.",
+                "description": "The number of site visits included in the calculation of Mean_NumAnimals_In-Phase_per_Hr.",
             },
             "mean_num_animals_in-phase_per_hr": {
                 "type": "number",
-                "description": "The mean of animal abundance divided by the time spent searching for animals at each site visit (i.e. [Sum (abundance/time)]/# site visits) for the species and phenophase within the selected time period. Records with a 'no' phenophase status are assigned an abundance of zero. Records with a 'yes' phenophase status and no abundance reported, or with an 'uncertain' phenophase status, are not included. Site visits with any of the following conditions are excluded from the calculation: a search method of 'Incidental'; no search method reported; no search time reported; a reported search time greater than 180 minutes. This metric is not calculated for plant species.",
+                "description": "The mean of animal abundance divided by the time spent searching for animals at each site visit (i.e. [Sum (abundance/time)]/# site visits) for the species and phenophase within the selected time period. Records with a 'no' phenophase status are assigned an abundance of zero. Records with a 'yes' phenophase status and no abundance reported, or with an 'uncertain' phenophase status, are not included. Site visits with any of the following conditions are excluded from the calculation: a search method of 'Incidental'; no search method reported; no search time reported; a reported search time greater than 180 minutes.",
             },
             "se_num_animals_in-phase_per_hr": {
                 "type": "number",
-                "description": "Standard error of the calculated Mean_NumAnimals_In-Phase_per_Hr. This metric is not calculated for plant species.",
+                "description": "Standard error of the calculated Mean_NumAnimals_In-Phase_per_Hr.",
             },
             "sd_num_animals_in-phase_per_hr": {
                 "type": "number",
-                "description": "Standard deviation of the calculated Mean_NumAnimals_In-Phase_per_Hr. This metric is not calculated for plant species.",
+                "description": "Standard deviation of the calculated Mean_NumAnimals_In-Phase_per_Hr.",
             },
             "in-phase_per_hr_per_acre_sites_sample_size": {
                 "type": "int",
-                "description": "The number of sites which contribute records to the calculation of Mean_NumAnimals_In-Phase_per_Hr_per_Acre. This metric is not calculated for plant species.",
+                "description": "The number of sites which contribute records to the calculation of Mean_NumAnimals_In-Phase_per_Hr_per_Acre.",
             },
             "in-phase_per_hr_per_acre_site_visits_sample_size": {
                 "type": "int",
-                "description": "The number of site visits included in the calculation of Mean_NumAnimals_In-Phase_per_Hr_per_Acre. This metric is not calculated for plant species.",
+                "description": "The number of site visits included in the calculation of Mean_NumAnimals_In-Phase_per_Hr_per_Acre.",
             },
             "mean_num_animals_in-phase_per_hr_per_acre": {
                 "type": "number",
-                "description": "The mean of animal abundance divided by site area and divided by time spent searching for animals at each site visit (i.e. {Sum [(abundance/area)/time]}/# site visits) for the species and phenophase within the selected time period. Records with a 'no' phenophase status are assigned an abundance of zero. Records with a 'yes' phenophase status and no abundance reported, or with an 'uncertain' phenophase status, are not included. Site visits with any of the following conditions are excluded from the calculation: a search method of anything besides 'Area search'; no search time reported; a reported search time greater than 180 minutes; no reported area for the site. This metric is not calculated for plant species.",
+                "description": "The mean of animal abundance divided by site area and divided by time spent searching for animals at each site visit (i.e. {Sum [(abundance/area)/time]}/# site visits) for the species and phenophase within the selected time period. Records with a 'no' phenophase status are assigned an abundance of zero. Records with a 'yes' phenophase status and no abundance reported, or with an 'uncertain' phenophase status, are not included. Site visits with any of the following conditions are excluded from the calculation: a search method of anything besides 'Area search'; no search time reported; a reported search time greater than 180 minutes; no reported area for the site.",
             },
             "se_num_animals_in-phase_per_hr_per_acre": {
                 "type": "number",
-                "description": "Standard error of the calculated Mean_NumAnimals_In-Phase_per_Hr_per_Acre. This metric is not calculated for plant species.",
+                "description": "Standard error of the calculated Mean_NumAnimals_In-Phase_per_Hr_per_Acre.",
             },
             "sd_num_animals_in-phase_per_hr_per_acre": {
                 "type": "number",
-                "description": "Standard deviation of the calculated Mean_NumAnimals_In-Phase_per_Hr_per_Acre. This metric is not calculated for plant species.",
+                "description": "Standard deviation of the calculated Mean_NumAnimals_In-Phase_per_Hr_per_Acre.",
             },
         },
     },
@@ -516,7 +514,7 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "site_id": {
                 "type": "int",
-                "description": "The unique identifier of the site at which the data were recorded. More information can be found in the ancillary data file for 'Site'.",
+                "description": "The unique identifier of the site at which the data were recorded.",
             },
             "site_name": {
                 "type": "string",
@@ -524,19 +522,19 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "latitude": {
                 "type": "number",
-                "description": "The latitude of the site at which the data were recorded. Generally lat/long is calculated from the Google Maps API with a datum of WGS84 (https://developers.google.com/maps), unless a plausible user-defined lat/long was submitted. Information about the datum and source of the lat/long value can be found in the 'Site' ancillary data file.",
+                "description": "The latitude of the site at which the data were recorded.",
             },
             "longitude": {
                 "type": "number",
-                "description": "The longitude of the site at which the data were recorded. Generally lat/long is calculated from the Google Maps API with a datum of WGS84 (https://developers.google.com/maps), unless a plausible user-defined lat/long was submitted. Information about the datum and source of the lat/long value can be found in the 'Site' ancillary data file.",
+                "description": "The longitude of the site at which the data were recorded.",
             },
             "elevation_in_meters": {
                 "type": "number",
-                "description": "The elevation (in meters) of the site at which the data were recorded. Generally elevation is calculated from the Google Maps Elevation API (https://developers.google.com/maps/documentation/elevation/intro), unless a plausible user-defined elevation was submitted. Information about the source of the elevation value can be found in the 'Site' ancillary data file. A value of '-9999' indicates the elevation could not be calculated.",
+                "description": "The elevation (in meters) of the site at which the data were recorded. A value of '-9999' indicates the elevation could not be calculated.",
             },
             "state": {
                 "type": "string",
-                "description": "The U.S. state or territory, Mexican state or Canadian province in which the site is located. The state is calculated from lat/long by the Google Maps Geocoding API (https://developers.google.com/maps/documentation/geocoding/intro). A value of '-9999' indicates the site does not fall within the boundaries of North America.",
+                "description": "The U.S. state or territory, Mexican state or Canadian province in which the site is located. A value of '-9999' indicates the site does not fall within the boundaries of North America.",
             },
             "species_id": {
                 "type": "int",
@@ -544,11 +542,11 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "genus": {
                 "type": "string",
-                "description": "The taxonomic genus of the organism for which the data were recorded. Taxonomy follows that in the Integrated Taxonomic Information System (http://itis.gov).",
+                "description": "The taxonomic genus of the organism for which the data were recorded.",
             },
             "species": {
                 "type": "string",
-                "description": "The taxonomic species of the organism for which the data were recorded. Taxonomy follows that in the Integrated Taxonomic Information System (http://itis.gov). In those rare cases where a taxonomic subspecies or varietal is designated, the subspecies or varietal name is appended to the species name after a hyphen (e.g. Cornus florida-appalachianspring).",
+                "description": "The taxonomic species of the organism for which the data were recorded. In those rare cases where a taxonomic subspecies or varietal is designated, the subspecies or varietal name is appended to the species name after a hyphen (e.g. Cornus florida-appalachianspring).",
             },
             "common_name": {
                 "type": "string",
@@ -561,7 +559,7 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "species_functional_type": {
                 "type": "string",
-                "description": "The plant ecological type or animal guild of the species for which the data were recorded. These functional types are based on the species' phenology protocol assignment, and in a few cases do not correspond with a plant species' established botanical classification (e.g. sub-shrubs that grow more like forbs because woody parts are belowground). Definitions for plant functional types are available at https://docs.google.com/document/d/1eavZ5UzZxiRmfxlmA6t023Z1UD1ggzPbjxBBjPynB0E/pub",
+                "description": "The plant ecological type or animal guild of the species for which the data were recorded. These functional types are based on the species' phenology protocol assignment, and in a few cases do not correspond with a plant species' established botanical classification (e.g. sub-shrubs that grow more like forbs because woody parts are belowground).",
                 "enum": [
                     "Algae",
                     "Amphibian",
@@ -586,7 +584,7 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "species_category": {
                 "type": "string",
-                "description": "The categories (separated by commas) to which the species has been assigned. Assignment to these categories is primarily to facilitate finding species of interest on the Nature's Notebook Plants and Animals search page and in the Phenology Observation Portal and Visualization Tool.",
+                "description": "The categories (separated by commas) to which the species has been assigned.",
                 "enum": [
                     "Allergen",
                     "Aquatic",
@@ -604,11 +602,11 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "lifecycle_duration": {
                 "type": "string",
-                "description": "The possible lifecycle durations of the species for which the data were recorded. This information is only included for plant species and is gathered from the USDA PLANTS Database (http://plants.usda.gov).",
+                "description": "The possible lifecycle durations of the species for which the data were recorded.",
             },
             "growth_habit": {
                 "type": "string",
-                "description": "The possible growth habits of the species for which the data were recorded. This information is only included for plant species and is gathered from the USDA PLANTS Database (http://plants.usda.gov).",
+                "description": "The possible growth habits of the species for which the data were recorded.",
             },
             "usda_plants_symbol": {
                 "type": "string",
@@ -620,7 +618,7 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "phenophase_id": {
                 "type": "int",
-                "description": "The unique identifier of the phenophase for which the data were recorded. More information can be found in the ancillary data files for 'Phenophase' and 'Phenophase Definition'.",
+                "description": "The unique identifier of the phenophase for which the data were recorded.",
             },
             "phenophase_category": {
                 "type": "string",
@@ -757,11 +755,11 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "mean_agdd": {
                 "type": "number",
-                "description": "Mean of the accumulated growing degree days (in degrees C) on the date of each first 'yes' record included in the calculation of Mean_First_Yes_DOY and Mean_First_Yes_Julian_Date. AGDD is the sum of growing degree days (GDD) since January 1st, where GDD is calculated as the number of degrees C by which each day's average temperature exceeds 0 degrees C (i.e., (Tmax + Tmin)/2 - 0 degrees C). From Daymet (http://daymet.ornl.gov).",
+                "description": "Mean of the accumulated growing degree days (in degrees C) on the date of each first 'yes' record included in the calculation of Mean_First_Yes_DOY and Mean_First_Yes_Julian_Date. AGDD is the sum of growing degree days (GDD) since January 1st, where GDD is calculated as the number of degrees C by which each day's average temperature exceeds 0 degrees C (i.e., (Tmax + Tmin)/2 - 0 degrees C).",
             },
             "mean_agdd_in_f": {
                 "type": "number",
-                "description": "Mean of the accumulated growing degree days (in degrees F) on the date of each first 'yes' record included in the calculation of Mean_First_Yes_DOY and Mean_First_Yes_Julian_Date. AGDD is the sum of growing degree days (GDD) since January 1st, where GDD is calculated as the number of degrees F by which each day's average temperature exceeds 32 degrees F (i.e., (Tmax + Tmin)/2 - 32 degrees F). From Daymet (http://daymet.ornl.gov).",
+                "description": "Mean of the accumulated growing degree days (in degrees F) on the date of each first 'yes' record included in the calculation of Mean_First_Yes_DOY and Mean_First_Yes_Julian_Date. AGDD is the sum of growing degree days (GDD) since January 1st, where GDD is calculated as the number of degrees F by which each day's average temperature exceeds 32 degrees F (i.e., (Tmax + Tmin)/2 - 32 degrees F).",
             },
             "se_agdd": {
                 "type": "number",
@@ -773,55 +771,55 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "tmax_winter": {
                 "type": "number",
-                "description": "Average maximum temperature (in degrees C) for the winter season of Mean_First_Yes_Year (December of previous year to February of Mean_First_Yes_Year). From Daymet (http://daymet.ornl.gov).",
+                "description": "Average maximum temperature (in degrees C) for the winter season of Mean_First_Yes_Year (December of previous year to February of Mean_First_Yes_Year).",
             },
             "tmax_spring": {
                 "type": "number",
-                "description": "Average maximum temperature (in degrees C) for the spring season of Mean_First_Yes_Year (March-May). From Daymet (http://daymet.ornl.gov).",
+                "description": "Average maximum temperature (in degrees C) for the spring season of Mean_First_Yes_Year (March-May).",
             },
             "tmax_summer": {
                 "type": "number",
-                "description": "Average maximum temperature (in degrees C) for the summer season of Mean_First_Yes_Year (June-August). From Daymet (http://daymet.ornl.gov).",
+                "description": "Average maximum temperature (in degrees C) for the summer season of Mean_First_Yes_Year (June-August).",
             },
             "tmax_fall": {
                 "type": "number",
-                "description": "Average maximum temperature (in degrees C) for the previous year's fall season (September-November), relative to Mean_First_Yes_Year. From Daymet (http://daymet.ornl.gov).",
+                "description": "Average maximum temperature (in degrees C) for the previous year's fall season (September-November), relative to Mean_First_Yes_Year.",
             },
             "tmin_winter": {
                 "type": "number",
-                "description": "Average minimum temperature (in degrees C) for the winter season of Mean_First_Yes_Year (December of previous year to February of Mean_First_Yes_Year). From Daymet (http://daymet.ornl.gov).",
+                "description": "Average minimum temperature (in degrees C) for the winter season of Mean_First_Yes_Year (December of previous year to February of Mean_First_Yes_Year).",
             },
             "tmin_spring": {
                 "type": "number",
-                "description": "Average minimum temperature (in degrees C) for the spring season of Mean_First_Yes_Year (March-May). From Daymet (http://daymet.ornl.gov).",
+                "description": "Average minimum temperature (in degrees C) for the spring season of Mean_First_Yes_Year (March-May).",
             },
             "tmin_summer": {
                 "type": "number",
-                "description": "Average minimum temperature (in degrees C) for the summer season of Mean_First_Yes_Year (June-August). From Daymet (http://daymet.ornl.gov).",
+                "description": "Average minimum temperature (in degrees C) for the summer season of Mean_First_Yes_Year (June-August).",
             },
             "tmin_fall": {
                 "type": "number",
-                "description": "Average minimum temperature (in degrees C) for the previous year's fall season (September-November), relative to Mean_First_Yes_Year. From Daymet (http://daymet.ornl.gov).",
+                "description": "Average minimum temperature (in degrees C) for the previous year's fall season (September-November), relative to Mean_First_Yes_Year.",
             },
             "prcp_winter": {
                 "type": "number",
-                "description": "Accumulated precipitation (in mm) for the winter season of Mean_First_Yes_Year (December of previous year to February of Mean_First_Yes_Year). From Daymet (http://daymet.ornl.gov).",
+                "description": "Accumulated precipitation (in mm) for the winter season of Mean_First_Yes_Year (December of previous year to February of Mean_First_Yes_Year).",
             },
             "prcp_spring": {
                 "type": "number",
-                "description": "Accumulated precipitation (in mm) for the spring season of Mean_First_Yes_Year (March-May). From Daymet (http://daymet.ornl.gov).",
+                "description": "Accumulated precipitation (in mm) for the spring season of Mean_First_Yes_Year (March-May).",
             },
             "prcp_summer": {
                 "type": "number",
-                "description": "Accumulated precipitation (in mm) for the summer season of Mean_First_Yes_Year (June-August). From Daymet (http://daymet.ornl.gov).",
+                "description": "Accumulated precipitation (in mm) for the summer season of Mean_First_Yes_Year (June-August).",
             },
             "prcp_fall": {
                 "type": "number",
-                "description": "Accumulated precipitation (in mm) for the previous year's fall season (September-November), relative to Mean_First_Yes_Year. From Daymet (http://daymet.ornl.gov).",
+                "description": "Accumulated precipitation (in mm) for the previous year's fall season (September-November), relative to Mean_First_Yes_Year.",
             },
             "mean_accum_prcp": {
                 "type": "number",
-                "description": "Mean of accumulated precipitation (in mm since January 1st) on the date of each first 'yes' record included in the calculation of Mean_First_Yes_DOY and Mean_First_Yes_Julian_Date. From Daymet (http://daymet.ornl.gov).",
+                "description": "Mean of accumulated precipitation (in mm since January 1st) on the date of each first 'yes' record included in the calculation of Mean_First_Yes_DOY and Mean_First_Yes_Julian_Date.",
             },
             "se_accum_prcp": {
                 "type": "number",
@@ -829,7 +827,7 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "mean_daylength": {
                 "type": "number",
-                "description": "Mean of the number of seconds of daylight on the date of each first 'yes' record included in the calculation of Mean_First_Yes_DOY and Mean_First_Yes_Julian_Date. From Daymet (http://daymet.ornl.gov).",
+                "description": "Mean of the number of seconds of daylight on the date of each first 'yes' record included in the calculation of Mean_First_Yes_DOY and Mean_First_Yes_Julian_Date.",
             },
             "se_daylength": {
                 "type": "number",
@@ -842,11 +840,11 @@ API_SCHEMAS: Dict[str, Any] = {
         "properties": {
             "dataset_id": {
                 "type": "int",
-                "description": "The unique identifiers of the dataset(s) (separated by commas) to which the status records that constitute the series belong. More information can be found in the ancillary data file for 'Dataset'. A value of '-9999' indicates one or more status records were submitted via the online Nature's Notebook application.",
+                "description": "The unique identifiers of the dataset(s) (separated by commas) to which the status records that constitute the series belong. A value of '-9999' indicates one or more status records were submitted via the online Nature's Notebook application.",
             },
             "observedby_person_id": {
                 "type": "int",
-                "description": "The unique identifiers of the person(s) (separated by commas) who made the status observations that constitute the series. More information can be found in the ancillary data file for 'Person'. A value of '-1' indicates the identity of the observer is unknown.",
+                "description": "The unique identifiers of the person(s) (separated by commas) who made the status observations that constitute the series. A value of '-1' indicates the identity of the observer is unknown.",
             },
             "partner_group": {
                 "type": "string",
@@ -862,19 +860,19 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "latitude": {
                 "type": "number",
-                "description": "The latitude of the site at which the series was recorded. Generally lat/long is calculated from the Google Maps API with a datum of WGS84 (https://developers.google.com/maps), unless a plausible user-defined lat/long was submitted. Information about the datum and source of the lat/long value can be found in the 'Site' ancillary data file.",
+                "description": "The latitude of the site at which the series was recorded.",
             },
             "longitude": {
                 "type": "number",
-                "description": "The longitude of the site at which the series was recorded. Generally lat/long is calculated from the Google Maps API with a datum of WGS84 (https://developers.google.com/maps), unless a plausible user-defined lat/long was submitted. Information about the datum and source of the lat/long value can be found in the 'Site' ancillary data file.",
+                "description": "The longitude of the site at which the series was recorded.",
             },
             "elevation_in_meters": {
                 "type": "number",
-                "description": "The elevation (in meters) of the site at which the series was recorded. Generally elevation is calculated from the Google Maps Elevation API (https://developers.google.com/maps/documentation/elevation/intro), unless a plausible user-defined elevation was submitted. Information about the source of the elevation value can be found in the 'Site' ancillary data file. A value of '-9999' indicates the elevation could not be calculated.",
+                "description": "The elevation (in meters) of the site at which the series was recorded. A value of '-9999' indicates the elevation could not be calculated.",
             },
             "state": {
                 "type": "string",
-                "description": "The U.S. state or territory, Mexican state or Canadian province in which the site is located. The state is calculated from lat/long by the Google Maps Geocoding API (https://developers.google.com/maps/documentation/geocoding/intro). A value of '-9999' indicates the site does not fall within the boundaries of North America.",
+                "description": "The U.S. state or territory, Mexican state or Canadian province in which the site is located. A value of '-9999' indicates the site does not fall within the boundaries of North America.",
             },
             "species_id": {
                 "type": "int",
@@ -882,11 +880,11 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "genus": {
                 "type": "string",
-                "description": "The taxonomic genus of the organism for which the series was recorded. Taxonomy follows that in the Integrated Taxonomic Information System (http://itis.gov).",
+                "description": "The taxonomic genus of the organism for which the series was recorded.",
             },
             "species": {
                 "type": "string",
-                "description": "The taxonomic species of the organism for which the series was recorded. Taxonomy follows that in the Integrated Taxonomic Information System (http://itis.gov). In those rare cases where a taxonomic subspecies or varietal is designated, the subspecies or varietal name is appended to the species name after a hyphen (e.g. Cornus florida-appalachianspring).",
+                "description": "The taxonomic species of the organism for which the series was recorded. In those rare cases where a taxonomic subspecies or varietal is designated, the subspecies or varietal name is appended to the species name after a hyphen (e.g. Cornus florida-appalachianspring).",
             },
             "common_name": {
                 "type": "string",
@@ -899,7 +897,7 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "species_functional_type": {
                 "type": "string",
-                "description": "The plant ecological type or animal guild of the species for which the series was recorded. These functional types are based on the species' phenology protocol assignment, and in a few cases do not correspond with a plant species' established botanical classification (e.g. sub-shrubs that grow more like forbs because woody parts are belowground). Definitions for plant functional types are available at https://docs.google.com/document/d/1eavZ5UzZxiRmfxlmA6t023Z1UD1ggzPbjxBBjPynB0E/pub",
+                "description": "The plant ecological type or animal guild of the species for which the series was recorded. These functional types are based on the species' phenology protocol assignment, and in a few cases do not correspond with a plant species' established botanical classification (e.g. sub-shrubs that grow more like forbs because woody parts are belowground).",
                 "enum": [
                     "Algae",
                     "Amphibian",
@@ -924,7 +922,7 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "species_category": {
                 "type": "string",
-                "description": "The categories (separated by commas) to which the species has been assigned. Assignment to these categories is primarily to facilitate finding species of interest on the Nature's Notebook Plants and Animals search page and in the Phenology Observation Portal and Visualization Tool.",
+                "description": "The categories (separated by commas) to which the species has been assigned.",
                 "enum": [
                     "Allergen",
                     "Aquatic",
@@ -942,11 +940,11 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "lifecycle_duration": {
                 "type": "string",
-                "description": "The possible lifecycle durations of the species for which the series was recorded. This information is only included for plant species and is gathered from the USDA PLANTS Database (http://plants.usda.gov).",
+                "description": "The possible lifecycle durations of the species for which the series was recorded.",
             },
             "growth_habit": {
                 "type": "string",
-                "description": "The possible growth habits of the species for which the series was recorded. This information is only included for plant species and is gathered from the USDA PLANTS Database (http://plants.usda.gov).",
+                "description": "The possible growth habits of the species for which the series was recorded.",
             },
             "usda_plants_symbol": {
                 "type": "string",
@@ -958,7 +956,7 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "individual_id": {
                 "type": "int",
-                "description": "The unique identifier of the individual plant or the animal species at a site for which the series was recorded. Note that for plants, individuals are tracked separately, while for animals, the species as a whole (rather than unique individuals) is tracked at a site. More information can be found in the ancillary data file for 'Individual Plant'.",
+                "description": "The unique identifier of the individual plant or the animal species at a site for which the series was recorded. Note that for plants, individuals are tracked separately, while for animals, the species as a whole (rather than unique individuals) is tracked at a site.",
             },
             "plant_nickname": {
                 "type": "string",
@@ -967,11 +965,11 @@ API_SCHEMAS: Dict[str, Any] = {
             "patch": {
                 "type": "int",
                 "description": "For plants, indicates whether a delineated patch of many individual stems is the unit of observation instead of a single individual plant.",
-                "enum": [1],
+                "enum": [1, 0],
             },
             "phenophase_id": {
                 "type": "int",
-                "description": "The unique identifier of the phenophase for which the series was recorded. More information can be found in the ancillary data files for 'Phenophase' and 'Phenophase Definition'.",
+                "description": "The unique identifier of the phenophase for which the series was recorded.",
             },
             "phenophase_category": {
                 "type": "string",
@@ -1051,7 +1049,7 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "multiple_observers": {
                 "type": "int",
-                "description": "Indicates whether multiple observers contributed records to the series. A value of '0' indicates only one observer contributed records, and a value of '1' indicates more than one observer contributed records. Multiple observers can contribute observations at a shared group site (http://www.usanpn.org/nn/groups/shared-site).",
+                "description": "Indicates whether multiple observers contributed records to the series. A value of '0' indicates only one observer contributed records, and a value of '1' indicates more than one observer contributed records.",
             },
             "multiple_firsty": {
                 "type": "int",
@@ -1059,72 +1057,72 @@ API_SCHEMAS: Dict[str, Any] = {
             },
             "observed_status_conflict_flag": {
                 "type": "string",
-                "description": "Indicates the presence and type of conflict (i.e. reported Phenophase_Status of both 'yes' and 'no' for the same observation date) between two or more phenophase status records included in the series. These conflicts can be explored in our status and intensity data type.",
+                "description": "Indicates the presence and type of conflict (i.e. reported Phenophase_Status of both 'yes' and 'no' for the same observation date) between two or more phenophase status records included in the series.",
                 "enum": ["MultiObserver-StatusConflict", "OneObserver-StatusConflict"],
             },
             "agdd": {
                 "type": "number",
-                "description": "Accumulated growing degree days (in degrees Celsius) on the date of the first 'yes' record of the series. This is the sum of growing degree days (GDD) since January 1st, where GDD is calculated as the number of degrees C by which each day's average temperature exceeds 0 degrees C (i.e., (Tmax + Tmin)/2 - 0 degrees C). From Daymet (http://daymet.ornl.gov).",
+                "description": "Accumulated growing degree days (in degrees Celsius) on the date of the first 'yes' record of the series. This is the sum of growing degree days (GDD) since January 1st, where GDD is calculated as the number of degrees C by which each day's average temperature exceeds 0 degrees C (i.e., (Tmax + Tmin)/2 - 0 degrees C).",
             },
             "agdd_in_f": {
                 "type": "number",
-                "description": "Accumulated growing degree days (in degrees Fahrenheit) on the date of the first 'yes' record of the series. This is the sum of growing degree days (GDD) since January 1st, where GDD is calculated as the number of degrees F by which each day's average temperature exceeds 32 degrees F (i.e., (Tmax + Tmin)/2 - 32 degrees F). From Daymet (http://daymet.ornl.gov).",
+                "description": "Accumulated growing degree days (in degrees Fahrenheit) on the date of the first 'yes' record of the series. This is the sum of growing degree days (GDD) since January 1st, where GDD is calculated as the number of degrees F by which each day's average temperature exceeds 32 degrees F (i.e., (Tmax + Tmin)/2 - 32 degrees F).",
             },
             "tmax_winter": {
                 "type": "number",
-                "description": "Average maximum temperature (in degrees C) for the winter season of First_Yes_Year (December of previous year to February of First_Yes_Year). From Daymet (http://daymet.ornl.gov).",
+                "description": "Average maximum temperature (in degrees C) for the winter season of First_Yes_Year (December of previous year to February of First_Yes_Year).",
             },
             "tmax_spring": {
                 "type": "number",
-                "description": "Average maximum temperature (in degrees C) for the spring season of First_Yes_Year (March-May). From Daymet (http://daymet.ornl.gov).",
+                "description": "Average maximum temperature (in degrees C) for the spring season of First_Yes_Year (March-May).",
             },
             "tmax_summer": {
                 "type": "number",
-                "description": "Average maximum temperature (in degrees C) for the summer season of First_Yes_Year (June-August). From Daymet (http://daymet.ornl.gov).",
+                "description": "Average maximum temperature (in degrees C) for the summer season of First_Yes_Year (June-August).",
             },
             "tmax_fall": {
                 "type": "number",
-                "description": "Average maximum temperature (in degrees C) for the previous year's fall season (September-November), relative to First_Yes_Year. From Daymet (http://daymet.ornl.gov).",
+                "description": "Average maximum temperature (in degrees C) for the previous year's fall season (September-November), relative to First_Yes_Year.",
             },
             "tmin_winter": {
                 "type": "number",
-                "description": "Average minimum temperature (in degrees C) for the winter season of First_Yes_Year (December of previous year to February of First_Yes_Year). From Daymet (http://daymet.ornl.gov).",
+                "description": "Average minimum temperature (in degrees C) for the winter season of First_Yes_Year (December of previous year to February of First_Yes_Year).",
             },
             "tmin_spring": {
                 "type": "number",
-                "description": "Average minimum temperature (in degrees C) for the spring season of First_Yes_Year (March-May). From Daymet (http://daymet.ornl.gov).",
+                "description": "Average minimum temperature (in degrees C) for the spring season of First_Yes_Year (March-May).",
             },
             "tmin_summer": {
                 "type": "number",
-                "description": "Average minimum temperature (in degrees C) for the summer season of First_Yes_Year (June-August). From Daymet (http://daymet.ornl.gov).",
+                "description": "Average minimum temperature (in degrees C) for the summer season of First_Yes_Year (June-August).",
             },
             "tmin_fall": {
                 "type": "number",
-                "description": "Average minimum temperature (in degrees C) for the previous year's fall season (September-November), relative to First_Yes_Year. From Daymet (http://daymet.ornl.gov).",
+                "description": "Average minimum temperature (in degrees C) for the previous year's fall season (September-November), relative to First_Yes_Year.",
             },
             "prcp_winter": {
                 "type": "number",
-                "description": "Accumulated precipitation (in mm) for the winter season of First_Yes_Year (December of previous year to February of First_Yes_Year). From Daymet (http://daymet.ornl.gov).",
+                "description": "Accumulated precipitation (in mm) for the winter season of First_Yes_Year (December of previous year to February of First_Yes_Year).",
             },
             "prcp_spring": {
                 "type": "number",
-                "description": "Accumulated precipitation (in mm) for the spring season of First_Yes_Year (March-May). From Daymet (http://daymet.ornl.gov).",
+                "description": "Accumulated precipitation (in mm) for the spring season of First_Yes_Year (March-May).",
             },
             "prcp_summer": {
                 "type": "number",
-                "description": "Accumulated precipitation (in mm) for the summer season of First_Yes_Year (June-August). From Daymet (http://daymet.ornl.gov).",
+                "description": "Accumulated precipitation (in mm) for the summer season of First_Yes_Year (June-August).",
             },
             "prcp_fall": {
                 "type": "number",
-                "description": "Accumulated precipitation (in mm) for the previous year's fall season (September-November), relative to First_Yes_Year. From Daymet (http://daymet.ornl.gov).",
+                "description": "Accumulated precipitation (in mm) for the previous year's fall season (September-November), relative to First_Yes_Year.",
             },
             "accum_prcp": {
                 "type": "number",
-                "description": "Accumulated precipitation (in mm) from January 1st to the date of the first 'yes' record of the series. From Daymet (http://daymet.ornl.gov).",
+                "description": "Accumulated precipitation (in mm) from January 1st to the date of the first 'yes' record of the series.",
             },
             "daylength": {
                 "type": "number",
-                "description": "Number of seconds of daylight on the date of the first 'yes' record of the series. From Daymet (http://daymet.ornl.gov).",
+                "description": "Number of seconds of daylight on the date of the first 'yes' record of the series.",
             },
         },
     },
