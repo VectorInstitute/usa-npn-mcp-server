@@ -9,8 +9,11 @@
 
 ### Available Tools
 
-- `observations` - Fetches observations data based on given criteria.
-- `observation_comment` - Fetches observation comments data based on given criteria.
+- `observations` - Fetches observations data (intensity and status data).
+- `summarized_data` - Fetches summarized data (individual phenometrics).
+- `site_level_data` - Fetches site-level data (site phenometrics).
+- `magnitude_data` - Fetches magnitude data (magnitude phenometrics).
+- `observation_comment` - Fetches observation comments based on observation_id.
 
 ## 🧑🏿‍💻 Developing
 
