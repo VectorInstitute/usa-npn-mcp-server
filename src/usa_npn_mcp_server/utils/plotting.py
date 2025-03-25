@@ -59,7 +59,7 @@ def generate_map(data: list[Dict[str, Any]], colour_by: str) -> str:
                 marker="o",
                 color=cats_colors[sp],
                 label=sp,
-                markersize=10,
+                markersize=14,
             )
         plt.legend(
             title=colour_by,
@@ -74,7 +74,7 @@ def generate_map(data: list[Dict[str, Any]], colour_by: str) -> str:
             marker="o",
             color="red",
             label="Observations",
-            markersize=10,
+            markersize=14,
         )
 
     # Dynamically adjust the map extent to center on the observations
