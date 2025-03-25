@@ -195,7 +195,7 @@ class NPNTool(BaseModel):
     name: str
     description: str
     input_schema: dict[str, Any]
-    endpoint: str | None
+    endpoint: str
 
 
 class NPNTools:
@@ -250,5 +250,5 @@ class NPNTools:
         name="mapping",
         description="Construct a map from results of a previous query to the NPN API, use longitude latitude and specified variables to plot onto map of USA.",
         input_schema=MapModel.model_json_schema(),
-        endpoint=None,
+        endpoint="",
     )
