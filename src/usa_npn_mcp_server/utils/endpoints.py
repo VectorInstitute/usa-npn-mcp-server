@@ -214,6 +214,8 @@ class NPNTools:
         Tool for querying site phenometrics.
     IndividualPhenometrics : Tool
         Tool for querying individual phenometrics.
+    Mapping : Tool
+        Tool for constructing maps from query results.
     """
 
     StatusIntensity = NPNTool(
