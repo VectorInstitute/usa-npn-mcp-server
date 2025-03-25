@@ -16,7 +16,7 @@
 - `observation_comment` - Fetches observation comments based on observation_id.
 - `mapping` - Maps site phenometrics onto a map of the USA with optional colour labelling.
 
-## Example usage
+#
 
 ![alt text](assets/example_usage.gif)
 
