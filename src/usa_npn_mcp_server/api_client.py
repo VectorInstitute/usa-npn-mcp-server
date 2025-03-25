@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import logging
 import traceback
 from datetime import datetime
@@ -11,6 +12,13 @@ from typing import Any, Dict, Optional, Type
 from urllib.parse import urlencode
 
 import httpx
+from mcp.types import (
+    EmbeddedResource,
+    ImageContent,
+    TextContent,
+    TextResourceContents,
+)
+from pydantic import AnyUrl
 
 from usa_npn_mcp_server.utils.endpoints import NPNTools
 from usa_npn_mcp_server.utils.output_schema import API_SCHEMAS
@@ -61,7 +69,8 @@ class APIClient:
     """API Client for mediating MCP server and NPN API interactions."""
 
     # Base URL for the NPN API observations endpoints.
-    API_BASE_URL = "https://services.usanpn.org/npn_portal/observations"
+    API_BASE_URL: str = "https://services.usanpn.org/npn_portal/observations"
+    _cache: dict[str, list[str]] = {}
 
     def __init__(self) -> None:
         self.client = httpx.AsyncClient(timeout=20.0, base_url=self.API_BASE_URL)
@@ -241,6 +250,41 @@ class APIClient:
             }
             logger.info(f"Output schema keys: {keys}")
         return {"result": select_schema} if responses[-1] else {"result": None}
+
+    def query_response(
+        self, name: str
+    ) -> list[TextContent | ImageContent | EmbeddedResource]:
+        """Get the Server response by query Tool name."""
+        logger.info(f"Returning {name} query Tool response.")
+        summary = self.summarize_response(name=name)
+        schema = self.read_output_schema(name=name)
+        result: list[TextContent | ImageContent | EmbeddedResource] = [
+            TextContent(
+                type="text",
+                text=f"Output variables of API response for {name} tool",
+            ),
+            EmbeddedResource(
+                type="resource",
+                resource=TextResourceContents(
+                    uri=AnyUrl(f"npn-mcp://{name}_output_schema"),
+                    mimeType="plain/text",
+                    text=json.dumps(schema),
+                ),
+            ),
+            TextContent(
+                type="text",
+                text=f"Summary of unique entries across API response for {name} tool",
+            ),
+            EmbeddedResource(
+                type="resource",
+                resource=TextResourceContents(
+                    uri=AnyUrl(f"npn-mcp://{name}"),
+                    mimeType="plain/text",
+                    text=json.dumps(summary),
+                ),
+            ),
+        ]
+        return result
 
     @log_call
     async def create_plot(
