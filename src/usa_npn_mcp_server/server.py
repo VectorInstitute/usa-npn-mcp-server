@@ -17,7 +17,10 @@ from mcp.server.models import InitializationOptions
 from mcp.server.stdio import stdio_server
 from mcp.types import (
     EmbeddedResource,
+    GetPromptResult,
     ImageContent,
+    Prompt,
+    PromptMessage,
     Resource,
     ResourcesCapability,
     ServerCapabilities,
@@ -30,6 +33,7 @@ from pydantic import AnyUrl
 
 from usa_npn_mcp_server.api_client import APIClient
 from usa_npn_mcp_server.utils.endpoints import NPNTools
+from usa_npn_mcp_server.utils.prompts import PROMPTS, get_prompts
 
 
 logging.basicConfig(
@@ -37,6 +41,15 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
+
+tool_list = [
+    NPNTools.Observations,
+    NPNTools.ObservationComment,
+    NPNTools.MagnitudeData,
+    NPNTools.SiteLevelData,
+    NPNTools.SummarizedData,
+    NPNTools.Mapping,
+]
 
 
 async def serve() -> None:
@@ -51,30 +64,11 @@ async def serve() -> None:
         logger.info("Handling list_tools request")
         return [
             Tool(
-                name=NPNTools.Observations.name,
-                description=NPNTools.Observations.description,
-                inputSchema=NPNTools.Observations.input_schema,
-            ),
-            Tool(
-                name=NPNTools.ObservationComment.name,
-                description=NPNTools.ObservationComment.description,
-                inputSchema=NPNTools.ObservationComment.input_schema,
-            ),
-            Tool(
-                name=NPNTools.SummarizedData.name,
-                description=NPNTools.SummarizedData.description,
-                inputSchema=NPNTools.SummarizedData.input_schema,
-            ),
-            Tool(
-                name=NPNTools.MagnitudeData.name,
-                description=NPNTools.MagnitudeData.description,
-                inputSchema=NPNTools.MagnitudeData.input_schema,
-            ),
-            Tool(
-                name=NPNTools.SiteLevelData.name,
-                description=NPNTools.SiteLevelData.description,
-                inputSchema=NPNTools.SiteLevelData.input_schema,
-            ),
+                name=tool.name,
+                description=tool.description,
+                inputSchema=tool.input_schema,
+            )
+            for tool in tool_list
         ]
 
     @server.list_resources()
@@ -83,35 +77,21 @@ async def serve() -> None:
         logger.info("Handling list_resources request")
         return [
             Resource(
-                uri=AnyUrl(f"npn-mcp://{NPNTools.Observations.name}"),
-                name=f"{NPNTools.Observations.name}_resource",
-                description="Resource updated by 'observations' Tool and used to read JSON results",
+                uri=AnyUrl(f"npn-mcp://{tool.name}"),
+                name=f"{tool.name}_resource",
+                description=descrip,
                 mimeType="plain/text",
-            ),
-            Resource(
-                uri=AnyUrl(f"npn-mcp://{NPNTools.ObservationComment.name}"),
-                name=f"{NPNTools.ObservationComment.name}_resource",
-                description="Resource updated by 'observation_comment' Tool and used to read JSON results",
-                mimeType="plain/text",
-            ),
-            Resource(
-                uri=AnyUrl(f"npn-mcp://{NPNTools.SummarizedData.name}"),
-                name=f"{NPNTools.SummarizedData.name}_resource",
-                description="Resource updated by 'summarized_data' Tool and used to read JSON results",
-                mimeType="plain/text",
-            ),
-            Resource(
-                uri=AnyUrl(f"npn-mcp://{NPNTools.MagnitudeData.name}"),
-                name=f"{NPNTools.MagnitudeData.name}_resource",
-                description="Resource updated by 'magnitude_data' Tool and used to read JSON results",
-                mimeType="plain/text",
-            ),
-            Resource(
-                uri=AnyUrl(f"npn-mcp://{NPNTools.SiteLevelData.name}"),
-                name=f"{NPNTools.SiteLevelData.name}_resource",
-                description="Resource updated by 'site_level_data' Tool and used to read JSON results",
-                mimeType="plain/text",
-            ),
+            )
+            for tool, descrip in zip(
+                tool_list,
+                [
+                    "Resource updated by 'observations' Tool.",
+                    "Resource updated by 'observation_comment' Tool.",
+                    "Resource updated by 'magnitude_data' Tool.",
+                    "Resource updated by 'site_level_data' Tool.",
+                    "Resource updated by 'summarized_data' Tool.",
+                ],
+            )
         ]
 
     @server.read_resource()
@@ -122,10 +102,9 @@ async def serve() -> None:
         logger.info(f"Handling read_resource request for URI: {uri}")
         # Throw error if the URI scheme is not supported
         if uri.scheme != "npn-mcp":
-            logger.error(f"Unsupported URI scheme: {uri.scheme}")
             raise ValueError(f"Unsupported URI scheme: {uri.scheme}")
         name = str(uri).replace("npn-mcp://", "")
-        last_resource = api_client.read_last_response(name=name)
+        last_resource = api_client.summarize_response(name=name)
         return {
             "contents": [
                 TextResourceContents(
@@ -144,46 +123,51 @@ async def serve() -> None:
         logger.info(f"Calling tool {name} with parameters: {arguments}")
         if arguments is None:
             raise ValueError("Arguments cannot be None")
-        # Call tool by name
-        match name:
-            case NPNTools.Observations.name:
-                await api_client.query_api(NPNTools.Observations.endpoint, arguments)
-            case NPNTools.ObservationComment.name:
-                await api_client.query_api(
-                    NPNTools.ObservationComment.endpoint, arguments
-                )
-            case NPNTools.SummarizedData.name:
-                await api_client.query_api(NPNTools.SummarizedData.endpoint, arguments)
-            case NPNTools.MagnitudeData.name:
-                await api_client.query_api(NPNTools.MagnitudeData.endpoint, arguments)
-            case NPNTools.SiteLevelData.name:
-                await api_client.query_api(NPNTools.SiteLevelData.endpoint, arguments)
-            case _:
-                logger.error(f"Unknown tool requested: {name}")
-                raise ValueError(f"Unknown tool requested: {name}")
+        result = None
+        if name in [tool.name for tool in tool_list if tool != NPNTools.Mapping]:
+            tool = next(tool for tool in tool_list if tool.name == name)
+            await api_client.query_api(tool.endpoint, arguments)
+        elif name == NPNTools.Mapping.name:
+            data = api_client.read_last_response(name=arguments["tool_name"])["result"]
+            result = await api_client.create_plot(data, arguments)
+            logger.info(
+                f"Plot ({arguments['plot_type']}) created for recent {arguments['tool_name']} result."
+            )
+        else:
+            raise ValueError(f"Unknown tool requested: {name}")
         # Notify client of resource update
         await server.request_context.session.send_resource_updated(
             AnyUrl(f"npn-mcp://{name}")
         )
-        return [
-            # Consider adding TextContent with a message about state
-            EmbeddedResource(
-                type="resource",
-                resource=TextResourceContents(
-                    uri=AnyUrl(f"npn-mcp://{name}_output_schema"),
-                    mimeType="plain/text",
-                    text=json.dumps(api_client.read_output_schema(name=name)),
-                ),
-            ),
-            EmbeddedResource(
-                type="resource",
-                resource=TextResourceContents(
-                    uri=AnyUrl(f"npn-mcp://{name}"),
-                    mimeType="plain/text",
-                    text=json.dumps(api_client.read_last_response(name=name)),
-                ),
-            ),
-        ]
+        if result:
+            return [ImageContent(type="image", data=result, mimeType="image/jpeg")]
+        # Otherwise return summary of response from valid query tool
+        return api_client.query_response(name=name)
+
+    @server.list_prompts()
+    async def handle_list_prompts() -> list[Prompt]:
+        logger.info("Handling list_prompts request")
+        return get_prompts()
+
+    @server.get_prompt()
+    async def handle_get_prompt(
+        prompt_name: str, arguments: Dict[str, str] | None
+    ) -> GetPromptResult:
+        logger.info(f"Handling get_prompt request for {prompt_name}")
+        if prompt_name not in PROMPTS:
+            raise ValueError(f"Prompt '{prompt_name}' not found.")
+        if arguments is None:
+            arguments = {}
+        prompt = str(PROMPTS[prompt_name]["template"]).format(**arguments)
+        return GetPromptResult(
+            description=f"Demo template for {arguments}",
+            messages=[
+                PromptMessage(
+                    role="user",
+                    content=TextContent(type="text", text=prompt.strip()),
+                )
+            ],
+        )
 
     # Initialize server to listen for resource changes
     options = InitializationOptions(

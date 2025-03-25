@@ -1,6 +1,6 @@
 """NPN API endpoints available in MCP Server."""
 
-from typing import Any, List, Optional
+from typing import Any, List, Literal, Optional
 
 from pydantic import BaseModel, Field
 
@@ -126,6 +126,56 @@ class MagnitudeDataQuery(BaseQuery):
     )
 
 
+class BasePlotModel(BaseModel):
+    """Base class for plotting input parameters."""
+
+    tool_name: str = Field(
+        description="Name of the tool used to generate the data for the plot.",
+    )
+    plot_type: Literal["bar", "line", "scatter", "map"] = Field(
+        description="Type of plot to generate.",
+    )
+    colour_by: str = Field(
+        ...,
+        description="Variable to be used for colour coding the data points.",
+    )
+    title: Optional[str] = Field(
+        description="Title for the map.",
+    )
+
+
+class NonMapPlotModel(BasePlotModel):
+    """Input parameters for plotting data."""
+
+    y_variable: Optional[str] = Field(
+        description="Variable to be plotted on the y-axis.",
+    )
+    y_lab: Optional[str] = Field(
+        description="Label for the y-axis of the plot.",
+    )
+    plot_type: Literal["bar", "line", "scatter"] = Field(
+        description="Type of plot to generate.",
+    )
+    x_variable: Optional[str] = Field(
+        description="Variable to be plotted on the x-axis.",
+    )
+    x_lab: Optional[str] = Field(
+        description="Label for the x-axis of the plot.",
+    )
+
+
+class MapModel(BasePlotModel):
+    """Input parameters for mapping data."""
+
+    plot_type: Literal["map"] = Field(
+        description="Type of plot to generate.",
+    )
+    colour_by: str = Field(
+        default="",
+        description="Variable to be used for colour coding the data points. Default is empty string.",
+    )
+
+
 class NPNTool(BaseModel):
     """
     A class representing a tool available in the MCP server.
@@ -195,4 +245,10 @@ class NPNTools:
         description="Query NPN API for individual phenometrics aka summarized data (from getSummarizedData endpoint), results stored as readable Resource 'summarized_data'",
         input_schema=SummarizedDataQuery.model_json_schema(),
         endpoint="getSummarizedData",
+    )
+    Mapping = NPNTool(
+        name="mapping",
+        description="Construct a map from results of a previous query to the NPN API, use longitude latitude and specified variables to plot onto map of USA.",
+        input_schema=MapModel.model_json_schema(),
+        endpoint="",
     )
