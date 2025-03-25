@@ -166,15 +166,15 @@ class APIClient:
         """
         response = await self._get(endpoint, params=arguments)
         match endpoint:
-            case NPNTools.Observations.endpoint:
+            case NPNTools.StatusIntensity.endpoint:
                 self.obs_responses.append(response)
             case NPNTools.ObservationComment.endpoint:
                 self.obs_com_responses.append(response)
-            case NPNTools.MagnitudeData.endpoint:
+            case NPNTools.MagnitudePhenometrics.endpoint:
                 self.mag_data_responses.append(response)
-            case NPNTools.SiteLevelData.endpoint:
+            case NPNTools.SitePhenometrics.endpoint:
                 self.site_level_data_responses.append(response)
-            case NPNTools.SummarizedData.endpoint:
+            case NPNTools.IndividualPhenometrics.endpoint:
                 self.summarized_data_responses.append(response)
         logger.info(f"Response stored for {endpoint}.")
 
@@ -182,15 +182,15 @@ class APIClient:
         """Get the last response from the API by tool name."""
         logger.info(f"Reading {name} resource")
         match name:
-            case NPNTools.Observations.name:
+            case NPNTools.StatusIntensity.name:
                 responses = self.obs_responses
             case NPNTools.ObservationComment.name:
                 responses = self.obs_com_responses
-            case NPNTools.MagnitudeData.name:
+            case NPNTools.MagnitudePhenometrics.name:
                 responses = self.mag_data_responses
-            case NPNTools.SiteLevelData.name:
+            case NPNTools.SitePhenometrics.name:
                 responses = self.site_level_data_responses
-            case NPNTools.SummarizedData.name:
+            case NPNTools.IndividualPhenometrics.name:
                 responses = self.summarized_data_responses
         return {"result": responses[-1]} if responses else {"result": None}
 
@@ -198,15 +198,15 @@ class APIClient:
         """Get unique variables and entries from last API response by tool name."""
         logger.info(f"Summarizing {name} response")
         match name:
-            case NPNTools.Observations.name:
+            case NPNTools.StatusIntensity.name:
                 responses = self.obs_responses
             case NPNTools.ObservationComment.name:
                 responses = self.obs_com_responses
-            case NPNTools.MagnitudeData.name:
+            case NPNTools.MagnitudePhenometrics.name:
                 responses = self.mag_data_responses
-            case NPNTools.SiteLevelData.name:
+            case NPNTools.SitePhenometrics.name:
                 responses = self.site_level_data_responses
-            case NPNTools.SummarizedData.name:
+            case NPNTools.IndividualPhenometrics.name:
                 responses = self.summarized_data_responses
 
         if not responses:
@@ -231,15 +231,15 @@ class APIClient:
         logger.info(f"Reading {name} output_schema resource")
         responses = []
         match name:
-            case NPNTools.Observations.name:
+            case NPNTools.StatusIntensity.name:
                 responses = self.obs_responses
             case NPNTools.ObservationComment.name:
                 responses = self.obs_com_responses
-            case NPNTools.MagnitudeData.name:
+            case NPNTools.MagnitudePhenometrics.name:
                 responses = self.mag_data_responses
-            case NPNTools.SiteLevelData.name:
+            case NPNTools.SitePhenometrics.name:
                 responses = self.site_level_data_responses
-            case NPNTools.SummarizedData.name:
+            case NPNTools.IndividualPhenometrics.name:
                 responses = self.summarized_data_responses
         if responses[-1]:
             # Get the full schema for the tool

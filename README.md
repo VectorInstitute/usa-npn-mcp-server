@@ -9,12 +9,12 @@
 
 ### Available Tools
 
-- `observations` - Fetches observations data (intensity and status data).
-- `summarized_data` - Fetches summarized data (individual phenometrics).
-- `site_level_data` - Fetches site-level data (site phenometrics).
-- `magnitude_data` - Fetches magnitude data (magnitude phenometrics).
+- `status_intensity` - Fetches status and intensity data (raw observation data).
+- `individual_phenometrics` - Fetches individual phenometrics (summarized data).
+- `site_phenometrics` - Fetches site phenometrics (site-level data).
+- `magnitude_phenometrics` - Fetches magnitude phenometrics (magnitude data).
 - `observation_comment` - Fetches observation comments based on observation_id.
-- `mapping` - Maps site-level phenometrics onto a map of USA with optional colour labelling.
+- `mapping` - Maps site phenometrics onto a map of the USA with optional colour labelling.
 
 ## Example usage
 
