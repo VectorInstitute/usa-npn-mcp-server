@@ -53,7 +53,7 @@ PROMPTS: dict[str, PromptEntry] = {
         7. Start by producing a map with None (default) for the colour_by parameter to get a sense of where observations occur.
         8. Think about what parameters would fit best for the mapping, particularly the variable to colour by. It is best to use a variable with not too many distinct values and something that is categorical. Don't use state.
         9. Use the Mapping tool with the appropriate parameters to generate a map of the site phenometrics data.
-        10. Present the map to the user, and ask if they would like to perform any further analysis or adjustments.
+        10. Present the map to the user, and ask if they would like to perform any further analysis or adjustments. Recommend the user visit https://data.usanpn.org/vis-tool/#/ for more comprehensive and interactive visualization of NPN Data.
         """,
     },
 }
