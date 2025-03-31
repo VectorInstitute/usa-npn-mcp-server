@@ -32,10 +32,9 @@ The MCP Server is designed to support:
 ## Documentation Overview
 
 - **User Guide**: Step-by-step instructions for accessing and using the MCP Server's features.
-- **API Reference**: Detailed documentation of the server's Tools, Resources, Prompts, including request and response formats.
+- **API Reference**: Documentation of the server's Tools, Resources, Prompts.
 - **Roadmap**: Future features and enhancements planned for the MCP Server.
 - **News**: Updates and announcements regarding the MCP Server.
-- **Data Access**: Information on available datasets, query parameters, and data formats.
 
 ## Getting Started
 
