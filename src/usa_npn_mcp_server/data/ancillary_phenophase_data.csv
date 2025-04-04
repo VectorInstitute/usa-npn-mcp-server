@@ -1,0 +1,200 @@
+phenophase_id,phenophase_name,phenophase_category,color,pheno_class_id
+56,First leaf ,Leaves,,1
+57,75% leaf elongation ,Leaves,,2
+58,First flower ,Flowers,,7
+59,Last flower,Flowers,,9
+60,First fruit ripe ,Fruits,,12
+61,50% of leaves colored,Leaves,,4
+63,50% of leaves fallen,Leaves,,5
+71,Emergence above ground,Leaves,,1
+72,First flower ,Flowers,,7
+73,First fruit ripe ,Fruits,,12
+75,Full leaf ,Leaves,,3
+76,First leaf ,Leaves,,1
+77,First bloom ,Flowers,Green2,7
+78,Full bloom ,Flowers,Green2,7
+79,End bloom ,Flowers,Green2,9
+105,Budburst ,Needles,,1
+106,First needles ,Needles,,2
+107,First male cone ,Pollen cones,,6
+108,First pollen released ,Pollen cones,,8
+109,First needles fallen ,Needles,,5
+121,First flower bud ,Flowers,,6
+124,First fruit ,Fruits,,10
+127,First leaf ,Leaves,,1
+128,75% leaf elongation ,Leaves,,2
+137,First leaf fallen ,Leaves,,5
+180,>=75% of full leaf size ,Leaves,Green1,2
+181,>=50% of leaves colored ,Leaves,Green1,4
+182,All leaves colored ,Leaves,Green1,4
+183,>=50% of leaves fallen ,Leaves,Green1,5
+184,All leaves fallen ,Leaves,Green1,5
+186,Full flowering ,Flowers,Green2,7
+196,Full pollen release ,Flowers,Green2,8
+200,All leaves withered ,Leaves,Green1,5
+201,Open flowers ,Flowers,Green2,7
+202,Ripe fruits ,Fruits,Green3,12
+205,Open flowers ,Flowers,Green2,7
+206,Full flowering ,Flowers,Green2,7
+207,End of flowering ,Flowers,Green2,9
+210,Open flowers ,Flowers,Green2,7
+211,Full flowering ,Flowers,Green2,7
+221,Full pollen release ,Pollen cones,Green2,8
+227,Ripe seeds ,Fruits,Green3,12
+232,Emerging leaves ,Leaves,Green1,1
+233,Young unfolded leaves ,Leaves,Green1,2
+256,Flower buds ,Flowers,Green2,6
+261,>=50% of needles colored ,Needles,Green1,4
+262,All needles colored ,Needles,Green1,4
+263,>=50% of needles fallen ,Needles,Green1,5
+264,All needles fallen ,Needles,Green1,5
+274,Adults on land,Activity,Brown1,66
+275,Adults in water,Activity,Brown1,65
+276,Vocalizing,Reproduction,Brown2,67
+279,Mating ,Reproduction,Brown2,82
+281,Fresh eggs ,Reproduction,Brown2,90
+289,Dead adults,Development,Brown3,130
+290,Individuals in a net,Method,Brown4,135
+291,Individuals in a trap,Method,Brown4,135
+292,Live individuals,Activity,Brown1,62
+293,Calls or song ,Activity,Brown1,67
+294,Singing individuals ,Activity,Brown1,84
+295,Territorial individuals ,Activity,Brown1,83
+296,Mating ,Reproduction,Brown2,82
+297,Nest building ,Reproduction,Brown2,86
+298,Occupied nest,Reproduction,Brown2,94
+304,Nestlings ,Development,Brown3,99
+308,Fledged young ,Development,Brown3,102
+310,Fruit/seed consumption,Activity,Brown1,70
+311,Nut gathering,Activity,Brown1,72
+312,Flower visitation,Activity,Brown1,71
+315,Dead individuals,Development,Brown3,130
+316,Dead nestlings or young ,Development,Brown3,131
+318,Adults in freshwater,Activity,Brown1,63
+319,Adults in saltwater,Activity,Brown1,64
+322,Adults migrating upstream,Activity,Brown1,126
+323,Adults migrating downstream,Activity,Brown1,127
+324,Juveniles moving upstream ,Development,Brown1,128
+326,Individuals on a hook,Method,Brown4,135
+327,Adults,Activity,Brown1,62
+330,Mating ,Reproduction,Brown2,82
+331,Egg laying ,Reproduction,Brown2,136
+333,Caterpillars,Development,Brown3,109
+336,Dead caterpillars,Development,Brown3,133
+337,Individuals at a light,Method,Brown4,135
+338,Males vocalizing,Reproduction,Brown2,67
+339,Male combat ,Reproduction,Brown2,85
+340,Courtship ,Reproduction,Brown2,77
+341,Mating,Reproduction,Brown2,82
+344,Young individuals,Development,Brown3,98
+349,Egg laying ,Reproduction,Brown2,136
+350,Mating ,Reproduction,Brown2,82
+353,Recently emerged adults ,Development,Brown3,116
+354,Migrating adults ,Activity,Brown1,125
+355,Individuals on land ,Activity,Brown1,66
+356,Individuals in water ,Activity,Brown1,65
+357,Adults vocalizing,Reproduction,Brown2,67
+362,Nesting ,Reproduction,Brown2,87
+363,Mating ,Reproduction,Brown2,82
+367,Larvae,Development,Brown3,108
+370,Male adults,Activity,Brown1,80
+371,Breaking leaf buds,Leaves,Green1,1
+373,Breaking leaf buds ,Leaves,Green1,1
+374,All leaf buds broken ,Leaves,Green1,3
+390,Ripe fruits,Fruits,Green3,12
+392,Unripe seed cones,Seed cones,Green3,11
+393,Ripe seed cones,Seed cones,Green3,12
+412,First bloom ,Flowers,,7
+416,End bloom ,Flowers,,9
+417,First red berry ,Fruits,,12
+418,Full red berries ,Fruits,,12
+419,First shriveled berry ,Fruits,,12
+420,Full shriveled berries ,Fruits,,12
+428,First bloom ,Flowers,,7
+429,Full bloom ,Flowers,,7
+440,Juveniles in saltwater,Development,Brown3,98
+441,Young individuals ,Development,Brown3,98
+442,Nest building ,Reproduction,Brown2,86
+443,Adults feeding ,Activity,Brown1,68
+444,Migrating adults ,Activity,Brown1,125
+445,Adults feeding,Activity,Brown1,68
+446,Feeding,Activity,Brown1,68
+447,Caterpillars feeding,Development,Brown3,75
+448,Dead or dying adults,Development,Brown3,130
+449,Nymphs,Development,Brown3,111
+450,Nymphs feeding,Development,Brown3,76
+451,Dead nymphs,Development,Brown3,134
+452,Individuals on land,Activity,Brown1,66
+453,Individuals in water,Activity,Brown1,65
+454,Summer coat,Development,Brown3,123
+455,Winter coat,Development,Brown3,124
+456,Male combat ,Reproduction,Brown3,85
+457,Insect consumption,Activity,Brown1,69
+458,Individuals at a feeding station,Method,Brown4,135
+467,Increasing leaf size,Leaves,Green1,2
+471,Falling leaves,Leaves,Green1,5
+472,Falling needles,Needles,Green1,5
+480,Breaking needle buds ,Needles,Green1,1
+481,Breaking needle buds ,Needles,Green1,1
+482,Initial growth ,Leaves,Green1,1
+483,Leaves,Leaves,Green1,3
+484,Young leaves ,Leaves,Green1,2
+485,Young needles ,Needles,Green1,2
+486,Young needles ,Needles,Green1,2
+487,Needles ,Needles,Green1,3
+488,Leaves ,Leaves,Green1,3
+489,Leaves ,Leaves,Green1,3
+490,Pollen cones ,Pollen cones,Green2,6
+491,Recent cone or seed drop,Seed cones,Green3,13
+492,Initial growth ,Leaves,Green1,1
+493,Flower heads ,Flowers,Green2,6
+494,Open flowers ,Flowers,Green2,7
+495,Open pollen cones ,Pollen cones,Green2,7
+496,Emerging needles ,Needles,Green1,1
+497,Leaves ,Leaves,Green1,3
+498,Colored leaves,Leaves,Green1,4
+499,Colored needles,Needles,Green1,4
+500,Flowers or flower buds,Flowers,Green2,6
+501,Open flowers,Flowers,Green2,7
+502,Pollen release ,Flowers,Green2,8
+503,Pollen release ,Pollen cones,Green2,8
+504,Recent fruit or seed drop,Fruits,Green3,13
+505,Young leaves ,Leaves,Green1,2
+506,Caterpillars in tent,Development,Brown3,110
+507,Subadults,Development,Brown3,114
+508,Initial growth ,Leaves,Green1,1
+509,Leaves ,Leaves,Green1,3
+510,New side branches ,Leaves,Green1,2
+511,Receptacles,Flowers,Green2,6
+512,Flat receptacles,Flowers,Green2,6
+513,Smooth inflated receptacles,Flowers,Green2,6
+514,Dotted inflated receptacles,Flowers,Green2,6
+515,Torn receptacles,Flowers,Green2,9
+516,Fruits,Fruits,Green3,10
+517,Nest building ,Reproduction,Brown2,86
+518,Nest building ,Reproduction,Brown2,86
+519,Drone cells,Reproduction,Brown2,93
+520,Nest provisioning ,Reproduction,Brown2,95
+521,Eggs ,Reproduction,Brown2,90
+522,Pupae,Development,Brown3,115
+523,Dead adults ,Development,Brown3,130
+524,Eggs,Reproduction,Brown2,90
+525,Winged adults,Activity,Brown1,81
+526,Dead nymphs ,Development,Brown3,134
+527,Nest provisioning ,Reproduction,Brown2,95
+528,Courtship calling,Reproduction,Brown2,78
+529,Recent egg laying ,Reproduction,Brown2,91
+530,Cast-off skins ,Development,Brown3,117
+531,Eggs ,Reproduction,Brown2,90
+532,Larvae feeding,Development,Brown3,74
+533,Dead larvae,Development,Brown3,132
+539,Downy young ,Development,Brown3,100
+540,Partially-fledged young ,Development,Brown3,101
+541,Fledged young ,Development,Brown3,102
+542,Feeding ,Activity,Brown1,68
+544,Dormant nymphs,Development,Brown3,129
+545,Post-dormant nymphs,Development,Brown3,113
+546,Crawlers,Development,Brown3,112
+547,Egg laying,Reproduction,Brown2,136
+548,Egg laying ,Reproduction,Brown2,136
+549,Mating ,Reproduction,Brown2,82
