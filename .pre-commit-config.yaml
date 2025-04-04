@@ -39,10 +39,11 @@ repos:
       exclude: "tests"
 
   - repo: https://github.com/crate-ci/typos
-    rev: typos-dict-v0.12.4
+    rev: v1.30.2
     hooks:
       - id: typos
         args: []
+        exclude: "data/"
 
   - repo: https://github.com/nbQA-dev/nbQA
     rev: 1.9.1
