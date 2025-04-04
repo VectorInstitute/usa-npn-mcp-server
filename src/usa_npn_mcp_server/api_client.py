@@ -21,7 +21,7 @@ from mcp.types import (
 from pydantic import AnyUrl
 
 from usa_npn_mcp_server.utils.endpoints import NPNTools
-from usa_npn_mcp_server.utils.output_schema import API_SCHEMAS
+from usa_npn_mcp_server.utils.output_schema import ANCILLARY_FILES, API_SCHEMAS
 from usa_npn_mcp_server.utils.plotting import generate_map
 
 
@@ -71,6 +71,7 @@ class APIClient:
     # Base URL for the NPN API observations endpoints.
     API_BASE_URL: str = "https://services.usanpn.org/npn_portal/observations"
     _cache: dict[str, list[str]] = {}
+    _ancillary_files: dict[str, list[str]] = ANCILLARY_FILES
 
     def __init__(self) -> None:
         self.client = httpx.AsyncClient(timeout=20.0, base_url=self.API_BASE_URL)
