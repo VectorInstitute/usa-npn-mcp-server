@@ -43,11 +43,11 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 tool_list = [
-    NPNTools.Observations,
+    NPNTools.StatusIntensity,
     NPNTools.ObservationComment,
-    NPNTools.MagnitudeData,
-    NPNTools.SiteLevelData,
-    NPNTools.SummarizedData,
+    NPNTools.MagnitudePhenometrics,
+    NPNTools.SitePhenometrics,
+    NPNTools.IndividualPhenometrics,
     NPNTools.Mapping,
 ]
 
@@ -85,11 +85,11 @@ async def serve() -> None:
             for tool, descrip in zip(
                 tool_list,
                 [
-                    "Resource updated by 'observations' Tool.",
+                    "Resource updated by 'status_intensity' Tool.",
                     "Resource updated by 'observation_comment' Tool.",
-                    "Resource updated by 'magnitude_data' Tool.",
-                    "Resource updated by 'site_level_data' Tool.",
-                    "Resource updated by 'summarized_data' Tool.",
+                    "Resource updated by 'magnitude_phenometrics' Tool.",
+                    "Resource updated by 'site_phenometrics' Tool.",
+                    "Resource updated by 'individual_phenometrics' Tool.",
                 ],
             )
         ]

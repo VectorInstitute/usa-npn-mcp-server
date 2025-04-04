@@ -13,7 +13,7 @@ API_SCHEMAS: Dict[str, Any] = {
             },
         },
     },
-    "observations": {
+    "status_intensity": {
         "type": "object",
         "properties": {
             "observation_id": {
@@ -255,7 +255,7 @@ API_SCHEMAS: Dict[str, Any] = {
             },
         },
     },
-    "magnitude_data": {
+    "magnitude_phenometrics": {
         "type": "object",
         "properties": {
             "species_id": {
@@ -505,7 +505,7 @@ API_SCHEMAS: Dict[str, Any] = {
             },
         },
     },
-    "site_level_data": {
+    "site_phenometrics": {
         "type": "object",
         "properties": {
             "partner_group": {
@@ -835,7 +835,7 @@ API_SCHEMAS: Dict[str, Any] = {
             },
         },
     },
-    "summarized_data": {
+    "individual_phenometrics": {
         "type": "object",
         "properties": {
             "dataset_id": {

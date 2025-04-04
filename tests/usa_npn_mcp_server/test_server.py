@@ -8,8 +8,8 @@ from usa_npn_mcp_server.utils.endpoints import NPNTools
 
 @pytest.mark.integration_test
 @pytest.mark.asyncio
-async def test_query_observations(mocker):
-    """Test the query_api function to fetch observations."""
+async def test_query_status_intensity(mocker):
+    """Test the query_api function to fetch status intensity."""
     mock_response = mocker.Mock()
     mock_response.json.return_value = {"observations": []}
     mock_response.status_code = 200
@@ -19,10 +19,10 @@ async def test_query_observations(mocker):
 
     async with APIClient() as client:
         await client.query_api(
-            endpoint=NPNTools.Observations.endpoint,
+            endpoint=NPNTools.StatusIntensity.endpoint,
             arguments={"start_date": "2025-01-01", "end_date": "2025-01-31"},
         )
-        data = client.read_last_response(name=NPNTools.Observations.name)
+        data = client.read_last_response(name=NPNTools.StatusIntensity.name)
         assert data == {"result": {"observations": []}}
 
 
@@ -47,8 +47,8 @@ async def test_query_observation_comment(mocker):
 
 @pytest.mark.integration_test
 @pytest.mark.asyncio
-async def test_query_summarized_data(mocker):
-    """Test the query_api function to fetch summarized data."""
+async def test_query_individual_phenometrics(mocker):
+    """Test the query_api function to fetch individual phenometrics."""
     mock_response = mocker.Mock()
     mock_response.json.return_value = {"summarized_data": []}
     mock_response.status_code = 200
@@ -58,17 +58,17 @@ async def test_query_summarized_data(mocker):
 
     async with APIClient() as client:
         await client.query_api(
-            endpoint=NPNTools.SummarizedData.endpoint,
+            endpoint=NPNTools.IndividualPhenometrics.endpoint,
             arguments={"start_date": "2025-01-01", "end_date": "2025-01-31"},
         )
-        data = client.read_last_response(name=NPNTools.SummarizedData.name)
+        data = client.read_last_response(name=NPNTools.IndividualPhenometrics.name)
         assert data == {"result": {"summarized_data": []}}
 
 
 @pytest.mark.integration_test
 @pytest.mark.asyncio
-async def test_query_site_level_data(mocker):
-    """Test the query_api function to fetch site-level data."""
+async def test_query_site_phenometrics(mocker):
+    """Test the query_api function to fetch site phenometrics."""
     mock_response = mocker.Mock()
     mock_response.json.return_value = {"site_level_data": []}
     mock_response.status_code = 200
@@ -78,17 +78,17 @@ async def test_query_site_level_data(mocker):
 
     async with APIClient() as client:
         await client.query_api(
-            endpoint=NPNTools.SiteLevelData.endpoint,
+            endpoint=NPNTools.SitePhenometrics.endpoint,
             arguments={"start_date": "2025-01-01", "end_date": "2025-01-31"},
         )
-        data = client.read_last_response(name=NPNTools.SiteLevelData.name)
+        data = client.read_last_response(name=NPNTools.SitePhenometrics.name)
         assert data == {"result": {"site_level_data": []}}
 
 
 @pytest.mark.integration_test
 @pytest.mark.asyncio
-async def test_query_magnitude_data(mocker):
-    """Test the query_api function to fetch magnitude data."""
+async def test_query_magnitude_phenometrics(mocker):
+    """Test the query_api function to fetch magnitude phenometrics."""
     mock_response = mocker.Mock()
     mock_response.json.return_value = {"magnitude_data": []}
     mock_response.status_code = 200
@@ -98,12 +98,12 @@ async def test_query_magnitude_data(mocker):
 
     async with APIClient() as client:
         await client.query_api(
-            endpoint=NPNTools.MagnitudeData.endpoint,
+            endpoint=NPNTools.MagnitudePhenometrics.endpoint,
             arguments={
                 "start_date": "2025-01-01",
                 "end_date": "2025-01-31",
                 "frequency": 7,
             },
         )
-        data = client.read_last_response(name=NPNTools.MagnitudeData.name)
+        data = client.read_last_response(name=NPNTools.MagnitudePhenometrics.name)
         assert data == {"result": {"magnitude_data": []}}

@@ -74,11 +74,11 @@ class APIClient:
 
     def __init__(self) -> None:
         self.client = httpx.AsyncClient(timeout=20.0, base_url=self.API_BASE_URL)
-        self.obs_responses: list[list[Dict[str, Any]]] = []
-        self.obs_com_responses: list[list[Dict[str, Any]]] = []
-        self.mag_data_responses: list[list[Dict[str, Any]]] = []
-        self.site_level_data_responses: list[list[Dict[str, Any]]] = []
-        self.summarized_data_responses: list[list[Dict[str, Any]]] = []
+        self.status_intensity_responses: list[list[Dict[str, Any]]] = []
+        self.observation_comment_responses: list[list[Dict[str, Any]]] = []
+        self.magnitude_phenometrics_responses: list[list[Dict[str, Any]]] = []
+        self.site_phenometrics_responses: list[list[Dict[str, Any]]] = []
+        self.individual_phenometrics_responses: list[list[Dict[str, Any]]] = []
 
     async def __aenter__(self) -> APIClient:
         """
@@ -166,48 +166,48 @@ class APIClient:
         """
         response = await self._get(endpoint, params=arguments)
         match endpoint:
-            case NPNTools.Observations.endpoint:
-                self.obs_responses.append(response)
+            case NPNTools.StatusIntensity.endpoint:
+                self.status_intensity_responses.append(response)
             case NPNTools.ObservationComment.endpoint:
-                self.obs_com_responses.append(response)
-            case NPNTools.MagnitudeData.endpoint:
-                self.mag_data_responses.append(response)
-            case NPNTools.SiteLevelData.endpoint:
-                self.site_level_data_responses.append(response)
-            case NPNTools.SummarizedData.endpoint:
-                self.summarized_data_responses.append(response)
+                self.observation_comment_responses.append(response)
+            case NPNTools.MagnitudePhenometrics.endpoint:
+                self.magnitude_phenometrics_responses.append(response)
+            case NPNTools.SitePhenometrics.endpoint:
+                self.site_phenometrics_responses.append(response)
+            case NPNTools.IndividualPhenometrics.endpoint:
+                self.individual_phenometrics_responses.append(response)
         logger.info(f"Response stored for {endpoint}.")
 
     def read_last_response(self, name: str) -> Dict[str, Any]:
         """Get the last response from the API by tool name."""
         logger.info(f"Reading {name} resource")
         match name:
-            case NPNTools.Observations.name:
-                responses = self.obs_responses
+            case NPNTools.StatusIntensity.name:
+                responses = self.status_intensity_responses
             case NPNTools.ObservationComment.name:
-                responses = self.obs_com_responses
-            case NPNTools.MagnitudeData.name:
-                responses = self.mag_data_responses
-            case NPNTools.SiteLevelData.name:
-                responses = self.site_level_data_responses
-            case NPNTools.SummarizedData.name:
-                responses = self.summarized_data_responses
+                responses = self.observation_comment_responses
+            case NPNTools.MagnitudePhenometrics.name:
+                responses = self.magnitude_phenometrics_responses
+            case NPNTools.SitePhenometrics.name:
+                responses = self.site_phenometrics_responses
+            case NPNTools.IndividualPhenometrics.name:
+                responses = self.individual_phenometrics_responses
         return {"result": responses[-1]} if responses else {"result": None}
 
     def summarize_response(self, name: str) -> Dict[str, Any]:
         """Get unique variables and entries from last API response by tool name."""
         logger.info(f"Summarizing {name} response")
         match name:
-            case NPNTools.Observations.name:
-                responses = self.obs_responses
+            case NPNTools.StatusIntensity.name:
+                responses = self.status_intensity_responses
             case NPNTools.ObservationComment.name:
-                responses = self.obs_com_responses
-            case NPNTools.MagnitudeData.name:
-                responses = self.mag_data_responses
-            case NPNTools.SiteLevelData.name:
-                responses = self.site_level_data_responses
-            case NPNTools.SummarizedData.name:
-                responses = self.summarized_data_responses
+                responses = self.observation_comment_responses
+            case NPNTools.MagnitudePhenometrics.name:
+                responses = self.magnitude_phenometrics_responses
+            case NPNTools.SitePhenometrics.name:
+                responses = self.site_phenometrics_responses
+            case NPNTools.IndividualPhenometrics.name:
+                responses = self.individual_phenometrics_responses
 
         if not responses:
             return {"result": None}
@@ -231,16 +231,16 @@ class APIClient:
         logger.info(f"Reading {name} output_schema resource")
         responses = []
         match name:
-            case NPNTools.Observations.name:
-                responses = self.obs_responses
+            case NPNTools.StatusIntensity.name:
+                responses = self.status_intensity_responses
             case NPNTools.ObservationComment.name:
-                responses = self.obs_com_responses
-            case NPNTools.MagnitudeData.name:
-                responses = self.mag_data_responses
-            case NPNTools.SiteLevelData.name:
-                responses = self.site_level_data_responses
-            case NPNTools.SummarizedData.name:
-                responses = self.summarized_data_responses
+                responses = self.observation_comment_responses
+            case NPNTools.MagnitudePhenometrics.name:
+                responses = self.magnitude_phenometrics_responses
+            case NPNTools.SitePhenometrics.name:
+                responses = self.site_phenometrics_responses
+            case NPNTools.IndividualPhenometrics.name:
+                responses = self.individual_phenometrics_responses
         if responses[-1]:
             # Get the full schema for the tool
             full_schema = API_SCHEMAS[name]["properties"]

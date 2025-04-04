@@ -66,7 +66,7 @@ class BaseQuery(BaseModel):
     )
 
 
-class ObservationsQuery(BaseQuery):
+class StatusIntensityQuery(BaseQuery):
     """
     Input parameters for the getObservations endpoint.
 
@@ -87,7 +87,7 @@ class ObservationCommentQuery(BaseModel):
     )
 
 
-class SummarizedDataQuery(BaseQuery):
+class IndividualPhenometricsQuery(BaseQuery):
     """
     Input parameters for the getSummarizedData endpoint.
 
@@ -100,7 +100,7 @@ class SummarizedDataQuery(BaseQuery):
     )
 
 
-class SiteLevelDataQuery(BaseQuery):
+class SitePhenometricsQuery(BaseQuery):
     """
     Input parameters for the getSiteLevelData endpoint.
 
@@ -113,7 +113,7 @@ class SiteLevelDataQuery(BaseQuery):
     )
 
 
-class MagnitudeDataQuery(BaseQuery):
+class MagnitudePhenometricsQuery(BaseQuery):
     """
     Input parameters for the getMagnitudeData endpoint.
 
@@ -204,22 +204,24 @@ class NPNTools:
 
     Attributes
     ----------
-    Observations : Tool
+    StatusIntensity : Tool
         Tool for querying raw observation data.
     ObservationComment : Tool
         Tool for retrieving comments for observations.
-    MagnitudeData : Tool
-        Tool for querying magnitude data.
-    SiteLevelData : Tool
-        Tool for querying site level data.
-    SummarizedData : Tool
-        Tool for querying summarized data.
+    MagnitudePhenometrics : Tool
+        Tool for querying magnitude phenometrics.
+    SitePhenometrics : Tool
+        Tool for querying site phenometrics.
+    IndividualPhenometrics : Tool
+        Tool for querying individual phenometrics.
+    Mapping : Tool
+        Tool for constructing maps from query results.
     """
 
-    Observations = NPNTool(
-        name="observations",
-        description="Query NPN API for intensity and status data aka raw observation data (from getObservations endpoint), results stored as readable Resource 'observations'",
-        input_schema=ObservationsQuery.model_json_schema(),
+    StatusIntensity = NPNTool(
+        name="status_intensity",
+        description="Query NPN API for intensity and status data aka raw observation data (from getObservations endpoint), results stored as readable Resource 'status_intensity'",
+        input_schema=StatusIntensityQuery.model_json_schema(),
         endpoint="getObservations",
     )
     ObservationComment = NPNTool(
@@ -228,22 +230,22 @@ class NPNTools:
         input_schema=ObservationCommentQuery.model_json_schema(),
         endpoint="getObservationComment",
     )
-    MagnitudeData = NPNTool(
-        name="magnitude_data",
-        description="Query NPN API for magnitude phenometrics aka magnitude data (from getMagnitudeData endpoint), results stored as readable Resource 'magnitude_data'",
-        input_schema=MagnitudeDataQuery.model_json_schema(),
+    MagnitudePhenometrics = NPNTool(
+        name="magnitude_phenometrics",
+        description="Query NPN API for magnitude phenometrics aka magnitude data (from getMagnitudeData endpoint), results stored as readable Resource 'magnitude_phenometrics'",
+        input_schema=MagnitudePhenometricsQuery.model_json_schema(),
         endpoint="getMagnitudeData",
     )
-    SiteLevelData = NPNTool(
-        name="site_level_data",
-        description="Query NPN API for site phenometrics aka site level data (from getSiteLevelData endpoint), results stored as readable Resource 'site_level_data'",
-        input_schema=SiteLevelDataQuery.model_json_schema(),
+    SitePhenometrics = NPNTool(
+        name="site_phenometrics",
+        description="Query NPN API for site phenometrics aka site level data (from getSiteLevelData endpoint), results stored as readable Resource 'site_phenometrics'",
+        input_schema=SitePhenometricsQuery.model_json_schema(),
         endpoint="getSiteLevelData",
     )
-    SummarizedData = NPNTool(
-        name="summarized_data",
-        description="Query NPN API for individual phenometrics aka summarized data (from getSummarizedData endpoint), results stored as readable Resource 'summarized_data'",
-        input_schema=SummarizedDataQuery.model_json_schema(),
+    IndividualPhenometrics = NPNTool(
+        name="individual_phenometrics",
+        description="Query NPN API for individual phenometrics aka summarized data (from getSummarizedData endpoint), results stored as readable Resource 'individual_phenometrics'",
+        input_schema=IndividualPhenometricsQuery.model_json_schema(),
         endpoint="getSummarizedData",
     )
     Mapping = NPNTool(
