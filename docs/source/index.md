@@ -13,12 +13,14 @@ roadmap
 news
 ```
 
-Welcome to the documentation for the USA National Phenology Network (USA-NPN) MCP Server. This server provides tools and APIs for phenologists and developers to access, analyze, and manage phenological data efficiently and work with LLM agents in phenology.
+Welcome to the documentation for the USA National Phenology Network (USA-NPN) MCP Server. This server is intended for phenologists and developers to access, analyze, and manage phenological data efficiently and work with AI Agents in phenology. This MCP Server is also designed to reduce barriers to citizen scientists interested in phenology and looking for a natural language tool, this can nurture phenology interests and drive data collection improvement efforts.
 
 The MCP Server is designed to support:
 
-- **Phenologists**: Researchers and practitioners studying the timing of biological events in relation to climate and environmental changes.
+- **Phenologists**: Researchers and practitioners studying the timing of biological events, often in relation to environmental changes and climate.
 - **Developers**: Engineers and data scientists integrating phenological data into applications or workflows.
+- **Citizen Scientists**: Members of the public interested in phenological data exploration currently experiencing technical barriers.
+
 
 ## Key Features
 

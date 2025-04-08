@@ -52,7 +52,7 @@ copybutton_prompt_text = r">>> |\.\.\. "
 copybutton_prompt_is_regexp = True
 
 apidoc_module_dir = "../../src/usa_npn_mcp_server"
-apidoc_excluded_paths = ["tests"]
+apidoc_excluded_paths = ["tests", "data"]
 apidoc_output_dir = "reference/api"
 apidoc_separate_modules = True
 apidoc_extra_args = ["-f", "-M", "-T", "--implicit-namespaces"]
