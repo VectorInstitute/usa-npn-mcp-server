@@ -8,7 +8,6 @@ hide-toc: true
 :hidden:
 
 user_guide
-api
 roadmap
 news
 ```
@@ -32,7 +31,6 @@ The MCP Server is designed to support:
 
 ## Overview
 
-- **[User Guide](./user_guide.md)**: Step-by-step instructions for accessing and using the MCP Server's features.
-- **[API Reference](./api.md)**: Documentation of the server's Tools, Resources, Prompts.
+- **[User Guide](./user_guide.md)**: Step-by-step instructions for accessing and using the MCP Server's features. Also, learn more about MCP and AI Agents.
 - **[Roadmap](./roadmap.md)**: Future features and enhancements planned for the MCP Server.
 - **[News](./news.md)**: Updates and announcements regarding the MCP Server.
