@@ -65,7 +65,9 @@ After cloning with either method:
 
 ### Installing dependencies
 
-**After `uv` is installed, run**:
+After `uv` is installed, run:
+
+#
 
 <details>
 <summary>macOS and Linux</summary>
@@ -101,6 +103,7 @@ After cloning with either method:
 
 </details>
 
+#
 
 These commands set up and activate the `.venv` environment as specified in the `pyproject.toml` and `uv.lock` files.
 
@@ -117,7 +120,10 @@ uv sync --dev
 
 You will need to modify your `claude_desktop_config.json` to make it aware of the MCP Server:
 
-**How to find and modify claude_desktop_config.json**:
+How to find and modify claude_desktop_config.json:
+
+#
+
 <details>
 <summary>macOS and Linux</summary>
 
@@ -175,6 +181,7 @@ You will need to modify your `claude_desktop_config.json` to make it aware of th
 
 </details>
 
+#
 
 After saving the changes, restart Claude Desktop. You should see a new :electric_plug: icon and/or :hammer: icons in your chat prompt that confirms the MCP Server is detected.
 
@@ -186,7 +193,7 @@ Each time you create a new chat that uses a Tool from the MCP Server, you will h
 
 ## Debugging
 
-**Debugging with MCP Inspector (Currently only macOS and Linux) **: To run a locally hosted MCP interpreter for debugging, use:
+**Debugging with MCP Inspector (Currently only macOS and Linux)**: To run a locally hosted MCP interpreter for debugging, use:
 
    ```bash
    npx @modelcontextprotocol/inspector uv run usa_npn_mcp_server
