@@ -25,7 +25,11 @@
 
 ### Prerequisites
 
-`uv` will manage the virtual environment and dependencies for you. If you don't have `uv`, follow the instructions to install `uv` for your operating system:
+`uv` will manage the virtual environment and dependencies for you.
+
+#
+
+Install `uv` for your operating system:
 
 <details>
 <summary>macOS and Linux</summary>
@@ -46,6 +50,8 @@ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | ie
 
 </details>
 
+#
+
 ### Clone the repository
 
 Using HTTPS (recommended for most users):
@@ -65,9 +71,9 @@ After cloning with either method:
 
 ### Installing dependencies
 
-After `uv` is installed, run:
-
 #
+
+After `uv` is installed, run:
 
 <details>
 <summary>macOS and Linux</summary>
@@ -120,9 +126,9 @@ uv sync --dev
 
 You will need to modify your `claude_desktop_config.json` to make it aware of the MCP Server:
 
-How to find and modify claude_desktop_config.json:
-
 #
+
+How to find and modify claude_desktop_config.json:
 
 <details>
 <summary>macOS and Linux</summary>
