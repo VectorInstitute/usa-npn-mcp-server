@@ -13,24 +13,23 @@ Host: Recommended is [Claude Desktop App](https://claude.ai/download) but any AI
 
 1. **Install MCP Server**: The GitHub repository [README.md](../../README.md) contains instructions for installing the MCP Server.
 2. **Configure Server with MCP Host**: Configuration with Claude Desktop App is also found in the [README.md](../../README.md) but this Server can be configured with any MCP-compliant host (like this [Copilot MCP Extension in VSCode](https://marketplace.visualstudio.com/items?itemName=AutomataLabs.copilot-mcp)).
-3. **You are ready**: Start interacting with the AI Agent with access to the NPN MCP Server. See below for examples.
 
-## Example
+### Example Usage
 
-## GIF Placeholder
+![alt text](../../assets/example_usage.gif)
 
-This example contains:
+### This example contains:
 1. **Basic Queries**: Natural language queries for retrieving phenological data.
 2. **Mapping**: Generating map of the retrieved data.
 
 
 # Learn more about AI and MCP Servers
 
-Large Language Models (LLMs) have proven powerful in reasoning and generalize well across tasks. AI Agents result from connecting powerful models to tools, allowing them to interact with the world. Adding to the Agent's toolkit is a major goal of this project.
+Large Language Models (LLMs) such as OpenAI's GPT models, Google's Gemini models, Anthropic's Claude models and Meta's (open-source) Llama models have proven powerful in reasoning and generalize well across language and text-based tasks. AI Agents result from connecting powerful models to tools, allowing them to interact with the world. Adding NPN data query and analysis to the Agent's toolkit is a major goal of this project.
 
-Recently, interaction between AI Agents and their underlying tools was pushed towards standardization and cross-model compatibility with the **Model Context Protocol (MCP)**, a structured Client-Server communication protocol.
+Recently, interaction between AI Agents and their underlying tools was pushed towards standardization with **Model Context Protocol (MCP)**, a structured Client-Server communication protocol. This is a push towards "cross-platform" compatibility where LLM-hosting applications can connect to custom MCP Servers that provide agency for action.
 
-The custom MCP Server presented here can communicate with MCP Clients in MCP-compatible Hosts (like Claude Desktop, IDEs or AI Tools) to add USA-NPN Data interaction and analysis to the Agent's repertoire.
+The custom MCP Server presented here can add USA-NPN Data interaction and analysis to the Agent's repertoire by communicating with MCP Clients in MCP-compatible Hosts (like Claude Desktop, IDEs or AI Tools).
 
 There are [many other awesome MCP Servers](https://github.com/appcypher/awesome-mcp-servers) for making capable AI Agents.
 
