@@ -13,6 +13,7 @@ Host: Recommended is [Claude Desktop App](https://claude.ai/download) but any AI
 
 1. **Install MCP Server**: The GitHub repository [README.md](../../README.md) contains instructions for installing the MCP Server.
 2. **Configure Server with MCP Host**: Configuration with Claude Desktop App is also found in the [README.md](../../README.md) but this Server can be configured with any MCP-compliant host (like this [Copilot MCP Extension in VSCode](https://marketplace.visualstudio.com/items?itemName=AutomataLabs.copilot-mcp)).
+3. **Launch Host**: You are ready to use the MCP Server in the host application. See below.
 
 ### Example Usage
 
@@ -23,7 +24,7 @@ Host: Recommended is [Claude Desktop App](https://claude.ai/download) but any AI
 2. **Mapping**: Generating map of the retrieved data.
 
 
-# Learn more about AI and MCP Servers
+# Learn More: AI and MCP Servers
 
 Large Language Models (LLMs) such as OpenAI's GPT models, Google's Gemini models, Anthropic's Claude models and Meta's (open-source) Llama models have proven powerful in reasoning and generalize well across language and text-based tasks. AI Agents result from connecting powerful models to tools, allowing them to interact with the world. Adding NPN data query and analysis to the Agent's toolkit is a major goal of this project.
 
