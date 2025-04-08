@@ -1,25 +1,25 @@
 # User Guide
 
-These tools enable natural language querying and analysis through AI Agents, streamlining access to and interpretation of phenological information collected by the USA-NPN.
+These tools allow natural language querying and analysis through AI Agents. They simplify access to and interpretation of phenological information collected by the USA-NPN.
 
 You can get started quickly by following the [Getting Started](#getting-started) below.
 
-More detail about the Agent, Client and MCP Server's architecture are also [provided below](#agentic-systems-and-mcp-servers) as well as [examples](#examples) of using the MCP Server to access and analyze phenological data.
+More detail about the Agent, Client, and MCP Server architecture are also [provided below](#learn-more-ai-and-mcp-servers) as well as [examples](#example-usage) of using the MCP Server to access and analyze phenological data.
 
 ## Getting Started
 
 ### Prerequisites
 Host: Recommended is [Claude Desktop App](https://claude.ai/download) but any AI Agent (IDE, AI Tool etc) that supports the Model Context Protocol (MCP) can be used as a Host.
 
-1. **Install MCP Server**: The GitHub repository [README.md](../../README.md) contains instructions for installing the MCP Server.
+1. **Install MCP Server**: Refer to the [README.md](../../README.md) in the GitHub repository for instructions on installing the MCP Server.
 2. **Configure Server with MCP Host**: Configuration with Claude Desktop App is also found in the [README.md](../../README.md) but this Server can be configured with any MCP-compliant host (like this [Copilot MCP Extension in VSCode](https://marketplace.visualstudio.com/items?itemName=AutomataLabs.copilot-mcp)).
 3. **Launch Host**: You are ready to use the MCP Server in the host application. See below.
 
 ### Example Usage
 
-![alt text](../../assets/example_usage.gif)
+![Example usage of the MCP Server in action](../../assets/example_usage.gif)
 
-### This example contains:
+### This example includes:
 1. **Basic Queries**: Natural language queries for retrieving phenological data.
 2. **Mapping**: Generating map of the retrieved data.
 
@@ -62,4 +62,4 @@ Tools, Resources and Prompts are some of the structured ways that MCP Servers ca
 - **Prompts**: Predefined templates for workflows and interacting with AI Agents in phenology.
 
 
-Refer to the [API Reference](api.md) for detailed documentation. Stay tuned for updates with the [News](news.md) and [Roadmap](roadmap.md).
+Stay tuned for updates with the [News](news.md) and [Roadmap](roadmap.md).
