@@ -140,7 +140,7 @@ class BasePlotModel(BaseModel):
         description="Variable to be used for colour coding the data points.",
     )
     title: Optional[str] = Field(
-        description="Title for the map.",
+        description="Title for the plot.",
     )
 
 
@@ -170,9 +170,21 @@ class MapModel(BasePlotModel):
     plot_type: Literal["map"] = Field(
         description="Type of plot to generate.",
     )
+    tool_name: Literal["site-phenometrics"] = Field(
+        description="Name of the tool used to generate the data for the plot.",
+    )
     colour_by: str = Field(
         default="",
-        description="Variable to be used for colour coding the data points. Default is empty string.",
+        description="Variable to be used for colour coding the data points. Default is empty string for no colouring.",
+    )
+
+
+class CheckReferenceMaterialSQLQueryModel(BaseModel):
+    """Input parameters for checking reference material tool."""
+
+    sql_query: str = Field(
+        ...,
+        description="SQL query to run against the SQLite3 database to fetch relevant data.",
     )
 
 
@@ -216,41 +228,63 @@ class NPNTools:
         Tool for querying individual phenometrics.
     Mapping : Tool
         Tool for constructing maps from query results.
+    CheckReferenceMaterial : Tool
+        Tool for translating natural language into API-compliant terms
     """
 
     StatusIntensity = NPNTool(
-        name="status_intensity",
-        description="Query NPN API for intensity and status data aka raw observation data (from getObservations endpoint), results stored as readable Resource 'status_intensity'",
+        name="status-intensity",
+        description="Query NPN API for intensity and status data aka raw observation data (from getObservations endpoint), results stored as readable Resource 'status_intensity'. Other query tools that aggregate like Site Phenometrics, Individual Phenometrics, and Magnitude Phenometrics are built on top of this tool and should be instead of this tool. This tool should only be used for a small subset of dates because it returns large results.",
         input_schema=StatusIntensityQuery.model_json_schema(),
         endpoint="getObservations",
     )
     ObservationComment = NPNTool(
-        name="observation_comment",
+        name="observation-comment",
         description="Retrieve the comment for a given observation (from getObservationComment endpoint), results store as readable Resource 'observation_comment'",
         input_schema=ObservationCommentQuery.model_json_schema(),
         endpoint="getObservationComment",
     )
     MagnitudePhenometrics = NPNTool(
-        name="magnitude_phenometrics",
+        name="magnitude-phenometrics",
         description="Query NPN API for magnitude phenometrics aka magnitude data (from getMagnitudeData endpoint), results stored as readable Resource 'magnitude_phenometrics'",
         input_schema=MagnitudePhenometricsQuery.model_json_schema(),
         endpoint="getMagnitudeData",
     )
     SitePhenometrics = NPNTool(
-        name="site_phenometrics",
+        name="site-phenometrics",
         description="Query NPN API for site phenometrics aka site level data (from getSiteLevelData endpoint), results stored as readable Resource 'site_phenometrics'",
         input_schema=SitePhenometricsQuery.model_json_schema(),
         endpoint="getSiteLevelData",
     )
     IndividualPhenometrics = NPNTool(
-        name="individual_phenometrics",
+        name="individual-phenometrics",
         description="Query NPN API for individual phenometrics aka summarized data (from getSummarizedData endpoint), results stored as readable Resource 'individual_phenometrics'",
         input_schema=IndividualPhenometricsQuery.model_json_schema(),
         endpoint="getSummarizedData",
     )
     Mapping = NPNTool(
         name="mapping",
-        description="Construct a map from results of a previous query to the NPN API, use longitude latitude and specified variables to plot onto map of USA.",
+        description="Construct a map from results of a previous Site Phenometrics query to the NPN API, using longitude, latitude and specified variables to plot onto map of USA.",
         input_schema=MapModel.model_json_schema(),
+        endpoint="",
+    )
+    CheckReferenceMaterial = NPNTool(
+        name="check-reference-material",
+        description="""
+            Query an SQL database for reference material that can be used to translate natural language into specific ids and terms needed for querying the NPN API with other tools. There is no need to check the 'datasets' table unless specific observer groups are mentioned. The Tables have the following structure:
+
+            Table: species, Length: 1882, Headers: ['species_id', 'common_name', 'genus', 'genus_id', 'genus_common_name', 'species', 'kingdom', 'itis_taxonomic_sn', 'functional_type', 'class_id', 'class_common_name', 'class_name', 'order_id', 'order_common_name', 'order_name', 'family_id', 'family_name', 'family_common_name', 'species_type']
+            Description: Contains info on species
+
+            Table: phenophases, Length: 383, Headers: ['definition_id', 'dataset_id', 'phenophase_id', 'phenophase_name', 'definition', 'start_date', 'end_date', 'comments']
+            Description: Contains info on phenophases
+
+            Table: phenoclasses, Length: 199, Headers: ['phenophase_id', 'phenophase_name', 'phenophase_category', 'pheno_class_id']
+            Description: Contains info on phenoclasses (a grouping of phenophases)
+
+            Table: datasets, Length: 14, Headers: ['dataset_id', 'dataset_name', 'dataset_description', 'dataset_comments', 'dataset_documentation_url']
+            Description: Contains info on datasets and their contributors
+""",
+        input_schema=CheckReferenceMaterialSQLQueryModel.model_json_schema(),
         endpoint="",
     )
