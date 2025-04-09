@@ -2,65 +2,35 @@
 hide-toc: true
 ---
 
-# Vector AI Engineering template (uv edition) repository
+# USA-NPN MCP Server Documentation
 
 ```{toctree}
 :hidden:
 
 user_guide
-api
-
+roadmap
+news
 ```
 
-This template repository can be used to bootstrap AI Engineering project repositories
-on Github! The template is meant for python codebases since Python is the most commonly
-used language by our team.
+Welcome to the documentation for the USA National Phenology Network (USA-NPN) MCP Server. This server is intended for phenologists and developers to access, analyze, and manage phenological data efficiently and work with AI Agents in phenology. This MCP Server is also designed to reduce barriers to citizen scientists interested in phenology and looking for a natural language tool, this can nurture phenology interests and drive data collection improvement efforts.
 
-The template includes:
+The MCP Server is designed to support:
 
-- [pyproject.toml](https://pip.pypa.io/en/stable/reference/build-system/pyproject-toml/)
-file to specify repository information and manage dependencies using
-[uv](https://docs.astral.sh/uv/).
-
-- [README.md](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-readmes) which should have basic information on why the project is
-useful, installation instructions and other information on how users can get started.
-
-- [.pre-commit-config.yaml](https://pre-commit.com/) for running pre-commit hooks that
-check for code-style, apply formatting, check for type hints and run tests.
-
-- [.github/pull_request_template.md](https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/creating-a-pull-request-template-for-your-repository) for PRs.
-
-- [.github/ISSUE_TEMPLATE](https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/configuring-issue-templates-for-your-repository) for bug reports and issues that can be raised on the repository.
-
-- [.github/workflows](https://docs.github.com/en/actions/using-workflows) for running CI
-workflows using Github actions. The template includes CI workflows for code checks,
-documentation building and releasing python packages to PyPI.
-
-- [LICENSE.md](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository) for adding a license to the project repository.
-By default, this is the [Apache-2.0 license](http://www.apache.org/licenses/). Please
-change according to your project!
-
-- [docs](https://pradyunsg.me/furo/) for adding project documentation. Typically
-projects should have API reference documentation, user guides and tutorials.
-
-- [CONTRIBUTING.md](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/setting-guidelines-for-repository-contributors) with basic guidelines on how others can
-contribute to the repository.
-
-- [CODE_OF_CONDUCT.md](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/adding-a-code-of-conduct-to-your-project) with standards on how the community engages in
-a healthy and constructive manner.
-
-- [.gitignore](https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files)
-with some standard file extensions to be ignored by git. Please add/modify as necessary.
-
-- [codecov.yml](https://docs.codecov.com/docs/codecov-yaml) for using codecov.io to
-generate code coverage information for your repository. You would need to add codecov.io
-app as an [integration to your repository](https://docs.codecov.com/docs/how-to-create-a-github-app-for-codecov-enterprise).
+- **Phenologists**: Researchers and practitioners studying the timing of biological events, often in relation to environmental changes and climate.
+- **Developers**: Engineers and data scientists integrating phenological data into applications or workflows.
+- **Citizen Scientists**: Members of the public interested in phenological data exploration currently experiencing technical barriers.
 
 
-If you are starting a new project, you can navigate to the [Use this template](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template) button
-on the top right corner of the [template repository home page](https://github.com/VectorInstitute/aieng-template)
-which will allow you to bootstrap your project repo using this template.
+## Key Features
 
-Please check out the user guide page for more detailed information on using the
-template features. For existing projects, the [user guide](user_guide.md)
-can be followed to migrate to following the template more closely.
+- **Data Access APIs**: Retrieve phenological data programmatically using 4 key data types.
+- **Customizable Queries**: Filter and query data based on dates, species, location, phenophase etc.
+- **Visualizations**: Mapping and plotting of phenological data.
+- **Data Analysis**: Tools for analyzing trends and patterns in phenological data.
+- **Documentation**: Comprehensive examples and guides for using the server's features.
+
+## Overview
+
+- **[User Guide](./user_guide.md)**: Step-by-step instructions for accessing and using the MCP Server's features. Also, learn more about MCP and AI Agents.
+- **[Roadmap](./roadmap.md)**: Future features and enhancements planned for the MCP Server.
+- **[News](./news.md)**: Updates and announcements regarding the MCP Server.
