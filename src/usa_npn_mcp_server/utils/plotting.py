@@ -11,7 +11,7 @@ from matplotlib.colors import to_hex
 from shapely.geometry import Point
 
 
-def generate_map(data: list[Dict[str, Any]], colour_by: str) -> str:
+async def generate_map(data: list[Dict[str, Any]], colour_by: str) -> str:
     """
     Generate a map with lat/long as axes, overlaying a US map with state outlines.
 
@@ -29,7 +29,10 @@ def generate_map(data: list[Dict[str, Any]], colour_by: str) -> str:
     """
     if not data:
         raise ValueError("Data cannot be empty.")
-
+    if not any(entry.get("longitude") for entry in data) and not any(
+        entry.get("latitude") for entry in data
+    ):
+        raise ValueError("Latitude and Longitude cannot be empty.")
     # Load a GeoDataFrame of US states
     us_states = gpd.read_file(
         "https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.json"
@@ -48,7 +51,7 @@ def generate_map(data: list[Dict[str, Any]], colour_by: str) -> str:
 
     if colour_by:
         # Extract unique categories and assign colors
-        cats = {entry[colour_by] for entry in data if colour_by in entry}
+        cats = {entry.get(colour_by) for entry in data if colour_by in entry}
         colormap = cm.get_cmap("tab10", len(cats))
         cats_colors = {sp: to_hex(colormap(i)) for i, sp in enumerate(cats)}
         # Plot the data points
@@ -97,7 +100,7 @@ def generate_map(data: list[Dict[str, Any]], colour_by: str) -> str:
 
     # Save the map to a byte buffer
     buffer = io.BytesIO()
-    plt.savefig(buffer, format="jpg", bbox_inches="tight")
+    plt.savefig(buffer, format="jpeg", bbox_inches="tight")
     plt.close()
     buffer.seek(0)
 
