@@ -232,13 +232,28 @@ class APIClient:
                     full_dataset[key].append(value)
 
         int_encoded = ["phenophase_status", "patch", "itis_number", "year"]
+        continuous = [
+            "elevation_in_meters",
+            "mean_first_yes_year",
+            "mean_first_yes_doy",
+            "mean_first_yes_julian_date",
+            "se_first_yes_in_days",
+            "mean_numdays_since_prior_no",
+            "se_numdays_since_prior_no",
+            "mean_last_yes_year",
+            "mean_last_yes_doy",
+            "mean_last_yes_julian_date",
+            "se_last_yes_in_days",
+            "mean_numdays_until_next_no",
+            "se_numdays_until_next_no",
+        ]
         # Process unique values to identify continuous variables and null-only variables
         for key, values in unique_keys_summary.items():
             if values == {-9999}:
                 only_null.append(key)
             elif "_id" in key or key in int_encoded:
                 discrete_summary[key] = list(values)
-            elif key == "elevation_in_meters" or all(
+            elif key in continuous or all(
                 isinstance(v, (int, float)) and v != -9999 for v in values
             ):
                 values_list = [v for v in full_dataset[key] if v != -9999]
@@ -299,8 +314,8 @@ class APIClient:
             return {"result": None}
         # Get the full schema for the tool
         full_schema = API_SCHEMAS[name]["properties"]
-        if isinstance(last_response[0], dict):
-            keys = [key for key, val in last_response[0].items() if val]
+        if isinstance(last_response[0][0], dict):
+            keys = [key for key, val in last_response[0][0].items() if val]
         else:
             keys = []
         select_schema = {key: full_schema[key] for key in keys if key in full_schema}
@@ -412,8 +427,10 @@ class APIClient:
             raise ValueError(f"No cached response found for {name}")
         if not self._cache[name]["raw"]:
             raise ValueError(f"No raw data found for {name}")
-        result: list[Dict[str, Any]] = self._cache[name]["raw"][-1:]
-        return result
+        result: list[list[Dict[str, Any]]] = self._cache[name]["raw"][-1:]
+        if not result:
+            raise ValueError(f"No raw data found for {name}")
+        return result[0]
 
     async def get_cached(
         self, name: str
