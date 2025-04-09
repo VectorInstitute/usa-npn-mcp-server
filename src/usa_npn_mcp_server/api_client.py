@@ -4,15 +4,21 @@ from __future__ import annotations
 
 import json
 import logging
+import sqlite3
 import traceback
 from datetime import datetime
 from functools import wraps
+from pathlib import Path
+from statistics import mean, median
 from types import TracebackType
-from typing import Any, Dict, Optional, Type
+from typing import Any, Dict, Optional, Type, Union
 from urllib.parse import urlencode
 
 import httpx
+import numpy as np
+import pandas as pd
 from mcp.types import (
+    BlobResourceContents,
     EmbeddedResource,
     ImageContent,
     TextContent,
@@ -20,7 +26,7 @@ from mcp.types import (
 )
 from pydantic import AnyUrl
 
-from usa_npn_mcp_server.utils.endpoints import NPNTools
+from usa_npn_mcp_server.utils.endpoints import NPNTool, NPNTools
 from usa_npn_mcp_server.utils.output_schema import API_SCHEMAS
 from usa_npn_mcp_server.utils.plotting import generate_map
 
@@ -70,15 +76,36 @@ class APIClient:
 
     # Base URL for the NPN API observations endpoints.
     API_BASE_URL: str = "https://services.usanpn.org/npn_portal/observations"
-    _cache: dict[str, list[str]] = {}
 
     def __init__(self) -> None:
-        self.client = httpx.AsyncClient(timeout=20.0, base_url=self.API_BASE_URL)
-        self.status_intensity_responses: list[list[Dict[str, Any]]] = []
-        self.observation_comment_responses: list[list[Dict[str, Any]]] = []
-        self.magnitude_phenometrics_responses: list[list[Dict[str, Any]]] = []
-        self.site_phenometrics_responses: list[list[Dict[str, Any]]] = []
-        self.individual_phenometrics_responses: list[list[Dict[str, Any]]] = []
+        self.client = httpx.AsyncClient(timeout=60.0, base_url=self.API_BASE_URL)
+        self._tool_list: list[NPNTool] = [
+            NPNTools.StatusIntensity,
+            NPNTools.ObservationComment,
+            NPNTools.MagnitudePhenometrics,
+            NPNTools.SitePhenometrics,
+            NPNTools.IndividualPhenometrics,
+            NPNTools.Mapping,
+            NPNTools.CheckReferenceMaterial,
+        ]
+        self._cache: Dict[
+            str,
+            Dict[
+                str,
+                Any,
+            ],
+        ] = {
+            str(tool.name): {
+                "raw": list[Dict[str, Any]](),
+                "responses": list[
+                    list[Union[TextContent, ImageContent, EmbeddedResource]]
+                ](),
+                "maps": list[
+                    list[Union[TextContent, ImageContent, EmbeddedResource]]
+                ](),
+            }
+            for tool in self._tool_list
+        }
 
     async def __aenter__(self) -> APIClient:
         """
@@ -120,6 +147,10 @@ class APIClient:
     async def close(self) -> None:
         """Close the underlying HTTP client."""
         await self.client.aclose()
+
+    def get_tool_list(self) -> list[NPNTool]:
+        """Get the list of available tools."""
+        return self._tool_list
 
     @log_call
     async def _get(self, endpoint: str, params: Optional[Dict[str, Any]] = None) -> Any:
@@ -164,101 +195,141 @@ class APIClient:
             endpoint (str): The API endpoint to query.
             arguments (Dict[str, Any]): The arguments to pass to the API.
         """
+        name = next(
+            (tool.name for tool in self._tool_list if tool.endpoint == endpoint), None
+        )
+        if not name:
+            raise ValueError(f"No matching tool name found for endpoint: {endpoint}")
         response = await self._get(endpoint, params=arguments)
-        match endpoint:
-            case NPNTools.StatusIntensity.endpoint:
-                self.status_intensity_responses.append(response)
-            case NPNTools.ObservationComment.endpoint:
-                self.observation_comment_responses.append(response)
-            case NPNTools.MagnitudePhenometrics.endpoint:
-                self.magnitude_phenometrics_responses.append(response)
-            case NPNTools.SitePhenometrics.endpoint:
-                self.site_phenometrics_responses.append(response)
-            case NPNTools.IndividualPhenometrics.endpoint:
-                self.individual_phenometrics_responses.append(response)
-        logger.info(f"Response stored for {endpoint}.")
-
-    def read_last_response(self, name: str) -> Dict[str, Any]:
-        """Get the last response from the API by tool name."""
-        logger.info(f"Reading {name} resource")
-        match name:
-            case NPNTools.StatusIntensity.name:
-                responses = self.status_intensity_responses
-            case NPNTools.ObservationComment.name:
-                responses = self.observation_comment_responses
-            case NPNTools.MagnitudePhenometrics.name:
-                responses = self.magnitude_phenometrics_responses
-            case NPNTools.SitePhenometrics.name:
-                responses = self.site_phenometrics_responses
-            case NPNTools.IndividualPhenometrics.name:
-                responses = self.individual_phenometrics_responses
-        return {"result": responses[-1]} if responses else {"result": None}
+        self._cache[name]["raw"].append(response)
+        logger.info(f"Response stored for {name}.")
 
     def summarize_response(self, name: str) -> Dict[str, Any]:
         """Get unique variables and entries from last API response by tool name."""
         logger.info(f"Summarizing {name} response")
-        match name:
-            case NPNTools.StatusIntensity.name:
-                responses = self.status_intensity_responses
-            case NPNTools.ObservationComment.name:
-                responses = self.observation_comment_responses
-            case NPNTools.MagnitudePhenometrics.name:
-                responses = self.magnitude_phenometrics_responses
-            case NPNTools.SitePhenometrics.name:
-                responses = self.site_phenometrics_responses
-            case NPNTools.IndividualPhenometrics.name:
-                responses = self.individual_phenometrics_responses
-
-        if not responses:
+        if name not in self._cache:
+            raise ValueError(f"Tool not in cache: {name}")
+        if "raw" not in self._cache[name]:
+            raise ValueError(f"No cached response found for {name}")
+        last_response = self._cache[name]["raw"][-1:]
+        if not last_response:
             return {"result": None}
 
-        last_response = responses[-1]
-        unique_keys_summary: dict[str, set[str]] = {}
+        unique_keys_summary: dict[str, set[Any]] = {}
+        full_dataset: dict[str, list[Any]] = {}
+        discrete_summary: dict[str, list[Any]] = {}
+        continuous_summary: dict[str, dict[str, float]] = {}
+        only_null: list[str] = []
+
         # Collect unique keys and their values
-        for entry in last_response:
-            for key, value in entry.items():
-                if key not in unique_keys_summary:
-                    unique_keys_summary[key] = set()
-                unique_keys_summary[key].add(value)
+        for entry in last_response[0]:  # Ensure entry is a dictionary
+            if isinstance(entry, dict):
+                for key, value in entry.items():
+                    if key not in unique_keys_summary:
+                        unique_keys_summary[key] = set()
+                        full_dataset[key] = []
+                    unique_keys_summary[key].add(value)
+                    full_dataset[key].append(value)
+
+        int_encoded = ["phenophase_status", "patch", "itis_number", "year"]
+        continuous = [
+            "elevation_in_meters",
+            "mean_first_yes_year",
+            "mean_first_yes_doy",
+            "mean_first_yes_julian_date",
+            "se_first_yes_in_days",
+            "mean_numdays_since_prior_no",
+            "se_numdays_since_prior_no",
+            "mean_last_yes_year",
+            "mean_last_yes_doy",
+            "mean_last_yes_julian_date",
+            "se_last_yes_in_days",
+            "mean_numdays_until_next_no",
+            "se_numdays_until_next_no",
+        ]
+        # Process unique values to identify continuous variables and null-only variables
+        for key, values in unique_keys_summary.items():
+            if values == {-9999}:
+                only_null.append(key)
+            elif "_id" in key or key in int_encoded:
+                discrete_summary[key] = list(values)
+            elif key in continuous or all(
+                isinstance(v, (int, float)) and v != -9999 for v in values
+            ):
+                values_list = [v for v in full_dataset[key] if v != -9999]
+                continuous_summary[key] = {
+                    "length": len(values_list),
+                    "min": min(values_list),
+                    "max": max(values_list),
+                    "mean": mean(values_list),
+                    "median": median(values_list),
+                    "1st_quartile": np.percentile(values_list, 25),
+                    "3rd_quartile": np.percentile(values_list, 75),
+                }
+            else:
+                discrete_summary[key] = list(values)
+
         # Convert sets to lists for JSON serialization compatibility
-        summary: dict[str, list[str]] = {}
-        for key, val in unique_keys_summary.items():
-            summary[key] = list(val)
+        summary: dict[str, Any] = {
+            "discrete": {
+                key: list(val)
+                for key, val in discrete_summary.items()
+                if key not in continuous_summary and key not in only_null
+            },
+            "continuous": continuous_summary,
+            "only_null": only_null,
+        }
         return {"result": summary}
+
+    def read_ancillary_file(self, sql_query: str) -> str:
+        """
+        Read the ancillary file from the database.
+
+        Parameters
+        ----------
+            sql_query (str): The SQL query to execute.
+
+        Returns
+        -------
+            str: The result of the SQL query.
+        """
+        db_path = Path(__file__).parent / "data" / "ancillary_data.db"
+        conn = sqlite3.connect(db_path)
+        df = pd.read_sql(sql_query, conn)
+        conn.close()
+        result = df.to_dict(orient="records")
+        if not result:
+            raise ValueError(f"No results found for query: {sql_query}")
+        return json.dumps(result)
 
     def read_output_schema(self, name: str) -> Dict[str, Any]:
         """Get the schema from the last API response by tool name."""
         logger.info(f"Reading {name} output_schema resource")
-        responses = []
-        match name:
-            case NPNTools.StatusIntensity.name:
-                responses = self.status_intensity_responses
-            case NPNTools.ObservationComment.name:
-                responses = self.observation_comment_responses
-            case NPNTools.MagnitudePhenometrics.name:
-                responses = self.magnitude_phenometrics_responses
-            case NPNTools.SitePhenometrics.name:
-                responses = self.site_phenometrics_responses
-            case NPNTools.IndividualPhenometrics.name:
-                responses = self.individual_phenometrics_responses
-        if responses[-1]:
-            # Get the full schema for the tool
-            full_schema = API_SCHEMAS[name]["properties"]
-            keys = [key for key, val in responses[-1][0].items() if val]
-            select_schema = {
-                key: full_schema[key] for key in keys if key in full_schema
-            }
-            logger.info(f"Output schema keys: {keys}")
-        return {"result": select_schema} if responses[-1] else {"result": None}
+        if name not in self._cache:
+            raise ValueError(f"Tool not in cache: {name}")
+        if "raw" not in self._cache[name]:
+            raise ValueError(f"No cached response found for {name}")
+        last_response = self._cache[name]["raw"][-1:]
+        if not last_response:
+            return {"result": None}
+        # Get the full schema for the tool
+        full_schema = API_SCHEMAS[name]["properties"]
+        if isinstance(last_response[0][0], dict):
+            keys = [key for key, val in last_response[0][0].items() if val]
+        else:
+            keys = []
+        select_schema = {key: full_schema[key] for key in keys if key in full_schema}
+        logger.info(f"Output schema keys: {keys}")
+        return {"result": select_schema} if select_schema else {"result": None}
 
     def query_response(
         self, name: str
-    ) -> list[TextContent | ImageContent | EmbeddedResource]:
+    ) -> list[Union[TextContent, ImageContent, EmbeddedResource]]:
         """Get the Server response by query Tool name."""
         logger.info(f"Returning {name} query Tool response.")
         summary = self.summarize_response(name=name)
         schema = self.read_output_schema(name=name)
-        result: list[TextContent | ImageContent | EmbeddedResource] = [
+        result: list[Union[TextContent, ImageContent, EmbeddedResource]] = [
             TextContent(
                 type="text",
                 text=f"Output variables of API response for {name} tool",
@@ -284,12 +355,15 @@ class APIClient:
                 ),
             ),
         ]
+        self._cache[name]["responses"].append(
+            result
+        )  # Ensure type matches cache definition
         return result
 
     @log_call
     async def create_plot(
         self, data: list[Dict[str, Any]], arguments: Dict[str, Any]
-    ) -> str:
+    ) -> list[Union[TextContent, ImageContent]]:
         """
         Create a matplotlib plot of a particular category over time.
 
@@ -310,7 +384,109 @@ class APIClient:
             raise ValueError("Arguments cannot be empty.")
         if not arguments["plot_type"] == "map":
             raise ValueError("Plot type cannot be anything but map right now.")
-        return generate_map(
+        plot_result = await generate_map(
             data=data,
             colour_by=arguments["colour_by"],
         )
+        result: list[Union[TextContent, ImageContent]] = [
+            TextContent(
+                type="text",
+                text=f"Map of {arguments['tool_name']} data coloured by {arguments['colour_by']}.",
+            ),
+            ImageContent(type="image", data=plot_result, mimeType="image/jpeg"),
+        ]
+        self._cache[arguments["tool_name"]]["maps"].append(result)
+        return result
+
+    @log_call
+    async def check_reference_material(
+        self, arguments: Dict[str, Any]
+    ) -> list[TextContent]:
+        """Check references using a sql_query."""
+        if not arguments:
+            raise ValueError("Arguments cannot be empty.")
+        if not arguments["sql_query"]:
+            raise ValueError("SQL query cannot be empty.")
+        sql_query = arguments["sql_query"]
+        logger.info(f"Checking references with SQL query: {sql_query}")
+        result: list[TextContent] = [
+            TextContent(
+                type="text",
+                text=self.read_ancillary_file(sql_query=sql_query),
+            )
+        ]
+        self._cache[NPNTools.CheckReferenceMaterial.name]["responses"].append(result)
+        return result
+
+    async def _get_last_raw_data(self, name: str) -> list[Dict[str, Any]]:
+        """Get the last raw data for a specific tool name."""
+        logger.info(f"Getting last raw data for {name}.")
+        if name not in self._cache:
+            raise ValueError(f"Tool not in cache: {name}")
+        if "raw" not in self._cache[name]:
+            raise ValueError(f"No cached response found for {name}")
+        if not self._cache[name]["raw"]:
+            raise ValueError(f"No raw data found for {name}")
+        result: list[list[Dict[str, Any]]] = self._cache[name]["raw"][-1:]
+        if not result:
+            raise ValueError(f"No raw data found for {name}")
+        return result[0]
+
+    async def get_cached(
+        self, name: str
+    ) -> list[Union[TextContent, ImageContent, EmbeddedResource]]:
+        """Get the cached response for a specific tool name."""
+        logger.info(f"Getting cached response for {name}.")
+        if name not in self._cache:
+            raise ValueError(f"Tool not in cache: {name}")
+        if "responses" not in self._cache[name]:
+            raise ValueError(f"No cached response found for {name}")
+        last_resource = self._cache[name]["responses"][-1]
+        contents: list[Union[TextContent, ImageContent, EmbeddedResource]] = []
+        for item in last_resource:
+            if isinstance(item, ImageContent):
+                contents.append(
+                    EmbeddedResource(
+                        type="resource",
+                        resource=BlobResourceContents(
+                            uri=AnyUrl(f"npn-mcp://{name}"),
+                            mimeType=item.mimeType,
+                            blob=item.data,
+                        ),
+                    )
+                )
+            elif isinstance(item, TextContent):
+                contents.append(
+                    TextContent(
+                        type="text",
+                        text=item.text,
+                    )
+                )
+            elif isinstance(item, EmbeddedResource):
+                contents.append(item)
+        return contents  # Ensure return type matches function definition
+
+    async def handle_call_tool(
+        self, name: str, arguments: Union[Dict[str, str], None]
+    ) -> Any:
+        """Client can call this to use a tool."""
+        logger.info(f"Calling tool {name} with parameters: {arguments}")
+        if arguments is None:
+            raise ValueError("Arguments cannot be None")
+        result = None
+        if name not in [tool.name for tool in self.get_tool_list()]:
+            raise ValueError(f"Tool {name} not found.")
+        tool = next(tool for tool in self.get_tool_list() if tool.name == name)
+        if name == NPNTools.CheckReferenceMaterial.name:
+            result = await self.check_reference_material(arguments)
+        elif name == NPNTools.Mapping.name:
+            data = await self._get_last_raw_data(name=arguments["tool_name"])
+            if not data:
+                raise ValueError(f"No data found for {name}")
+            result = await self.create_plot(data, arguments)
+        else:
+            await self.query_api(tool.endpoint, arguments)
+        if result:  # Return reference check or image if available
+            return result
+        # Otherwise return summary of response from valid query tool
+        return self.query_response(name=name)

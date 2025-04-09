@@ -161,6 +161,12 @@ markers = [
     "integration_test: marks tests as integration tests",
 ]
 
+[tool.typos]
+files.extend-exclude = [
+  '**/data/**',
+  '**/*.log'
+]
+
 # Ensure py.typed is included
 [tool.hatch.build.targets.wheel.shared-data]
 "src/usa_npn_mcp_server/py.typed" = "usa_npn_mcp_server/py.typed"

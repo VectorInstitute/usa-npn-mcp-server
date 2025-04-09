@@ -4,7 +4,7 @@ from typing import Any, Dict
 
 
 API_SCHEMAS: Dict[str, Any] = {
-    "observation_comment": {
+    "observation-comment": {
         "type": "object",
         "properties": {
             "comment": {
@@ -13,7 +13,7 @@ API_SCHEMAS: Dict[str, Any] = {
             },
         },
     },
-    "status_intensity": {
+    "status-intensity": {
         "type": "object",
         "properties": {
             "observation_id": {
@@ -255,7 +255,7 @@ API_SCHEMAS: Dict[str, Any] = {
             },
         },
     },
-    "magnitude_phenometrics": {
+    "magnitude-phenometrics": {
         "type": "object",
         "properties": {
             "species_id": {
@@ -505,7 +505,7 @@ API_SCHEMAS: Dict[str, Any] = {
             },
         },
     },
-    "site_phenometrics": {
+    "site-phenometrics": {
         "type": "object",
         "properties": {
             "partner_group": {
@@ -835,7 +835,7 @@ API_SCHEMAS: Dict[str, Any] = {
             },
         },
     },
-    "individual_phenometrics": {
+    "individual-phenometrics": {
         "type": "object",
         "properties": {
             "dataset_id": {
