@@ -29,8 +29,8 @@ async def generate_map(data: list[Dict[str, Any]], colour_by: str) -> str:
     """
     if not data:
         raise ValueError("Data cannot be empty.")
-    if not any(entry.get("longitude") for entry in data) and not any(
-        entry.get("latitude") for entry in data
+    if not any("longitude" in entry for entry in data) and not any(
+        "latitude" in entry for entry in data
     ):
         raise ValueError("Latitude and Longitude cannot be empty.")
     # Load a GeoDataFrame of US states
