@@ -222,7 +222,7 @@ class APIClient:
         only_null: list[str] = []
 
         # Collect unique keys and their values
-        for entry in last_response:  # Ensure entry is a dictionary
+        for entry in last_response[0]:  # Ensure entry is a dictionary
             if isinstance(entry, dict):
                 for key, value in entry.items():
                     if key not in unique_keys_summary:
@@ -295,7 +295,7 @@ class APIClient:
         if "raw" not in self._cache[name]:
             raise ValueError(f"No cached response found for {name}")
         last_response = self._cache[name]["raw"][-1:]
-        if not last_response[0]:
+        if not last_response:
             return {"result": None}
         # Get the full schema for the tool
         full_schema = API_SCHEMAS[name]["properties"]
