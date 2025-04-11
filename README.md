@@ -7,7 +7,7 @@
 [![docs](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/docs_deploy.yml/badge.svg)](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/docs_deploy.yml)
 ![GitHub License](https://img.shields.io/github/license/VectorInstitute/usa-npn-mcp-server)
 
-### Available Tools
+### Available MCP Tools
 
 - `status-intensity` - Fetches status and intensity data (raw observation data).
 - `individual-phenometrics` - Fetches individual phenometrics (summarized data).
@@ -16,6 +16,10 @@
 - `observation-comment` - Fetches observation comments based on observation_id.
 - `mapping` - Maps site phenometrics onto a map of the USA with optional colour labelling.
 - `check-reference-material` - Checks database containing NPN API reference material using a generated sql query.
+
+### Available MCP Prompts
+
+- `map_data` - Structured workflow for working interactively with user to query site phenometrics and map the results, initialized with start-date and end-date.
 
 #
 
