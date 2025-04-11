@@ -9,12 +9,13 @@
 
 ### Available Tools
 
-- `status_intensity` - Fetches status and intensity data (raw observation data).
-- `individual_phenometrics` - Fetches individual phenometrics (summarized data).
+- `status-intensity` - Fetches status and intensity data (raw observation data).
+- `individual-phenometrics` - Fetches individual phenometrics (summarized data).
 - `site_phenometrics` - Fetches site phenometrics (site-level data).
-- `magnitude_phenometrics` - Fetches magnitude phenometrics (magnitude data).
-- `observation_comment` - Fetches observation comments based on observation_id.
+- `magnitude-phenometrics` - Fetches magnitude phenometrics (magnitude data).
+- `observation-comment` - Fetches observation comments based on observation_id.
 - `mapping` - Maps site phenometrics onto a map of the USA with optional colour labelling.
+- `check-reference-material` - Checks database containing NPN API reference material using a generated sql query.
 
 #
 
@@ -42,6 +43,8 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 
 <details>
 <summary>Windows</summary>
+
+In powershell, run:
 
 ```powershell
 # Install uv
@@ -113,18 +116,13 @@ After `uv` is installed, run:
 
 These commands set up and activate the `.venv` environment as specified in the `pyproject.toml` and `uv.lock` files.
 
-In order to install dependencies for testing (codestyle, unit tests, integration tests),
-run:
-
-```bash
-uv sync --dev
-```
-
 ## Configuration
 
 ### Configure for Claude Desktop App
 
-You will need to modify your `claude_desktop_config.json` to make it aware of the MCP Server:
+You can download the Claude Desktop Application from [here](https://claude.ai/download).
+
+Once installed, you will need to modify your `claude_desktop_config.json` to make it aware of the MCP Server.
 
 #
 
@@ -134,7 +132,7 @@ How to find and modify claude_desktop_config.json:
 <summary>macOS and Linux</summary>
 
 1. Open Claude Desktop app
-2. Click on "Claude" in the menu bar and select "Settings"
+2. Click on "Claude" in the menu bar and select "Settings" - you may need to enable "Developer Mode" to proceed
 3. In the Settings window, click on the "Developer" tab in the left sidebar
 4. Click the "Edit Config" button
 5. This will open a Finder window showing the location of the `claude_desktop_config.json` file
@@ -144,17 +142,21 @@ How to find and modify claude_desktop_config.json:
 <summary>Add to claude config file:</summary>
 
 ```json
-"mcpServers": {
-  "npn": {
-    "command": "bash",
-    "args": [
-      "-c",
-      # replace /absolute/path/to/usa-npn-mcp-server/ with local path to repo dir
-      "source /absolute/path/to/usa-npn-mcp-server/.venv/bin/activate && uv run usa_npn_mcp_server"
-    ]
+{
+  "mcpServers": {
+    "npn": {
+      "command": "bash",
+      "args": [
+        "-c",
+        "source /absolute/path/to/usa-npn-mcp-server/.venv/bin/activate && uv run usa_npn_mcp_server"
+      ]
+    }
   }
 }
 ```
+
+  **NOTE**: Replace "/absolute/path/to/usa-npn-mcp-server/" with local path to repo dir
+
 </details>
 </details>
 
@@ -162,7 +164,7 @@ How to find and modify claude_desktop_config.json:
 <summary>Windows</summary>
 
 1. Open Claude Desktop app
-2. CTRL+Comma or Open the menu bar (three bar symbol top-left) and select "File" and "Settings"
+2. CTRL+Comma or Open the menu bar (three bar symbol top-left) and select "File" and "Settings" - you may need to enable "Developer Mode" to proceed
 3. In the Settings window, click on the "Developer" tab in the left sidebar
 4. Click the "Edit Config" button
 5. This will open a window showing the location of the `claude_desktop_config.json` file
@@ -172,17 +174,21 @@ How to find and modify claude_desktop_config.json:
 <summary>Add to claude config file:</summary>
 
 ```json
-"mcpServers": {
+{
+  "mcpServers": {
   "npn": {
     "command": "cmd.exe",
     "args": [
       "/c",
-      # replace C:\\absolute\\path\\to\\usa-npn-mcp-server\\ with local absolute path to repo dir and be sure to use forward backslashes
       "C:\\absolute\\path\\to\\usa-npn-mcp-server\\.venv\\Scripts\\activate.bat && uv run usa_npn_mcp_server"
-    ]
+      ]
+    }
   }
 }
 ```
+
+  **NOTE**: Replace "C:\\absolute\\path\\to\\usa-npn-mcp-server\\" with local absolute path to repo dir and be sure to use forward backslashes
+
 </details>
 
 </details>
@@ -208,6 +214,12 @@ Each time you create a new chat that uses a Tool from the MCP Server, you will h
 The first time you run this command you'll be prompted to download `@modelcontextprotocol/inspector`.
 
 This command starts the MCP inspector within the `uv`-managed environment. The inspector can be used locally in-browser to inspect/test the server.
+
+**Testing dependencies**: To install dependencies for testing (codestyle, unit tests, integration tests), run:
+
+```bash
+uv sync --dev
+```
 
 ## Other MCP Servers
 
