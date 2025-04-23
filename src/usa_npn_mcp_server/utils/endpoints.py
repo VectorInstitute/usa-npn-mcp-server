@@ -284,6 +284,9 @@ class NPNTools:
 
             Table: datasets, Length: 14, Headers: ['dataset_id', 'dataset_name', 'dataset_description', 'dataset_comments', 'dataset_documentation_url']
             Description: Contains info on datasets and their contributors
+
+            Table: networks, Length: 833, Headers: ['network_id', 'network_name']
+            Description: Contains info on observation groups or networks (aka partner groups)
 """,
         input_schema=CheckReferenceMaterialSQLQueryModel.model_json_schema(),
         endpoint="",
