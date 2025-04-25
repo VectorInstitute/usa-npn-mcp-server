@@ -188,6 +188,19 @@ class CheckReferenceMaterialSQLQueryModel(BaseModel):
     )
 
 
+class FilterVariableQueryModel(BaseModel):
+    """Input parameters for checking reference material tool."""
+
+    tool_name: str = Field(
+        ...,
+        description="Name of the tool used to generate the data to be filtered.",
+    )
+    variables: List[str] = Field(
+        ...,
+        description="List of variable names to be filtered from the raw data.",
+    )
+
+
 class NPNTool(BaseModel):
     """
     A class representing a tool available in the MCP server.
@@ -289,5 +302,12 @@ class NPNTools:
             Description: Contains info on observation groups or networks (aka partner groups)
 """,
         input_schema=CheckReferenceMaterialSQLQueryModel.model_json_schema(),
+        endpoint="",
+    )
+
+    FilterVariables = NPNTool(
+        name="filter-variables",
+        description="Filter specific variables from raw data.",
+        input_schema=FilterVariableQueryModel.model_json_schema(),
         endpoint="",
     )

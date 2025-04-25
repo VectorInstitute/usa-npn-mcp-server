@@ -87,6 +87,7 @@ class APIClient:
             NPNTools.IndividualPhenometrics,
             NPNTools.Mapping,
             NPNTools.CheckReferenceMaterial,
+            NPNTools.FilterVariables,
         ]
         self._cache: Dict[
             str,
@@ -420,6 +421,53 @@ class APIClient:
         self._cache[NPNTools.CheckReferenceMaterial.name]["responses"].append(result)
         return result
 
+    @log_call
+    async def filter_variables(
+        self, tool_name: str, variables: list[str]
+    ) -> list[Union[Dict[str, Any], TextContent, EmbeddedResource]]:
+        """
+        Filter specific variables from the raw data of a previous tool call.
+
+        Parameters
+        ----------
+            tool_name (str): The name of the previous tool call.
+            variables (list[str]): The list of variable names to filter.
+
+        Returns
+        -------
+            list[TextContent | EmbeddedResource]: The filtered data and a message.
+        """
+        logger.info(f"Filtering variables {variables} from tool {tool_name}.")
+        raw_data = await self._get_last_raw_data(name=tool_name)
+        if not raw_data:
+            raise ValueError(f"No raw data found for tool {tool_name}.")
+
+        filtered_data = [
+            {key: entry[key] for key in variables if key in entry} for entry in raw_data
+        ]
+
+        is_truncated = len(filtered_data) > 500
+        if is_truncated:
+            filtered_data = filtered_data[:500]
+            logger.info(f"Filtered data truncated to 500 entries for tool {tool_name}.")
+
+        return [
+            TextContent(
+                type="text",
+                text="Filtered data has been truncated to the first 500 entries."
+                if is_truncated
+                else "Filtered data is not truncated and contains all entries.",
+            ),
+            EmbeddedResource(
+                type="resource",
+                resource=TextResourceContents(
+                    uri=AnyUrl(f"npn-mcp://{NPNTools.FilterVariables.name}"),
+                    mimeType="plain/text",
+                    text=json.dumps(filtered_data),
+                ),
+            ),
+        ]
+
     async def _get_last_raw_data(self, name: str) -> list[Dict[str, Any]]:
         """Get the last raw data for a specific tool name."""
         logger.info(f"Getting last raw data for {name}.")
@@ -486,9 +534,13 @@ class APIClient:
             if not data:
                 raise ValueError(f"No data found for {name}")
             result = await self.create_plot(data, arguments)
+        elif name == NPNTools.FilterVariables.name:
+            result = await self.filter_variables(
+                tool_name=arguments["tool_name"], variables=arguments["variables"]
+            )
         else:
             await self.query_api(tool.endpoint, arguments)
-        if result:  # Return reference check or image if available
+        if result:  # Return response if available
             return result
         # Otherwise return summary of response from valid query tool
         return self.query_response(name=name)
