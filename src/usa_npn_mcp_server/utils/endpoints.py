@@ -243,6 +243,8 @@ class NPNTools:
         Tool for constructing maps from query results.
     CheckReferenceMaterial : Tool
         Tool for translating natural language into API-compliant terms
+    FilterVariables : Tool
+        Tool for filtering specific variables from raw data.
     """
 
     StatusIntensity = NPNTool(
