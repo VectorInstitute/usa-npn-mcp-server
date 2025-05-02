@@ -56,6 +56,61 @@ PROMPTS: dict[str, PromptEntry] = {
         10. Present the map to the user, and ask if they would like to perform any further analysis or adjustments. Recommend the user visit https://data.usanpn.org/vis-tool/#/ for more comprehensive and interactive visualization of NPN Data.
         """,
     },
+    "weekly_report": {
+        "prompt": Prompt(
+            name="weekly_report",
+            description="Generate a weekly report of phenological data using the NPN API Tools.",
+            arguments=[
+                PromptArgument(
+                    name="start-date",
+                    description="The start date (e.g., '2023-01-01')",
+                    required=True,
+                ),
+            ],
+        ),
+        "template": """
+Create a weekly report of Phenological observations starting from {start-date} and ending either 7 days later or today, whichever is fewer days since the start date. The report should include the following:
+
+1. **Visualizations Artifact**: Generate visualizations of observation data, including but not limited to:
+    - Taxonomic distributions.
+    - Abundance and proportion of phenophases, species, and sites observed.
+    - Timing of animal species phenophases in relation to plant phenophases and climate measures.
+    - Geographical explorations of the data.
+    - Provide 3-5 exploratory visualizations of specific observations and specific variables in the dataset to explore relationships between:
+        - Phenological observations and climate data.
+        - Phenophase data of one organism to phenophase data of another.
+        - Ex explore abundance of matting of butterflies in relation to the timing of flowering of plants in the same area.
+
+2. **Text Report Artifact**: Create a complementary text report that:
+    - Expands on the visualizations.
+    - Highlights trends or specific observations that were interesting during the week.
+
+### Analysis Steps:
+- Query the National Phenology Network (NPN) data for the past week's observations using the NPN Tools. First gain a sense of the data using the Site, Individual and Magnitude phenometrics Tools and then look at subsets of the data with the Status and Intensity Tool. Use the check-reference Tool to check for specific ids or necessary info for species, sites or phenophases to help interpret the data.
+- Compare the observations to the same week's data from:
+  - Last year.
+  - 8 years ago.
+  - 15 years ago.
+- Be sure to include each of the following in your analysis:
+    - Identify any significant phenological signals or trends
+    - Examine specific variables in the dataset to explore relationships between:
+        - Phenological observations and climate data.
+        - Phenophase data of one organism to phenophase data of another.
+    - Compare the timing of phenophases across different species and sites.
+    - Analyze the data to identify:
+        - Any shifts in phenological events over time.
+        - Changes in the timing of phenophases in relation to climate variables.
+        - Any correlations between species and their phenophases.
+    - Investigate any literature that may have studied the same species or sites and can provide additional context to add to the artifacts.
+    - Additional insights to focus on:
+        - Upcoming phenophase observations that are expected to occur in the next week. Query the following week from last year (next week but from last year) to gain insight into expected phenophases.
+        - Any observations that may be outliers or unexpected based on historical, climate, or ecological data.
+        - Any data collection recommendations for next week.
+    - Discuss the implications of this week's differences in observations compared to previous years in the context of climate change and ecological interactions.
+
+Be sure to geographically contextualize any analysis that you perform (ie, highlight that all observations contributing to a plot are from within the same state or highlight the regions of observations using colour or text)
+        """,
+    },
 }
 
 
