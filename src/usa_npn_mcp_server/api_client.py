@@ -309,11 +309,13 @@ class APIClient:
             raise ValueError(f"Tool not in cache: {name}")
         if "raw" not in self._cache[name]:
             raise ValueError(f"No cached response found for {name}")
+        # Get the full schema for the tool
+        full_schema = API_SCHEMAS[name]["properties"]
         last_response = self._cache[name]["raw"][-1:]
         if not last_response:
             return {"result": None}
-        # Get the full schema for the tool
-        full_schema = API_SCHEMAS[name]["properties"]
+        if not last_response[0]:
+            return {"result": None}
         if isinstance(last_response[0][0], dict):
             keys = [key for key, val in last_response[0][0].items() if val]
         else:

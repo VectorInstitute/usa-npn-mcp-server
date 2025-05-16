@@ -61,8 +61,8 @@ class BaseQuery(BaseModel):
         description="Functional types of the species. Must match values from getSpeciesFunctionalTypes.",
     )
     climate_data: Optional[int] = Field(
-        default=None,
-        description="Flag to indicate whether all climate data fields should be returned. Accepts 0 or 1.",
+        default=1,
+        description="Flag to indicate whether all climate data fields should be returned. Accepts 0 or 1. Almost always beneficial to see climate data in relation to phenometric data.",
     )
 
 
