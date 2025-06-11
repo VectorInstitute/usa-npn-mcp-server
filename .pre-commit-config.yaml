@@ -39,33 +39,17 @@ repos:
       exclude: "tests"
 
   - repo: https://github.com/crate-ci/typos
-    rev: typos-dict-v0.12.4
+    rev: v1.30.2
     hooks:
       - id: typos
         args: []
+        exclude: "data/"
 
   - repo: https://github.com/nbQA-dev/nbQA
     rev: 1.9.1
     hooks:
     - id: nbqa-ruff
       args: [--fix, --exit-non-zero-on-fix]
-
-  - repo: local
-    hooks:
-    - id: doctest
-      name: doctest
-      entry: uv run doctest -o NORMALIZE_WHITESPACE
-      files: "^aieng_template/"
-      language: system
-
-  - repo: local
-    hooks:
-    - id: pytest
-      name: pytest
-      entry: uv run pytest -m "not integration_test"
-      language: system
-      pass_filenames: false
-      always_run: true
 
 ci:
     autofix_commit_msg: |

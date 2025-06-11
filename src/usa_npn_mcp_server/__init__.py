@@ -12,7 +12,7 @@ from usa_npn_mcp_server.server import serve
 @click.command()
 @click.option("-v", "--verbose", count=True)
 def main(verbose: int = 2) -> None:
-    """MCP NPN Server - getObservationsPort."""
+    """Run the MCP NPN Server."""
     logging_level = logging.WARN
     if verbose == 1:
         logging_level = logging.INFO

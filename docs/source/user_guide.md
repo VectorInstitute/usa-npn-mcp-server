@@ -1,151 +1,65 @@
-(user_guide)=
-
 # User Guide
 
-## pyproject.toml file and dependency management
+These tools allow natural language querying and analysis through AI Agents. They simplify access to and interpretation of phenological information collected by the USA-NPN.
 
-If your project doesn't have a pyproject.toml file, simply copy the one from the
-template and update file according to your project.
+You can get started quickly by following the [Getting Started](#getting-started) below.
 
-For managing dependencies, this template makes use of [uv](https://docs.astral.sh/uv/),
-which according to some [benchmarks](https://github.com/astral-sh/uv/blob/main/BENCHMARKS.md)
-is faster than alternative like Poetry (which our original AI Engineering Template
-makes use of).
+More detail about the Agent, Client, and MCP Server architecture are also [provided below](#learn-more-ai-and-mcp-servers) as well as [examples](#example-usage) of using the MCP Server to access and analyze phenological data.
 
-Hence, be sure to install uv in order to to setup the development virtual environment.
-Instructions for installing uv can be found [here](https://docs.astral.sh/uv/getting-started/installation/).
-Note that uv supports [optional dependency groups](https://docs.astral.sh/uv/concepts/projects/dependencies/#dependency-groups)
-which helps to manage dependencies for different parts of development such as `documentation`,
-`testing`, etc. The core dependencies are installed using the command:
+## Getting Started
 
-```bash
-uv sync
-```
+### Prerequisites
+Host: Recommended is [Claude Desktop App](https://claude.ai/download) but any AI Agent (IDE, AI Tool etc) that supports the Model Context Protocol (MCP) can be used as a Host.
 
-Additional dependency groups can be installed using the `--group` flag followed
-by the group name. For example:
+1. **Install MCP Server**: Refer to the [README.md](../../README.md) in the GitHub repository for instructions on installing the MCP Server.
+2. **Configure Server with MCP Host**: Configuration with Claude Desktop App is also found in the [README.md](../../README.md) but this Server can be configured with any MCP-compliant host (like this [Copilot MCP Extension in VSCode](https://marketplace.visualstudio.com/items?itemName=AutomataLabs.copilot-mcp)).
+3. **Launch Host**: You are ready to use the MCP Server in the host application. See below.
 
-```bash
-uv sync --all-extras --group docs --group test
-```
+### Example Usage
 
-```{admonition} mypy configuration options
-:class: important
+![Example usage of the MCP Server in action](../../assets/example_usage.gif)
 
-By default, the `mypy` configuration in the `pyproject.toml` disallows subclassing
-the `Any` type - `allow_subclassing_any = false`. In cases where the type checker
-is not able to determine the types of objects in some external library (e.g. `PyTorch`),
-it will treat them as `Any` and raise errors. If your codebase has many of such
-cases, you can set `allow_subclassing_any = true` in the `mypy` configuration or
-remove it entirely to use the default value (which is `true`). For example, in
-a `PyTorch` project, subclassing `nn.Module` will raise errors if `allow_subclassing_any`
-is set to `false`.
-```
+### This example includes:
+1. **Basic Queries**: Natural language queries for retrieving phenological data.
+2. **Mapping**: Generating map of the retrieved data.
 
 
-## pre-commit
+# Learn More: AI and MCP Servers
 
-You can use [pre-commit](https://pre-commit.com/) to run pre-commit hooks (code checks,
-liniting, etc.) when you run `git commit` and commit your code. Simply copy the
-`.pre-commit-config.yaml` file to the root of the repository and install the test
-dependencies which installs pre-commit. Then run:
+Large Language Models (LLMs) such as OpenAI's GPT models, Google's Gemini models, Anthropic's Claude models and Meta's (open-source) Llama models have proven powerful in reasoning and generalize well across language and text-based tasks. AI Agents result from connecting powerful models to tools, allowing them to interact with the world. Adding NPN data query and analysis to the Agent's toolkit is a major goal of this project.
 
-```bash
-pre-commit install
-```
+Recently, interaction between AI Agents and their underlying tools was pushed towards standardization with **Model Context Protocol (MCP)**, a structured Client-Server communication protocol. This is a push towards "cross-platform" compatibility where LLM-hosting applications can connect to custom MCP Servers that provide agency for action.
 
-If you prefer to not enforce using pre-commit every time you run `git commit`,
-you will have to run `pre-commit run --all-files` from the command line before you
-commit your code.
+The custom MCP Server presented here can add USA-NPN Data interaction and analysis to the Agent's repertoire by communicating with MCP Clients in MCP-compatible Hosts (like Claude Desktop, IDEs or AI Tools).
 
-```{admonition} hook configuration
-:class: important
-
-Some of the pre-commit hooks use [supported hooks](https://pre-commit.com/hooks.html)
-from the web.
-
-For some others, they are locally installed and hence use the python virtual environment
-locally. If `language` is set to `python`, each time the hook is installed, a separate
-python virtual environment is created and you can specify dependencies needed using
-`additional_dependencies`.
-
-If `language` is set to `system`, the activated python virtual environment is used and
-and hence you have to ensure that the required dependencies and their versions are
-correctly installed.
-
-```yaml
-  - repo: local
-    hooks:
-    - id: pytest
-      name: pytest
-      entry: python3 -m pytest -m "not integration_test"
-      language: python/system # set according to your project needs
-```
-
-```{admonition} typos
-:class: warning
-
-The [typos](https://github.com/crate-ci/typos) pre-commit hook is used to check for
-common spelling mistakes in the codebase. While useful, it may require some
-configuration to ignore certain words or phrases that are not typos. You can
-[configure the typos hook](https://github.com/crate-ci/typos/blob/master/docs/reference.md)
-in the `pyproject.toml` file. In a large codebase, it may be useful to disable
-the typos hook and only run it occasionally on the entire codebase.
-
-```
-
-### pre-commit ci
-
-Instead of fixing pre-commit errors manually, a CI to fix them as well as update
-pre-commit hooks periodically can be enabled for your repository. Please check
-[pre-commit.ci](https://pre-commit.ci/) and add your repository. The configuration for
-``pre-commit.ci`` can be added to the ``.pre-commit-config.yaml`` file.
+There are [many other awesome MCP Servers](https://github.com/appcypher/awesome-mcp-servers) for making capable AI Agents.
 
 
-## documentation
+### Agentic Systems and Model Content Protocol (MCP)
 
-If your project doesn't have documentation, copy the directory named `docs` to the root
-directory of your repository. The provided source files use [Furo](https://pradyunsg.me/furo/),
-a clean and customisable Sphinx documentation theme.
+<img src="../assets/architecture.png" alt="🖥️">
 
-In order to build the documentation, install the documentation dependencies as mentioned
-in the previous section, navigate to the `docs` folder and run the command:
-
-```bash
-make html
-```
-
-If you're making changes to the docs, and want to serve them locally on your machine,
-then you can use this command instead:
-
-```bash
-# note this make command was manually augmented to the Makefile generated by sphinx-quickstart
-make serve
-```
-
-The above will launch the docs locally on `http://127.0.0.1:8000`, which you can
-enter into your browser of choice. Conveniently, this process also watches for any
-changes you make to the docs and will update them as they occur.
-
-You can configure the documentation by updating the `docs/source/conf.py`. The markdown
-files in `docs/source` can be updated to reflect the project's documentation.
+| Symbol | Term          | Description                                                                                                                                                                                                |
+|--------|---------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| <img src="../assets/llm.png" alt="🖥️" width="48" height="48"> | **LLM**       | A Large Language Model, such as Claude Sonnet 3.7 or GPT-4o, that can "understand" and generate text. These models are often pre-trained to perform well on a diversity of tasks. A model serves as the core AI "brain" for reasoning, natural language processing, and conversation. |
+| <img src="../assets/Host.png" alt="🖥️" width="48" height="48"> | **Host**      | An overarching application client that users interact with — such as a chat assistant (e.g., Claude Desktop) or an IDE-integrated tool. It manages workflows and connects to MCP Servers using MCP Clients. These often come with custom tooling like chatting or resource-attach integration. |
+| <img src="../assets/MCPClient.png" alt="🖥️" width="48" height="48"> | **MCP Client**| Embedded within the Host, the MCP Client establishes and maintains a connection with MCP Servers through the Model Context Protocol (MCP), translating tool requests into protocol messages and managing stateful connections. |
+| <img src="../assets/MCPServer.png" alt="🖥️" width="48" height="48"> | **MCP Server**| A lightweight server that runs locally and exposes specific capabilities to the MCP Client through MCP. The USA-NPN MCP Server described here provides Tools, Resources, and Prompts for orchestrating tasks like NPN API calls, data visualization, and phenology workflows. |
+| <img src="../assets/agent.png" alt="🖥️" width="48" height="48"> | **Agent**     | An entity empowered with an LLM for reasoning, decision-making, and language processing that is capable of tool use and orchestration (deciding when to use a tool). It performs tasks using connected tools and resources, managing multi-step interactions and complex workflows.|
 
 
-## github actions
 
-The template consists of some github action continuous integration workflows that you
-can add to your repository.
+### Using these terms in a few sentences:
 
-The available workflows are:
+The Claude AI **Agent** is empowered with the **LLM** called Claude 3.7 Sonnet trained by Anthropic. Using the **Host** (sometimes Client or Application) named Claude Desktop, you can chat with this Agent because it contains tools for conversation. Claude Desktop is an MCP Host because of its **MCP Client** capable of connecting to any MCP Servers. One interesting **MCP Server** is the NPN MCP Server for phenological data analysis.
 
-- [code checks](https://github.com/VectorInstitute/aieng-template/blob/main/.github/workflows/code_checks.yml): Static code analysis, code formatting and unit tests
-- [documentation](https://github.com/VectorInstitute/aieng-template/blob/main/.github/workflows/docs_deploy.yml): Project documentation including example API reference
-- [integration tests](https://github.com/VectorInstitute/aieng-template/blob/main/.github/workflows/integration_tests.yml): Integration tests
-- [publish](https://github.com/VectorInstitute/aieng-template/blob/main/.github/workflows/publish.yml):
-Publishing python package to PyPI. Create a `PYPI_API_TOKEN` and add it to the
-repository's actions [secret variables](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions)
-in order to publish PyPI packages when new software releases are created on Github.
+### MCP Tools, Resources, and Prompts
 
-The test workflows also compute coverage and upload code coverage metrics to
-[codecov.io](https://app.codecov.io/gh/VectorInstitute/aieng-template). Create a
-`CODECOV_TOKEN` and add it to the repository's actions [secret variables](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions).
+Tools, Resources and Prompts are some of the structured ways that MCP Servers can expose their capabilities to the Client. Tools allow interaction and function calling, resources provide data/file handling, and prompts are templates for workflows and interactions with Agents.
+
+- **Tools**: Data retrieval and summarization, visualization, other analysis.
+- **Resources**: Access to queried phenological data and structured summaries of literature.
+- **Prompts**: Predefined templates for interacting with AI Agents in phenology.
+
+
+Stay tuned for updates with the [News](news.md) and [Roadmap](roadmap.md).
