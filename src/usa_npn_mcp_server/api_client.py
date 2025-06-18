@@ -175,6 +175,13 @@ class APIClient:
             params = {}
         # Ensure 'request_src' is always 'vectorMCP'
         params["request_src"] = "vectorMCP"
+        # Restructure query params containing comma-separated lists
+        for key, value in list(params.items()):
+            if isinstance(value, str) and "," in value:
+                elements = value.strip("[]").split(",")
+                del params[key]
+                for idx, element in enumerate(elements):
+                    params[f"{key}[{idx}]"] = element
         query_params = urlencode(params)
         request_url = f"{self.API_BASE_URL}/{endpoint}.json?{query_params}"
         response = await self.client.get(request_url)
