@@ -8,6 +8,7 @@ The server is built using MCP (Model Content Protocol) to facilitate
 communication for the USA National Phenology Network (NPN) API.
 """
 
+import json
 import logging
 from typing import Any, Dict, Union
 
@@ -15,10 +16,7 @@ from mcp.server import Server
 from mcp.server.models import InitializationOptions
 from mcp.server.stdio import stdio_server
 from mcp.types import (
-    BlobResourceContents,
-    EmbeddedResource,
     GetPromptResult,
-    ImageContent,
     Prompt,
     PromptMessage,
     Resource,
@@ -63,55 +61,59 @@ async def serve() -> None:
     @server.list_resources()
     async def handle_list_resources() -> list[Resource]:
         """Client can call this to get a list of available resources."""
-        return [
+        resources = [
             Resource(
                 uri=AnyUrl(f"npn-mcp://{tool.name}"),
                 name=f"{tool.name}-resource",
-                description=descrip,
+                description=f"Resource updated by {tool.name} Tool.",
                 mimeType="plain/text",
             )
-            for tool, descrip in zip(
-                api_client.get_tool_list(),
-                [
-                    f"Resource updated by {tool.name} Tool."
-                    for tool in api_client.get_tool_list()
-                ],
-            )
+            for tool in api_client.get_tool_list()
         ]
+
+        # Add the recent-queries resource
+        resources.append(
+            Resource(
+                uri=AnyUrl("npn-mcp://recent-queries"),
+                name="recent-queries-resource",
+                description="List of recent query hash IDs and metadata for cached data access.",
+                mimeType="application/json",
+            )
+        )
+
+        return resources
 
     @server.read_resource()
     async def handle_read_resource(
         uri: AnyUrl,
-    ) -> Dict[str, list[Union[TextResourceContents, BlobResourceContents]]]:
+    ) -> Dict[str, list[TextResourceContents]]:
         """Client can call this to read a resource."""
         if uri.scheme != "npn-mcp":
             raise ValueError(f"Unsupported URI scheme: {uri.scheme}")
-        name = str(uri).replace("npn-mcp://", "")
-        last_resource = await api_client.get_cached(
-            name=name
-        )  # Ensure coroutine is awaited
 
-        contents: list[Union[TextResourceContents, BlobResourceContents]] = []
-        for item in last_resource:
-            if isinstance(item, ImageContent):
-                contents.append(
-                    BlobResourceContents(
-                        uri=uri,
-                        mimeType=item.mimeType,
-                        blob=item.data,
-                    )
+        resource_name = str(uri).replace("npn-mcp://", "")
+
+        if resource_name == "recent-queries":
+            # Return cache statistics for recent queries
+            cache_stats = api_client.cache_manager.get_cache_stats()
+            contents = [
+                TextResourceContents(
+                    uri=uri,
+                    mimeType="application/json",
+                    text=json.dumps(cache_stats, indent=2),
                 )
-            elif isinstance(item, TextContent):
-                contents.append(
-                    TextResourceContents(
-                        uri=uri,
-                        mimeType="plain/text",
-                        text=item.text,
-                    )
+            ]
+        else:
+            # Legacy resource handling - provide deprecation notice
+            contents = [
+                TextResourceContents(
+                    uri=uri,
+                    mimeType="plain/text",
+                    text=f"Resource access for '{resource_name}' has been updated to use hash-based caching. Use 'recent-queries' resource to see available cached data with hash IDs, then use 'get-raw-data' tool with specific hash IDs.",
                 )
-            elif isinstance(item, EmbeddedResource):
-                contents.append(item.resource)  # Ensure type matches expected
-        return {"contents": contents}  # Ensure return type matches function definition
+            ]
+
+        return {"contents": contents}
 
     @server.call_tool()
     async def handle_call_tool(

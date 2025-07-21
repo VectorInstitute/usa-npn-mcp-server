@@ -188,6 +188,35 @@ class CheckReferenceMaterialSQLQueryModel(BaseModel):
     )
 
 
+class GetRawDataQuery(BaseModel):
+    """Input parameters for getting raw cached data."""
+
+    hash_id: str = Field(
+        ..., description="Hash ID of cached query to retrieve raw data from"
+    )
+
+
+class ExportRawDataQuery(BaseModel):
+    """Input parameters for exporting raw cached data to file."""
+
+    hash_id: str = Field(..., description="Hash ID of cached query to export")
+    file_format: Literal["json", "jsonl"] = Field(
+        ..., description="Export format: json or jsonl"
+    )
+    filename: Optional[str] = Field(
+        default=None,
+        description="Optional filename. If not provided, auto-generated from hash_id",
+    )
+
+
+class EnableFileExportQuery(BaseModel):
+    """Input parameters for enabling file export functionality."""
+
+    export_directory: str = Field(
+        ..., description="Directory path where exported files should be saved"
+    )
+
+
 class NPNTool(BaseModel):
     """
     A class representing a tool available in the MCP server.
@@ -289,5 +318,26 @@ class NPNTools:
             Description: Contains info on observation groups or networks (aka partner groups)
 """,
         input_schema=CheckReferenceMaterialSQLQueryModel.model_json_schema(),
+        endpoint="",
+    )
+
+    GetRawData = NPNTool(
+        name="get-raw-data",
+        description="Retrieve raw data from cache using hash ID. Limited to 10,000 records with truncation message if exceeded. Use 'recent-queries' resource to see available hash IDs.",
+        input_schema=GetRawDataQuery.model_json_schema(),
+        endpoint="",
+    )
+
+    ExportRawData = NPNTool(
+        name="export-raw-data",
+        description="Export cached raw data to JSON or JSONL file. File export must be enabled first using 'enable-file-export' tool.",
+        input_schema=ExportRawDataQuery.model_json_schema(),
+        endpoint="",
+    )
+
+    EnableFileExport = NPNTool(
+        name="enable-file-export",
+        description="Enable file export functionality by setting the export directory path. Required before using export-raw-data tool.",
+        input_schema=EnableFileExportQuery.model_json_schema(),
         endpoint="",
     )
