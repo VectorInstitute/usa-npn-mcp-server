@@ -590,7 +590,11 @@ class APIClient:
 
     async def enable_file_export(self, arguments: Dict[str, Any]) -> list[TextContent]:
         """Enable file export functionality."""
-        export_dir = arguments["export_directory"]
+        export_dir = arguments.get("export_directory")
+
+        # Use current working directory if not provided
+        if export_dir is None:
+            export_dir = os.getcwd()
 
         # Validate directory exists or can be created
         if not os.path.exists(export_dir):

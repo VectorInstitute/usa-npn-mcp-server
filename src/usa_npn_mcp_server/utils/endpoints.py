@@ -212,8 +212,9 @@ class ExportRawDataQuery(BaseModel):
 class EnableFileExportQuery(BaseModel):
     """Input parameters for enabling file export functionality."""
 
-    export_directory: str = Field(
-        ..., description="Directory path where exported files should be saved"
+    export_directory: Optional[str] = Field(
+        default=None,
+        description="Directory path where exported files should be saved. If not provided, defaults to current working directory.",
     )
 
 
@@ -337,7 +338,7 @@ class NPNTools:
 
     EnableFileExport = NPNTool(
         name="enable-file-export",
-        description="Enable file export functionality by setting the export directory path. Required before using export-raw-data tool.",
+        description="Enable file export functionality by setting the export directory path. If no directory is provided, defaults to current working directory. Required before using export-raw-data tool.",
         input_schema=EnableFileExportQuery.model_json_schema(),
         endpoint="",
     )
