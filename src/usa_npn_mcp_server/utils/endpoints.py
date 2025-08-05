@@ -246,20 +246,27 @@ class NPNTools:
 
     Attributes
     ----------
-    StatusIntensity : Tool
-        Tool for querying raw observation data.
-    ObservationComment : Tool
-        Tool for retrieving comments for observations.
-    MagnitudePhenometrics : Tool
-        Tool for querying magnitude phenometrics.
-    SitePhenometrics : Tool
-        Tool for querying site phenometrics.
-    IndividualPhenometrics : Tool
-        Tool for querying individual phenometrics.
-    Mapping : Tool
-        Tool for constructing maps from query results.
-    CheckReferenceMaterial : Tool
-        Tool for translating natural language into API-compliant terms
+    StatusIntensity : NPNTool
+        Tool for querying intensity and status data from the NPN API.
+    ObservationComment : NPNTool
+        Tool for retrieving comments associated with observations from the NPN API.
+    MagnitudePhenometrics : NPNTool
+        Tool for querying magnitude phenometrics data from the NPN API.
+    SitePhenometrics : NPNTool
+        Tool for querying site phenometrics data from the NPN API.
+    IndividualPhenometrics : NPNTool
+        Tool for querying individual phenometrics data from the NPN API.
+    Mapping : NPNTool
+        Tool for constructing maps from site phenometrics data.
+    CheckReferenceMaterial : NPNTool
+        Tool for checking what reference material is available to translate natural
+        language into specific ids and terms needed for querying the NPN API.
+    GetRawData : NPNTool
+        Tool for retrieving raw data from cache using a hash ID.
+    ExportRawData : NPNTool
+        Tool for exporting cached raw data to a JSON or JSONL file.
+    EnableFileExport : NPNTool
+        Tool for enabling file export functionality by setting export directory path.
     """
 
     StatusIntensity = NPNTool(
