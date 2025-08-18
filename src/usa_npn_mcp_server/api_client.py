@@ -190,7 +190,7 @@ class APIClient:
     API_BASE_URL: str = "https://services.usanpn.org/npn_portal/observations"
 
     def __init__(self) -> None:
-        self.client = httpx.AsyncClient(timeout=60.0, base_url=self.API_BASE_URL)
+        self.client = httpx.AsyncClient(timeout=180.0, base_url=self.API_BASE_URL)
         self._tool_list: list[NPNTool] = [
             NPNTools.StatusIntensity,
             NPNTools.ObservationComment,
