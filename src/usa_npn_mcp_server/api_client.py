@@ -200,7 +200,7 @@ class APIClient:
             NPNTools.Mapping,
             NPNTools.CheckReferenceMaterial,
             NPNTools.GetRawData,
-            NPNTools.ExportRawData,
+            # NPNTools.ExportRawData,
             NPNTools.EnableFileExport,
         ]
         self.cache_manager = CacheManager()
@@ -557,9 +557,9 @@ class APIClient:
         raw_data = entry["raw_data"]
         metadata = entry["metadata"]
 
-        # Apply 10K record limit
-        if len(raw_data) > 10000:
-            truncated_data = raw_data[:10000]
+        # Apply 1K record limit
+        if len(raw_data) > 1000:
+            truncated_data = raw_data[:1000]
             result = [
                 TextContent(
                     type="text",
@@ -567,7 +567,7 @@ class APIClient:
                 ),
                 TextContent(
                     type="text",
-                    text=f"Warning: Data truncated to 10,000 records out of {len(raw_data)} total records.",
+                    text=f"Warning: Data truncated to 1,000 records out of {len(raw_data)} total records.",
                 ),
                 TextContent(
                     type="text",
@@ -618,8 +618,6 @@ class APIClient:
     @log_call
     async def export_raw_data(self, arguments: Dict[str, Any]) -> list[TextContent]:
         """Export raw data to file."""
-        import os  # Import here to avoid formatter removal
-
         if not self.export_enabled:
             raise ValueError(
                 "File export not enabled. Use 'enable-file-export' tool first."
@@ -699,7 +697,6 @@ class APIClient:
             ),
             ImageContent(type="image", data=plot_result, mimeType="image/jpeg"),
         ]
-        # Note: Maps are no longer cached in the old system, are generated on-demand
         return result
 
     @log_call
