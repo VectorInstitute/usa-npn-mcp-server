@@ -16,11 +16,11 @@ async def test_query_tool_integration(mocker):
         return_value=mock_response,
     )
     async with APIClient() as client:
-        await client.query_api(
+        hash_id = await client.query_api(
             endpoint=NPNTools.StatusIntensity.endpoint,
             arguments={"start_date": "2025-01-01", "end_date": "2025-01-31"},
         )
-        response = client.summarize_response(name=NPNTools.StatusIntensity.name)
+        response = client.summarize_response(hash_id=hash_id)
         assert "discrete" in response["result"]
         assert "status" in response["result"]["discrete"]
         assert "continuous" in response["result"]

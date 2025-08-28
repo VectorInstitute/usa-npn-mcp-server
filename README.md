@@ -5,7 +5,7 @@
 [![code checks](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/code_checks.yml/badge.svg)](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/code_checks.yml)
 [![integration tests](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/integration_tests.yml/badge.svg)](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/integration_tests.yml)
 [![docs](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/docs_deploy.yml/badge.svg)](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/docs_deploy.yml)
-![GitHub License](https://img.shields.io/github/license/VectorInstitute/usa-npn-mcp-server)
+[![GitHub License](https://img.shields.io/badge/license-MIT-blue)](https://github.com/VectorInstitute/usa-npn-mcp-server/blob/main/LICENSE)
 
 ### Available MCP Tools
 
@@ -16,6 +16,9 @@
 - `observation-comment` - Fetches observation comments based on observation_id.
 - `mapping` - Maps site phenometrics onto a map of the USA with optional colour labelling.
 - `check-reference-material` - Checks database containing NPN API reference material using a generated sql query.
+- `enable-file-export` - Enables file export for data fetched from other tools.
+- `export-raw-data` - Exports raw data to a JSON file.
+- `get-raw-data` - Fetches raw data instead of summaries as from other tools.
 
 ### Available MCP Prompts
 
