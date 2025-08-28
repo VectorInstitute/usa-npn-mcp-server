@@ -200,7 +200,7 @@ class APIClient:
             NPNTools.Mapping,
             NPNTools.CheckReferenceMaterial,
             NPNTools.GetRawData,
-            # NPNTools.ExportRawData,
+            NPNTools.ExportRawData,
             NPNTools.EnableFileExport,
         ]
         self.cache_manager = CacheManager()
