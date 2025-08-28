@@ -5,7 +5,7 @@
 [![code checks](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/code_checks.yml/badge.svg)](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/code_checks.yml)
 [![integration tests](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/integration_tests.yml/badge.svg)](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/integration_tests.yml)
 [![docs](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/docs_deploy.yml/badge.svg)](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/docs_deploy.yml)
-[![GitHub License](https://img.shields.io/github/license/VectorInstitute/usa-npn-mcp-server)](https://github.com/VectorInstitute/usa-npn-mcp-server/blob/main/LICENSE)
+[![GitHub License](https://img.shields.io/badge/license-MIT-blue)](https://github.com/VectorInstitute/usa-npn-mcp-server/blob/main/LICENSE)
 
 ### Available MCP Tools
 
