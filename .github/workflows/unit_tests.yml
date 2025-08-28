@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - main
+      - develop
     paths:
       - .pre-commit-config.yaml
       - .github/workflows/code_checks.yml
@@ -65,24 +66,17 @@ jobs:
           uv run pytest -m "not integration_test" --cov=src/usa_npn_mcp_server --cov-report=xml --cov-report=term tests
 
       - name: Generate coverage badge
-        if: |
-          (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
-          (github.event_name == 'pull_request' && (github.base_ref == 'main' || github.base_ref == 'develop'))
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
         run: |
           uv run coverage-badge -o .github/coverage.svg -f
 
       - name: Clean up temporary coverage files
-        if: |
-          (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
-          (github.event_name == 'pull_request' && (github.base_ref == 'main' || github.base_ref == 'develop'))
         run: |
           rm -f .coverage coverage.xml
           rm -rf htmlcov/
 
       - name: Commit coverage badge
-        if: |
-          (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
-          (github.event_name == 'pull_request' && (github.base_ref == 'main' || github.base_ref == 'develop'))
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
