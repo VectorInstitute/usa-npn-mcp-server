@@ -23,6 +23,7 @@ on:
   pull_request:
     branches:
       - main
+      - develop
     paths:
       - .pre-commit-config.yaml
       - .github/workflows/code_checks.yml

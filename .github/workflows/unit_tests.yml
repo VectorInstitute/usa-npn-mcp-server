@@ -1,6 +1,6 @@
 name: unit tests
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
 
 on:
@@ -23,6 +23,7 @@ on:
   pull_request:
     branches:
       - main
+      - develop
     paths:
       - .pre-commit-config.yaml
       - .github/workflows/code_checks.yml
@@ -58,6 +59,32 @@ jobs:
       - name: Install the project
         run: uv sync --all-extras --dev
 
-      - name: Install dependencies and check code
+      - name: Run unit tests with coverage
+      # Get coverage of src/ and output to coverage.xml and terminal
         run: |
-          uv run pytest -m "not integration_test" --cov src/usa_npn_mcp_server --cov-report=xml tests
+          uv run pytest -m "not integration_test" --cov=src/usa_npn_mcp_server --cov-report=xml --cov-report=term tests
+
+      - name: Generate coverage badge
+        if: |
+          (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+          (github.event_name == 'pull_request' && (github.base_ref == 'main' || github.base_ref == 'develop'))
+        run: |
+          uv run coverage-badge -o .github/coverage.svg
+
+      - name: Clean up temporary coverage files
+        if: |
+          (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+          (github.event_name == 'pull_request' && (github.base_ref == 'main' || github.base_ref == 'develop'))
+        run: |
+          rm -f .coverage coverage.xml
+          rm -rf htmlcov/
+
+      - name: Commit coverage badge
+        if: |
+          (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+          (github.event_name == 'pull_request' && (github.base_ref == 'main' || github.base_ref == 'develop'))
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .github/coverage.svg
+          git diff --staged --quiet || (git commit -m "Update coverage badge" && git push)
