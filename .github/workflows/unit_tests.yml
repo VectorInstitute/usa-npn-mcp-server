@@ -69,7 +69,7 @@ jobs:
           (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
           (github.event_name == 'pull_request' && (github.base_ref == 'main' || github.base_ref == 'develop'))
         run: |
-          uv run coverage-badge -o .github/coverage.svg
+          uv run coverage-badge -o .github/coverage.svg -f
 
       - name: Clean up temporary coverage files
         if: |
