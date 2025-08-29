@@ -6,7 +6,7 @@ import tempfile
 from unittest.mock import patch
 
 import pytest
-from mcp.types import EmbeddedResource, TextContent
+from mcp.types import EmbeddedResource, Root, TextContent
 
 from usa_npn_mcp_server.api_client import APIClient
 
@@ -277,11 +277,11 @@ class TestAPIClientCoreMethods:
 
         assert len(result) == 3  # Title, warning, and truncated data
         assert "TRUNCATED" in result[0].text
-        assert "1,000 records out of 1500" in result[1].text
+        assert "300 records out of 1500" in result[1].text
 
         # Check truncation
         data_content = json.loads(result[2].text)
-        assert len(data_content) == 1000
+        assert len(data_content) == 300
 
     @pytest.mark.asyncio
     async def test_get_raw_data_nonexistent_hash(self):
@@ -289,46 +289,56 @@ class TestAPIClientCoreMethods:
         with pytest.raises(ValueError, match="No cached data found"):
             await self.api_client.get_raw_data({"hash_id": "nonexistent"})
 
-    @pytest.mark.asyncio
-    async def test_enable_file_export_default_directory(self):
-        """Test enabling file export with default directory."""
-        result = await self.api_client.enable_file_export({})
+    def test_get_allowed_roots_empty(self):
+        """Test getting allowed roots when none are set."""
+        roots = self.api_client.get_allowed_roots()
+        assert roots == []
 
-        assert len(result) == 1
-        assert isinstance(result[0], TextContent)
-        assert "File export enabled" in result[0].text
-        assert self.api_client.export_enabled is True
-        assert self.api_client.export_directory is not None
-
-    @pytest.mark.asyncio
-    async def test_enable_file_export_custom_directory(self):
-        """Test enabling file export with custom directory."""
+    def test_update_allowed_roots(self):
+        """Test updating allowed roots."""
         with tempfile.TemporaryDirectory() as temp_dir:
-            result = await self.api_client.enable_file_export(
-                {"export_directory": temp_dir}
-            )
+            root = Root(uri=f"file://{temp_dir}", name="test_root")
+            self.api_client.update_allowed_roots([root])
 
-            assert self.api_client.export_directory == temp_dir
-            assert self.api_client.export_enabled is True
-            assert temp_dir in result[0].text
+            roots = self.api_client.get_allowed_roots()
+            assert len(roots) == 1
+            assert roots[0].name == "test_root"
+            assert str(roots[0].uri) == f"file://{temp_dir}"
 
-    @pytest.mark.asyncio
-    async def test_enable_file_export_create_directory(self):
-        """Test enabling file export creates non-existent directory."""
+    def test_validate_path_in_roots_valid(self):
+        """Test path validation within allowed roots."""
         with tempfile.TemporaryDirectory() as temp_dir:
-            new_dir = os.path.join(temp_dir, "new_export_dir")
+            root = Root(uri=f"file://{temp_dir}", name="test_root")
+            self.api_client.update_allowed_roots([root])
 
-            await self.api_client.enable_file_export({"export_directory": new_dir})
+            # Test path within root
+            test_path = os.path.join(temp_dir, "subdir", "file.json")
+            os.makedirs(os.path.dirname(test_path), exist_ok=True)
 
-            assert os.path.exists(new_dir)
-            assert self.api_client.export_directory == new_dir
+            assert self.api_client._validate_path_in_roots(test_path) is True
+
+    def test_validate_path_in_roots_invalid(self):
+        """Test path validation outside allowed roots."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Root(uri=f"file://{temp_dir}", name="test_root")
+            self.api_client.update_allowed_roots([root])
+
+            # Test path outside root
+            invalid_path = "/tmp/outside_root/file.json"
+            assert self.api_client._validate_path_in_roots(invalid_path) is False
+
+    def test_validate_path_in_roots_no_roots(self):
+        """Test path validation when no roots are configured."""
+        test_path = "/some/path/file.json"
+        assert self.api_client._validate_path_in_roots(test_path) is False
 
     @pytest.mark.asyncio
     async def test_export_raw_data_json(self):
-        """Test exporting raw data as JSON."""
-        # Setup
+        """Test exporting raw data as JSON with roots."""
+        # Setup roots
         with tempfile.TemporaryDirectory() as temp_dir:
-            await self.api_client.enable_file_export({"export_directory": temp_dir})
+            root = Root(uri=f"file://{temp_dir}", name="test_root")
+            self.api_client.update_allowed_roots([root])
 
             hash_id = "test_hash_export"
             self.api_client.cache_manager.add_entry(
@@ -362,9 +372,10 @@ class TestAPIClientCoreMethods:
 
     @pytest.mark.asyncio
     async def test_export_raw_data_jsonl(self):
-        """Test exporting raw data as JSONL."""
+        """Test exporting raw data as JSONL with roots."""
         with tempfile.TemporaryDirectory() as temp_dir:
-            await self.api_client.enable_file_export({"export_directory": temp_dir})
+            root = Root(uri=f"file://{temp_dir}", name="test_root")
+            self.api_client.update_allowed_roots([root])
 
             hash_id = "test_hash_export"
             self.api_client.cache_manager.add_entry(
@@ -396,14 +407,14 @@ class TestAPIClientCoreMethods:
                 assert "observation_id" in data
 
     @pytest.mark.asyncio
-    async def test_export_raw_data_not_enabled(self):
-        """Test exporting when file export is not enabled."""
+    async def test_export_raw_data_no_roots(self):
+        """Test exporting when no roots are configured."""
         hash_id = "test_hash"
         self.api_client.cache_manager.add_entry(
             hash_id, "status-intensity", {}, self.sample_data
         )
 
-        with pytest.raises(ValueError, match="File export not enabled"):
+        with pytest.raises(ValueError, match="No roots available"):
             await self.api_client.export_raw_data(
                 {"hash_id": hash_id, "file_format": "json"}
             )
@@ -411,12 +422,14 @@ class TestAPIClientCoreMethods:
     @pytest.mark.asyncio
     async def test_export_raw_data_nonexistent_hash(self):
         """Test exporting with non-existent hash."""
-        await self.api_client.enable_file_export({})
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Root(uri=f"file://{temp_dir}", name="test_root")
+            self.api_client.update_allowed_roots([root])
 
-        with pytest.raises(ValueError, match="No cached data found"):
-            await self.api_client.export_raw_data(
-                {"hash_id": "nonexistent", "file_format": "json"}
-            )
+            with pytest.raises(ValueError, match="No cached data found"):
+                await self.api_client.export_raw_data(
+                    {"hash_id": "nonexistent", "file_format": "json"}
+                )
 
     def test_query_response_basic(self):
         """Test basic query response generation."""
@@ -518,19 +531,37 @@ class TestAPIClientCoreMethods:
             assert result == [TextContent(type="text", text="Export complete")]
 
     @pytest.mark.asyncio
-    async def test_handle_special_tools_enable_export(self):
-        """Test special tool handling for enable-file-export."""
-        arguments = {"export_directory": "/tmp/exports"}
+    async def test_export_raw_data_with_output_path(self):
+        """Test exporting raw data with custom output path."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Root(uri=f"file://{temp_dir}", name="test_root")
+            self.api_client.update_allowed_roots([root])
 
-        with patch.object(self.api_client, "enable_file_export") as mock_enable:
-            mock_enable.return_value = [TextContent(type="text", text="Export enabled")]
-
-            result = await self.api_client._handle_special_tools(
-                "enable-file-export", arguments
+            hash_id = "test_hash_export"
+            self.api_client.cache_manager.add_entry(
+                hash_id,
+                "status-intensity",
+                {"start_date": "2025-01-01"},
+                self.sample_data,
             )
 
-            mock_enable.assert_called_once_with(arguments)
-            assert result == [TextContent(type="text", text="Export enabled")]
+            # Test with relative output path
+            result = await self.api_client.export_raw_data(
+                {
+                    "hash_id": hash_id,
+                    "file_format": "json",
+                    "filename": "test_export.json",
+                    "output_path": "subdir",
+                }
+            )
+
+            # Check result
+            assert len(result) == 1
+            assert "Successfully exported 3 records" in result[0].text
+
+            # Check file exists in subdirectory
+            file_path = os.path.join(temp_dir, "subdir", "test_export.json")
+            assert os.path.exists(file_path)
 
     @pytest.mark.asyncio
     async def test_handle_mapping_tool_basic(self):
@@ -616,3 +647,25 @@ class TestAPIClientCoreMethods:
 
         result = self.api_client.read_output_schema(hash_id)
         assert result["result"] is None
+
+    def test_resolve_export_path_relative(self):
+        """Test resolving export path with relative path."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Root(uri=f"file://{temp_dir}", name="test_root")
+            self.api_client.update_allowed_roots([root])
+
+            result_path = self.api_client._resolve_export_path("subdir", "test.json")
+            expected_path = os.path.join(temp_dir, "subdir", "test.json")
+            assert result_path == expected_path
+            # Check that directory was created
+            assert os.path.exists(os.path.join(temp_dir, "subdir"))
+
+    def test_resolve_export_path_no_output_path(self):
+        """Test resolving export path without output path."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Root(uri=f"file://{temp_dir}", name="test_root")
+            self.api_client.update_allowed_roots([root])
+
+            result_path = self.api_client._resolve_export_path("", "test.json")
+            expected_path = os.path.join(temp_dir, "test.json")
+            assert result_path == expected_path
