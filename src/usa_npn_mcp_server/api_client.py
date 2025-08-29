@@ -619,9 +619,9 @@ class APIClient:
         raw_data = entry["raw_data"]
         metadata = entry["metadata"]
 
-        # Apply 100 record limit
-        if len(raw_data) > 100:
-            truncated_data = raw_data[:100]
+        # Apply 300 record limit
+        if len(raw_data) > 300:
+            truncated_data = raw_data[:300]
             result = [
                 TextContent(
                     type="text",
@@ -629,7 +629,7 @@ class APIClient:
                 ),
                 TextContent(
                     type="text",
-                    text=f"Warning: Data truncated to 100 records out of {len(raw_data)} total records.",
+                    text=f"Warning: Data truncated to 300 records out of {len(raw_data)} total records.",
                 ),
                 TextContent(
                     type="text",
