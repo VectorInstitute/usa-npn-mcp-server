@@ -61,6 +61,7 @@ dev = [
     "types-requests>=2.32.0",
     "types-decorator>=5.2.0",
     "types-pyyaml>=6.0.12",
+    "coverage-badge>=1.1.2",
 ]
 docs = [
     "furo>=2024.8.6",
@@ -160,6 +161,14 @@ max-doc-length = 88
 markers = [
     "integration_test: marks tests as integration tests",
 ]
+addopts = [
+    "--cov=src/usa_npn_mcp_server",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-report=xml",
+    "--cov-branch",
+]
+testpaths = ["tests"]
 
 [tool.typos]
 files.extend-exclude = [
