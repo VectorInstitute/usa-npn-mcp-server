@@ -23,6 +23,7 @@ import pandas as pd
 from mcp.types import (
     EmbeddedResource,
     ImageContent,
+    Root,
     TextContent,
     TextResourceContents,
 )
@@ -201,11 +202,72 @@ class APIClient:
             NPNTools.CheckReferenceMaterial,
             NPNTools.GetRawData,
             NPNTools.ExportRawData,
-            NPNTools.EnableFileExport,
         ]
         self.cache_manager = CacheManager()
-        self.export_directory: Optional[str] = None
-        self.export_enabled = False
+        self.allowed_roots: list[Root] = []
+
+    def get_allowed_roots(self) -> list[Root]:
+        """Get the current allowed roots."""
+        return self.allowed_roots
+
+    def update_allowed_roots(self, roots: list[Root]) -> None:
+        """Update the allowed roots from client."""
+        self.allowed_roots = roots
+        logger.info(f"Updated allowed roots: {len(roots)} roots available")
+
+    def _validate_path_in_roots(self, path: str) -> bool:
+        """Check if a path is within the allowed roots."""
+        if not self.allowed_roots:
+            return False
+
+        abs_path = os.path.abspath(os.path.normpath(path))
+        for root in self.allowed_roots:
+            # Extract the path from the file:// URI
+            if str(root.uri).startswith("file://"):
+                root_path = str(root.uri)[7:]  # Remove file://
+                root_abs = os.path.abspath(os.path.normpath(root_path))
+
+                # Check if the path is within this root
+                try:
+                    # Use os.path.commonpath for more robust comparison
+                    common = os.path.commonpath([abs_path, root_abs])
+                    # Path is within root if the common path equals the root
+                    if os.path.normpath(common) == os.path.normpath(root_abs):
+                        return True
+                except ValueError:
+                    # Different drives on Windows or other path issues
+                    continue
+        return False
+
+    def _resolve_export_path(self, output_path: str, filename: str) -> str:
+        """Resolve the full file path for export within allowed roots."""
+        if output_path:
+            # Check if it's an absolute path
+            if os.path.isabs(output_path):
+                # Validate it's within allowed roots
+                if not self._validate_path_in_roots(output_path):
+                    available_roots = [str(r.uri) for r in self.allowed_roots]
+                    raise ValueError(
+                        f"Output path '{output_path}' is not within allowed roots. "
+                        f"Available roots: {', '.join(available_roots)}"
+                    )
+                # Ensure the directory exists
+                os.makedirs(output_path, exist_ok=True)
+                return os.path.join(output_path, filename)
+            # Relative path - use the first root
+            root = self.allowed_roots[0]
+            if str(root.uri).startswith("file://"):
+                base_path = str(root.uri)[7:]  # Remove file://
+                full_dir = os.path.join(base_path, output_path)
+                os.makedirs(full_dir, exist_ok=True)
+                return os.path.join(full_dir, filename)
+            raise ValueError(f"Invalid root URI format: {root.uri}")
+        # No output path specified - use the first root directly
+        root = self.allowed_roots[0]
+        if str(root.uri).startswith("file://"):
+            base_path = str(root.uri)[7:]  # Remove file://
+            return os.path.join(base_path, filename)
+        raise ValueError(f"Invalid root URI format: {root.uri}")
 
     async def __aenter__(self) -> APIClient:
         """
@@ -557,9 +619,9 @@ class APIClient:
         raw_data = entry["raw_data"]
         metadata = entry["metadata"]
 
-        # Apply 1K record limit
-        if len(raw_data) > 1000:
-            truncated_data = raw_data[:1000]
+        # Apply 100 record limit
+        if len(raw_data) > 100:
+            truncated_data = raw_data[:100]
             result = [
                 TextContent(
                     type="text",
@@ -567,7 +629,7 @@ class APIClient:
                 ),
                 TextContent(
                     type="text",
-                    text=f"Warning: Data truncated to 1,000 records out of {len(raw_data)} total records.",
+                    text=f"Warning: Data truncated to 100 records out of {len(raw_data)} total records.",
                 ),
                 TextContent(
                     type="text",
@@ -588,62 +650,29 @@ class APIClient:
 
         return result
 
-    async def enable_file_export(self, arguments: Dict[str, Any]) -> list[TextContent]:
-        """Enable file export functionality."""
-        export_dir = arguments.get("export_directory")
-
-        # Use current working directory if not provided
-        if export_dir is None:
-            export_dir = os.getcwd()
-
-        # Validate directory exists or can be created
-        if not os.path.exists(export_dir):
-            try:
-                os.makedirs(export_dir, exist_ok=True)
-            except Exception as e:
-                raise ValueError(
-                    f"Cannot create export directory {export_dir}: {str(e)}"
-                ) from e
-
-        self.export_directory = export_dir
-        self.export_enabled = True
-
-        return [
-            TextContent(
-                type="text",
-                text=f"File export enabled. Export directory set to: {export_dir}",
-            )
-        ]
-
     @log_call
     async def export_raw_data(self, arguments: Dict[str, Any]) -> list[TextContent]:
         """Export raw data to file."""
-        if not self.export_enabled:
+        # Check if we have any roots available
+        if not self.allowed_roots:
             raise ValueError(
-                "File export not enabled. Use 'enable-file-export' tool first."
+                "No roots available. File export requires MCP client to provide roots. "
+                "Please ensure your MCP client supports roots and has configured allowed directories."
             )
 
         hash_id = arguments["hash_id"]
         file_format = arguments["file_format"]
-        filename = arguments.get("filename")
+        filename = arguments.get("filename", f"{hash_id}.{file_format}")
+        output_path = arguments.get("output_path", "")
 
         entry = self.cache_manager.get_entry(hash_id)
         if not entry:
             raise ValueError(f"No cached data found for hash ID: {hash_id}")
 
         raw_data = entry["raw_data"]
-        metadata = entry["metadata"]
 
-        # Generate filename if not provided
-        if not filename:
-            timestamp = metadata["timestamp"].strftime("%Y%m%d_%H%M%S")
-            filename = (
-                f"{metadata['tool_name']}_{hash_id[:8]}_{timestamp}.{file_format}"
-            )
-
-        if self.export_directory is None:
-            raise ValueError("Export directory not set")
-        filepath = os.path.join(self.export_directory, filename)
+        # Determine the full file path using helper method
+        filepath = self._resolve_export_path(output_path, filename)
 
         try:
             with open(filepath, "w") as f:
@@ -734,7 +763,6 @@ class APIClient:
             NPNTools.CheckReferenceMaterial.name,
             NPNTools.GetRawData.name,
             NPNTools.ExportRawData.name,
-            NPNTools.EnableFileExport.name,
             NPNTools.Mapping.name,
         ]:
             return await self._handle_special_tools(name, arguments)
@@ -750,8 +778,6 @@ class APIClient:
             return await self.get_raw_data(arguments)
         if name == NPNTools.ExportRawData.name:
             return await self.export_raw_data(arguments)
-        if name == NPNTools.EnableFileExport.name:
-            return await self.enable_file_export(arguments)
         if name == NPNTools.Mapping.name:
             return await self._handle_mapping_tool(arguments)
 

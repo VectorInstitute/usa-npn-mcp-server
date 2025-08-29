@@ -207,14 +207,9 @@ class ExportRawDataQuery(BaseModel):
         default=None,
         description="Optional filename. If not provided, auto-generated from hash_id",
     )
-
-
-class EnableFileExportQuery(BaseModel):
-    """Input parameters for enabling file export functionality."""
-
-    export_directory: Optional[str] = Field(
+    output_path: Optional[str] = Field(
         default=None,
-        description="Directory path where exported files should be saved. If not provided, defaults to current working directory.",
+        description="Output path for the file (relative to root or absolute within allowed roots). If not provided, saves to the first available root directory.",
     )
 
 
@@ -265,8 +260,6 @@ class NPNTools:
         Tool for retrieving raw data from cache using a hash ID.
     ExportRawData : NPNTool
         Tool for exporting cached raw data to a JSON or JSONL file.
-    EnableFileExport : NPNTool
-        Tool for enabling file export functionality by setting export directory path.
     """
 
     StatusIntensity = NPNTool(
@@ -338,14 +331,7 @@ class NPNTools:
 
     ExportRawData = NPNTool(
         name="export-raw-data",
-        description="Export cached raw data to JSON or JSONL file. File export must be enabled first using 'enable-file-export' tool.",
+        description="Export cached raw data to JSON or JSONL file. Requires MCP client to provide roots (allowed directories) for file operations.",
         input_schema=ExportRawDataQuery.model_json_schema(),
-        endpoint="",
-    )
-
-    EnableFileExport = NPNTool(
-        name="enable-file-export",
-        description="Enable file export functionality by setting the export directory path. If no directory is provided, defaults to current working directory. Required before using export-raw-data tool.",
-        input_schema=EnableFileExportQuery.model_json_schema(),
         endpoint="",
     )

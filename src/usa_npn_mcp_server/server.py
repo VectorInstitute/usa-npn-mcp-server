@@ -10,6 +10,7 @@ communication for the USA National Phenology Network (NPN) API.
 
 import json
 import logging
+import os
 from typing import Any, Dict, Union
 
 from mcp.server import Server
@@ -21,13 +22,14 @@ from mcp.types import (
     PromptMessage,
     Resource,
     ResourcesCapability,
+    Root,
     ServerCapabilities,
     TextContent,
     TextResourceContents,
     Tool,
     ToolsCapability,
 )
-from pydantic import AnyUrl
+from pydantic import AnyUrl, FileUrl
 
 from usa_npn_mcp_server.api_client import APIClient
 from usa_npn_mcp_server.utils.prompts import PROMPTS, get_prompts
@@ -40,7 +42,42 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-async def serve() -> None:
+def _initialize_roots(allowed_dirs: tuple[str, ...], api_client: APIClient) -> None:
+    """Initialize allowed directories/roots for the API client."""
+    # Check for allowed directories from parameters or environment
+    dirs_list = list(allowed_dirs) if allowed_dirs else []
+
+    # If no directories provided via parameters, check environment variable
+    if not dirs_list and os.environ.get("NPN_MCP_ALLOWED_DIRS"):
+        # Use os.pathsep for cross-platform path separator (: on Unix, ; on Windows)
+        dirs_list = os.environ["NPN_MCP_ALLOWED_DIRS"].split(os.pathsep)
+
+    # Convert to Root objects for the API client
+    if dirs_list:
+        roots = []
+        for dir_path in dirs_list:
+            abs_path = os.path.abspath(dir_path)
+            if os.path.exists(abs_path):
+                roots.append(
+                    Root(
+                        uri=FileUrl(f"file://{abs_path}"),
+                        name=os.path.basename(abs_path) or "Root",
+                    )
+                )
+            else:
+                logger.warning(f"Specified directory does not exist: {dir_path}")
+        if roots:
+            api_client.update_allowed_roots(roots)
+            logger.info(
+                f"Initialized with {len(roots)} allowed directories for file export"
+            )
+        else:
+            logger.info("No valid directories found for file export")
+    else:
+        logger.info("No allowed directories specified. File export will be disabled.")
+
+
+async def serve(allowed_dirs: tuple[str, ...] = ()) -> None:
     """Start the MCP server for the NPN API."""
     server: Server[None] = Server("usa-npn-mcp-server")
     logger.info("Starting MCP NPN Server...")
@@ -71,12 +108,22 @@ async def serve() -> None:
             for tool in api_client.get_tool_list()
         ]
 
-        # Add the recent-queries resource
+        # Add recent-queries resource
         resources.append(
             Resource(
                 uri=AnyUrl("npn-mcp://recent-queries"),
                 name="recent-queries-resource",
                 description="List of recent query hash IDs and metadata for cached data access.",
+                mimeType="application/json",
+            )
+        )
+
+        # Add available-roots resource
+        resources.append(
+            Resource(
+                uri=AnyUrl("npn-mcp://available-roots"),
+                name="available-roots-resource",
+                description="List of available root directories for file export operations.",
                 mimeType="application/json",
             )
         )
@@ -101,6 +148,35 @@ async def serve() -> None:
                     uri=uri,
                     mimeType="application/json",
                     text=json.dumps(cache_stats, indent=2),
+                )
+            ]
+        elif resource_name == "available-roots":
+            # Return available roots for file operations
+            roots_info = []
+            for root in api_client.get_allowed_roots():
+                roots_info.append(
+                    {
+                        "name": root.name or "Unnamed Root",
+                        "uri": str(root.uri),
+                        "path": str(root.uri)[7:]
+                        if str(root.uri).startswith("file://")
+                        else str(root.uri),
+                    }
+                )
+            contents = [
+                TextResourceContents(
+                    uri=uri,
+                    mimeType="application/json",
+                    text=json.dumps(
+                        {
+                            "roots_available": len(roots_info) > 0,
+                            "roots": roots_info,
+                            "message": "File export operations will use these roots"
+                            if roots_info
+                            else "No roots available. MCP client needs to provide roots for file operations.",
+                        },
+                        indent=2,
+                    ),
                 )
             ]
         else:
@@ -143,6 +219,9 @@ async def serve() -> None:
                 )
             ],
         )
+
+    # Initialize allowed directories/roots
+    _initialize_roots(allowed_dirs, api_client)
 
     # Initialize server to listen for resource changes
     options = InitializationOptions(

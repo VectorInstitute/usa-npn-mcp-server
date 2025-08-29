@@ -11,7 +11,12 @@ from usa_npn_mcp_server.server import serve
 
 @click.command()
 @click.option("-v", "--verbose", count=True)
-def main(verbose: int = 2) -> None:
+@click.argument(
+    "allowed_dirs",
+    nargs=-1,
+    type=click.Path(exists=True, file_okay=False, dir_okay=True, path_type=str),
+)
+def main(verbose: int = 2, allowed_dirs: tuple[str, ...] = ()) -> None:
     """Run the MCP NPN Server."""
     logging_level = logging.WARN
     if verbose == 1:
@@ -24,7 +29,7 @@ def main(verbose: int = 2) -> None:
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         stream=sys.stderr,
     )
-    asyncio.run(serve())
+    asyncio.run(serve(allowed_dirs))
 
 
 if __name__ == "__main__":
