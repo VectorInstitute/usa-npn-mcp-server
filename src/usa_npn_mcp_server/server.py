@@ -259,6 +259,7 @@ async def serve(allowed_dirs: tuple[str, ...] = ()) -> None:
             raise ValueError(f"Prompt '{prompt_name}' not found.")
         if arguments is None:
             arguments = {}
+        arguments["code_snippet"] = PROMPTS[prompt_name].get("code_snippet", "")
         prompt = str(PROMPTS[prompt_name]["template"]).format(**arguments)
         return GetPromptResult(
             messages=[
