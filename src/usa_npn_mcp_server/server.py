@@ -98,37 +98,20 @@ async def serve(allowed_dirs: tuple[str, ...] = ()) -> None:
     @server.list_resources()
     async def handle_list_resources() -> list[Resource]:
         """Client can call this to get a list of available resources."""
-        resources = [
-            Resource(
-                uri=AnyUrl(f"npn-mcp://{tool.name}"),
-                name=f"{tool.name}-resource",
-                description=f"Resource updated by {tool.name} Tool.",
-                mimeType="plain/text",
-            )
-            for tool in api_client.get_tool_list()
-        ]
-
-        # Add recent-queries resource
-        resources.append(
+        return [
             Resource(
                 uri=AnyUrl("npn-mcp://recent-queries"),
                 name="recent-queries-resource",
                 description="List of recent query hash IDs and metadata for cached data access.",
                 mimeType="application/json",
-            )
-        )
-
-        # Add available-roots resource
-        resources.append(
+            ),
             Resource(
                 uri=AnyUrl("npn-mcp://available-roots"),
                 name="available-roots-resource",
                 description="List of available root directories for file export operations.",
                 mimeType="application/json",
-            )
-        )
-
-        return resources
+            ),
+        ]
 
     @server.read_resource()
     async def handle_read_resource(
@@ -180,14 +163,7 @@ async def serve(allowed_dirs: tuple[str, ...] = ()) -> None:
                 )
             ]
         else:
-            # Legacy resource handling - provide deprecation notice
-            contents = [
-                TextResourceContents(
-                    uri=uri,
-                    mimeType="plain/text",
-                    text=f"Resource access for '{resource_name}' has been updated to use hash-based caching. Use 'recent-queries' resource to see available cached data with hash IDs, then use 'get-raw-data' tool with specific hash IDs.",
-                )
-            ]
+            raise ValueError(f"Unknown resource: {resource_name}")
 
         return {"contents": contents}
 
