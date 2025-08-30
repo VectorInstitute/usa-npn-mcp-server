@@ -324,7 +324,7 @@ class NPNTools:
 
     GetRawData = NPNTool(
         name="get-raw-data",
-        description="Retrieve raw data from cache using hash ID. Limited to 1000 records with truncation message if exceeded. Use 'recent-queries' resource to see available hash IDs.",
+        description="Retrieve raw data from cache using hash ID. Limited to 300 records with truncation message if exceeded. Use 'recent-queries' resource to see available hash IDs.",
         input_schema=GetRawDataQuery.model_json_schema(),
         endpoint="",
     )
