@@ -200,6 +200,7 @@ class APIClient:
             NPNTools.IndividualPhenometrics,
             NPNTools.Mapping,
             NPNTools.CheckReferenceMaterial,
+            NPNTools.CheckLiterature,
             NPNTools.GetRawData,
             NPNTools.ExportRawData,
         ]
@@ -777,6 +778,7 @@ class APIClient:
 
         if name in [
             NPNTools.CheckReferenceMaterial.name,
+            NPNTools.CheckLiterature.name,
             NPNTools.GetRawData.name,
             NPNTools.ExportRawData.name,
             NPNTools.Mapping.name,
@@ -788,7 +790,10 @@ class APIClient:
 
     async def _handle_special_tools(self, name: str, arguments: Dict[str, str]) -> Any:
         """Handle special tools with unique logic."""
-        if name == NPNTools.CheckReferenceMaterial.name:
+        if name in {
+            NPNTools.CheckReferenceMaterial.name,
+            NPNTools.CheckLiterature.name,
+        }:
             return await self.check_reference_material(arguments)
         if name == NPNTools.GetRawData.name:
             return await self.get_raw_data(arguments)

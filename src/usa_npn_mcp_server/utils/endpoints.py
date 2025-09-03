@@ -179,7 +179,7 @@ class MapModel(BasePlotModel):
     )
 
 
-class CheckReferenceMaterialSQLQueryModel(BaseModel):
+class SQLQueryModel(BaseModel):
     """Input parameters for checking reference material tool."""
 
     sql_query: str = Field(
@@ -256,6 +256,9 @@ class NPNTools:
     CheckReferenceMaterial : NPNTool
         Tool for checking what reference material is available to translate natural
         language into specific ids and terms needed for querying the NPN API.
+    CheckLiterature : NPNTool
+        Tool for checking 175 structured summaries of studies that used data collected
+        by the National Phenology Network.
     GetRawData : NPNTool
         Tool for retrieving raw data from cache using a hash ID.
     ExportRawData : NPNTool
@@ -393,7 +396,19 @@ Data interpretation: Records show individual_id, phenophase onset/end dates, and
             Table: networks, Length: 833, Headers: ['network_id', 'network_name']
             Description: Contains info on observation groups or networks (aka partner groups)
 """,
-        input_schema=CheckReferenceMaterialSQLQueryModel.model_json_schema(),
+        input_schema=SQLQueryModel.model_json_schema(),
+        endpoint="",
+    )
+
+    CheckLiterature = NPNTool(
+        name="check-literature",
+        description="""
+            Query an SQL database for structured summaries of studies that used data collected by National Phenology Network. The tables have the following structure:
+
+            Table: literature, Length: 175, Headers: ['Title', 'Authors', 'DOI', 'DOI link', 'Venue', 'Citation count', 'Year', 'Filename', 'Measured variables', 'Temporal Range', 'Spatial Scope', 'Data Filtering', 'Statistical Tests', 'Modelling', 'Software Tools', 'Limitations', 'Main findings', 'Research gaps', 'Future research', 'Independent variables', 'Dependent variables', 'Organism', 'Summary of discussion', 'API Query', "Supporting quotes for 'Measured variables'", "Supporting tables for 'Measured variables'", "Reasoning for 'Measured variables'", "Supporting quotes for 'Temporal Range'", "Supporting tables for 'Temporal Range'", "Reasoning for 'Temporal Range'", "Supporting quotes for 'Spatial Scope'", "Supporting tables for 'Spatial Scope'", "Reasoning for 'Spatial Scope'", "Supporting quotes for 'Data Filtering'", "Supporting tables for 'Data Filtering'", "Reasoning for 'Data Filtering'", "Supporting quotes for 'Statistical Tests'", "Supporting tables for 'Statistical Tests'", "Reasoning for 'Statistical Tests'", "Supporting quotes for 'Modelling'", "Supporting tables for 'Modelling'", "Reasoning for 'Modelling'", "Supporting quotes for 'Software Tools'", "Supporting tables for 'Software Tools'", "Reasoning for 'Software Tools'", "Supporting quotes for 'Limitations'", "Supporting tables for 'Limitations'", "Reasoning for 'Limitations'", "Supporting quotes for 'Main findings'", "Supporting tables for 'Main findings'", "Reasoning for 'Main findings'", "Supporting quotes for 'Research gaps'", "Supporting tables for 'Research gaps'", "Reasoning for 'Research gaps'", "Supporting quotes for 'Future research'", "Supporting tables for 'Future research'", "Reasoning for 'Future research'", "Supporting quotes for 'Independent variables'", "Supporting tables for 'Independent variables'", "Reasoning for 'Independent variables'", "Supporting quotes for 'Dependent variables'", "Supporting tables for 'Dependent variables'", "Reasoning for 'Dependent variables'", "Supporting quotes for 'Organism'", "Supporting tables for 'Organism'", "Reasoning for 'Organism'", "Supporting quotes for 'Summary of discussion'", "Supporting tables for 'Summary of discussion'", "Reasoning for 'Summary of discussion'", "Supporting quotes for 'API Query'", "Supporting tables for 'API Query'", "Reasoning for 'API Query'"]
+            Description: Contains structured summaries of 175 papers that use phenology and phenometrics, included in the table is the reasoning and sourcing for each summary column.
+        """,
+        input_schema=SQLQueryModel.model_json_schema(),
         endpoint="",
     )
 
