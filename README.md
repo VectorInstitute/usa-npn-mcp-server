@@ -18,9 +18,13 @@
 - `observation-comment` - Fetches observation comments based on observation_id.
 - `mapping` - Maps site phenometrics onto a map of the USA with optional colour labelling.
 - `check-reference-material` - Checks database containing NPN API reference material using a generated sql query.
-- `enable-file-export` - Enables file export for data fetched from other tools.
-- `export-raw-data` - Exports raw data to a JSON file.
+- `export-raw-data` - Exports raw data to JSON or JSONL files in allowed directories.
 - `get-raw-data` - Fetches raw data instead of summaries as from other tools.
+
+### Available MCP Resources
+
+- `recent-queries` - List of recent query hash IDs and metadata for cached data access.
+- `available-roots` - List of available root directories for file export operations.
 
 ### Available MCP Prompts
 
@@ -157,14 +161,14 @@ How to find and modify claude_desktop_config.json:
       "command": "bash",
       "args": [
         "-c",
-        "source /absolute/path/to/usa-npn-mcp-server/.venv/bin/activate && uv run usa_npn_mcp_server"
+        "source /absolute/path/to/usa-npn-mcp-server/.venv/bin/activate && uv run usa_npn_mcp_server /absolute/path/to/export/directory"
       ]
     }
   }
 }
 ```
 
-  **NOTE**: Replace "/absolute/path/to/usa-npn-mcp-server/" with local path to repo dir
+  **NOTE**: Replace `/absolute/path/to/usa-npn-mcp-server/` with local path to repo dir and `/absolute/path/to/export/directory` with local path to directory where you want exported files to be saved (or exclude this part to disable file export). You can specify multiple directories separated by spaces.
 
 </details>
 </details>
@@ -189,20 +193,48 @@ How to find and modify claude_desktop_config.json:
     "command": "cmd.exe",
     "args": [
       "/c",
-      "C:\\absolute\\path\\to\\usa-npn-mcp-server\\.venv\\Scripts\\activate.bat && uv run usa_npn_mcp_server"
+      "C:\\absolute\\path\\to\\usa-npn-mcp-server\\.venv\\Scripts\\activate.bat && uv run usa_npn_mcp_server 'C:\\absolute\\path\\to\\export\\directory'"
       ]
     }
   }
 }
 ```
 
-  **NOTE**: Replace "C:\\absolute\\path\\to\\usa-npn-mcp-server\\" with local absolute path to repo dir and be sure to use forward backslashes
+  **NOTE**: Replace `C:\\absolute\\path\\to\\usa-npn-mcp-server\\` with local path to repo dir and `'C:\\absolute\\path\\to\\export\\directory'` (including the single quotes) with local path to directory where you want exported files to be saved (or exclude this part to disable file export). You can specify multiple directories separated by spaces - be sure to use backslashes for Windows paths.
 
 </details>
 
 </details>
 
 #
+
+### File Export Configuration
+
+The server supports exporting data to files within specified directories. You can configure allowed export directories in two ways:
+
+#### Command-line Arguments (Recommended)
+Pass directory paths as arguments when starting the server:
+```bash
+# Single directory
+uv run usa_npn_mcp_server /path/to/exports
+
+# Multiple directories
+uv run usa_npn_mcp_server /path/to/exports /path/to/another/dir
+```
+
+#### Environment Variable
+Set the `NPN_MCP_ALLOWED_DIRS` environment variable:
+```bash
+# Unix/macOS (colon-separated)
+export NPN_MCP_ALLOWED_DIRS="/path/to/exports:/path/to/another/dir"
+
+# Windows (semicolon-separated)
+set NPN_MCP_ALLOWED_DIRS="C:\path\to\exports;D:\another\dir"
+```
+
+**Security Note**: The server will only allow file operations within the specified directories for security.
+
+---
 
 After saving the changes, restart Claude Desktop. You should see a new :electric_plug: icon and/or :hammer: icons in your chat prompt that confirms the MCP Server is detected.
 
@@ -217,7 +249,11 @@ Each time you create a new chat that uses a Tool from the MCP Server, you will h
 **Debugging with MCP Inspector (Currently only macOS and Linux)**: To run a locally hosted MCP interpreter for debugging, use:
 
    ```bash
+   # Without file export
    npx @modelcontextprotocol/inspector uv run usa_npn_mcp_server
+
+   # With file export to a specific directory
+   npx @modelcontextprotocol/inspector uv run usa_npn_mcp_server /path/to/exports
    ```
 
 The first time you run this command you'll be prompted to download `@modelcontextprotocol/inspector`.
