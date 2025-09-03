@@ -499,6 +499,21 @@ class TestAPIClientCoreMethods:
             assert result == [TextContent(type="text", text="Reference data")]
 
     @pytest.mark.asyncio
+    async def test_handle_special_tools_check_literature(self):
+        """Test special tool handling for check-literature."""
+        arguments = {"sql_query": "SELECT * FROM literature WHERE Year > 2020"}
+
+        with patch.object(self.api_client, "check_reference_material") as mock_check:
+            mock_check.return_value = [TextContent(type="text", text="Literature data")]
+
+            result = await self.api_client._handle_special_tools(
+                "check-literature", arguments
+            )
+
+            mock_check.assert_called_once_with(arguments)
+            assert result == [TextContent(type="text", text="Literature data")]
+
+    @pytest.mark.asyncio
     async def test_handle_special_tools_get_raw_data(self):
         """Test special tool handling for get-raw-data."""
         arguments = {"hash_id": "test_hash"}

@@ -5,6 +5,7 @@ from usa_npn_mcp_server.utils.endpoints import (
     MagnitudePhenometricsQuery,
     ObservationCommentQuery,
     SitePhenometricsQuery,
+    SQLQueryModel,
     StatusIntensityQuery,
 )
 
@@ -87,3 +88,21 @@ def test_magnitude_phenometrics_query_model():
     assert query.start_date == "2025-01-01"
     assert query.end_date == "2025-01-31"
     assert query.frequency == 7
+
+
+def test_sql_query_model():
+    """Test SQLQueryModel used by CheckLiterature and CheckReferenceMaterial tools."""
+    query1 = SQLQueryModel(
+        sql_query="SELECT * FROM phenoclasses WHERE phenophase_category LIKE '%Flowers'"
+    )
+    query2 = SQLQueryModel(
+        sql_query="SELECT Title, Authors FROM literature WHERE Organism LIKE '%bird%'"
+    )
+    assert (
+        query1.sql_query
+        == "SELECT * FROM phenoclasses WHERE phenophase_category LIKE '%Flowers'"
+    )
+    assert (
+        query2.sql_query
+        == "SELECT Title, Authors FROM literature WHERE Organism LIKE '%bird%'"
+    )
