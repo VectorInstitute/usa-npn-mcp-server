@@ -256,6 +256,9 @@ class NPNTools:
     CheckReferenceMaterial : NPNTool
         Tool for checking what reference material is available to translate natural
         language into specific ids and terms needed for querying the NPN API.
+    CheckLiterature : NPNTool
+        Tool for checking 175 structured summaries of studies that used data collected
+        by the National Phenology Network.
     GetRawData : NPNTool
         Tool for retrieving raw data from cache using a hash ID.
     ExportRawData : NPNTool
