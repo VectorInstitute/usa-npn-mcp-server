@@ -9,6 +9,9 @@
 ![coverage](./.github/coverage.svg)
 [![GitHub License](https://img.shields.io/badge/license-MIT-blue)](https://github.com/VectorInstitute/usa-npn-mcp-server/blob/main/LICENSE)
 
+#
+![alt text](assets/example_usage.gif)
+
 ### Available MCP Tools
 
 - `status-intensity` - Fetches status and intensity data (raw observation data).
@@ -29,10 +32,6 @@
 ### Available MCP Prompts
 
 - `map_data` - Structured workflow for working interactively with user to query site phenometrics and map the results, initialized with start-date and end-date.
-
-#
-
-![alt text](assets/example_usage.gif)
 
 
 ## 🧑🏿‍💻 Developing
@@ -145,7 +144,7 @@ How to find and modify claude_desktop_config.json:
 <summary>macOS and Linux</summary>
 
 1. Open Claude Desktop app
-2. Click on "Claude" in the menu bar and select "Settings" - you may need to enable "Developer Mode" to proceed
+2. Click on "Claude" in the menu bar and select "Settings"
 3. In the Settings window, click on the "Developer" tab in the left sidebar
 4. Click the "Edit Config" button
 5. This will open a Finder window showing the location of the `claude_desktop_config.json` file
@@ -177,7 +176,7 @@ How to find and modify claude_desktop_config.json:
 <summary>Windows</summary>
 
 1. Open Claude Desktop app
-2. CTRL+Comma or Open the menu bar (three bar symbol top-left) and select "File" and "Settings" - you may need to enable "Developer Mode" to proceed
+2. CTRL+Comma or Open the menu bar (three bar symbol top-left) and select "File" and "Settings"
 3. In the Settings window, click on the "Developer" tab in the left sidebar
 4. Click the "Edit Config" button
 5. This will open a window showing the location of the `claude_desktop_config.json` file
@@ -208,7 +207,25 @@ How to find and modify claude_desktop_config.json:
 
 #
 
-### File Export Configuration
+After saving the changes, restart Claude Desktop. If you receive no error messages from the Claude UI, the USA-NPN MCP server is likely installed correctly. Clicking the two buttons in the bottom left of the new chat box should reveal new options with `npn` labelling.
+
+![alt text](assets/mcp_recognized2.png)
+![alt text](assets/mcp_recognized1.png)
+
+You should see a new local MCP server in the "Connectors" section of the Settings as below. This example has Filesystem and npn (usa-npn-mcp-server) MCP Servers enabled.
+
+![alt text](assets/mcp_recognized3.png)
+
+To enable tool use, you can click "Configure" (seen in the image above) and adjust which tools are enabled using the blue sliders and the permissions for each tool.
+
+![alt text](assets/mcp_recognized4.png)
+
+If you do not configure permissions this way, the tools will be enabled by default and permissions will be set to "Always ask permission" and each tool use will ask with an in-chat pop-up as below.
+
+![alt text](assets/tool_permission.png)
+
+
+## File Export Configuration
 
 The server supports exporting data to files within specified directories. You can configure allowed export directories in two ways:
 
@@ -233,16 +250,6 @@ set NPN_MCP_ALLOWED_DIRS="C:\path\to\exports;D:\another\dir"
 ```
 
 **Security Note**: The server will only allow file operations within the specified directories for security.
-
----
-
-After saving the changes, restart Claude Desktop. You should see a new :electric_plug: icon and/or :hammer: icons in your chat prompt that confirms the MCP Server is detected.
-
-![alt text](assets/mcp_recognized.png)
-
-Each time you create a new chat that uses a Tool from the MCP Server, you will have to agree to permit access to the MCP Server's Tool.
-
-![alt text](assets/accept_tool.png)
 
 ## Debugging
 

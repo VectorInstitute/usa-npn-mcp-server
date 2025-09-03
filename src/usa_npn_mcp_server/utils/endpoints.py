@@ -264,7 +264,15 @@ class NPNTools:
 
     StatusIntensity = NPNTool(
         name="status-intensity",
-        description="Query NPN API for intensity and status data aka raw observation data (from getObservations endpoint), results stored as readable Resource 'status_intensity'. Other query tools that aggregate like Site Phenometrics, Individual Phenometrics, and Magnitude Phenometrics are built on top of this tool and should be instead of this tool. This tool should only be used for a small subset of dates because it returns large results.",
+        description="""
+About the tool: Retrieves raw, unprocessed observation records from citizen and professional scientists documenting day-by-day phenological status (yes/no) and intensity measurements for individual plants and animal species. Each record represents a single observation event showing whether specific phenophases (like 'breaking leaf buds' or 'full bloom') were occurring on a particular date for a specific individual organism at a monitoring site.
+
+When to use: Only for detailed analysis of specific observation events, quality control, or when you need the granular day-to-day data that underlies the aggregated metrics. Most users should use Individual, Site, or Magnitude Phenometrics instead.
+
+Key applications: Data validation, understanding observer reporting patterns, analyzing day-to-day phenological transitions, custom aggregations not available in other tools.
+Performance warning: This tool can return massive datasets (potentially millions of records). Always limit queries to small date ranges (≤30 days recommended) and specific geographic areas or species to prevent system crashes. Use aggregated tools (Individual/Site/Magnitude Phenometrics) for broader analyses.
+
+Data interpretation: Values of -9999 represent missing/null data. Records include observation date, individual ID, phenophase status, intensity measurements, and site metadata.""",
         input_schema=StatusIntensityQuery.model_json_schema(),
         endpoint="getObservations",
     )
@@ -276,19 +284,86 @@ class NPNTools:
     )
     MagnitudePhenometrics = NPNTool(
         name="magnitude-phenometrics",
-        description="Query NPN API for magnitude phenometrics aka magnitude data (from getMagnitudeData endpoint), results stored as readable Resource 'magnitude_phenometrics'",
+        description="""
+About the tool: Summarizes the intensity and abundance of phenological activity across multiple individuals, sites, or time periods using aggregated status and intensity data. Shows 'how much' phenological activity is occurring (not just when), providing insights into the magnitude, synchrony, and temporal patterns of biological processes.
+
+When to use: Understanding broad ecological patterns, studying synchrony between interacting species, analyzing peak activity timing, or investigating how environmental changes affect the intensity of biological processes across populations.
+
+Key applications:
+
+- Species synchrony analysis: Quantifying how synchronized phenological timing is between interacting species (pollinators and plants, herbivores and host plants, predators and prey)
+- Peak activity timing: Identifying when maximum biological activity occurs across populations
+- Climate change impacts: Studying how warming affects the magnitude and timing of phenological events
+- Biodiversity patterns: Understanding temporal overlap in species activity within ecosystems
+- Population-level responses: Analyzing how abundant or widespread phenological activity is across landscapes
+- Conservation planning: Identifying critical timing windows for species management
+
+Scientific context: Based on current research showing that phenological synchrony between species is shifting due to climate change, with implications for ecosystem functioning and species interactions. This tool helps quantify these critical ecological relationships.
+
+Requires: Date range and frequency parameters (daily, weekly, etc.) are essential. Recommended to specify species and phenophases of interest to avoid overwhelming results.
+Research applications:
+
+- 'Are migrating birds arriving when their insect food sources are most abundant?'
+- 'How synchronous is flowering across plant species in prairie communities?'
+- 'Has climate change affected the temporal overlap between butterfly emergence and host plant activity?'
+
+Data interpretation: Results show time-series data of phenological abundance/intensity aggregated by specified frequency. Values represent proportion of 'yes' records, animal abundance measures, or intensity metrics across the selected populations.""",
         input_schema=MagnitudePhenometricsQuery.model_json_schema(),
         endpoint="getMagnitudeData",
     )
     SitePhenometrics = NPNTool(
         name="site-phenometrics",
-        description="Query NPN API for site phenometrics aka site level data (from getSiteLevelData endpoint), results stored as readable Resource 'site_phenometrics'",
+        description="""
+About the tool: Aggregates individual phenological data to provide average start and end dates of phenological activity for each species at each monitoring site. Represents the 'typical' timing for a species at a location by averaging across all individuals of that species at the site.
+
+When to use: Creating phenological calendars, analyzing site-specific timing patterns, comparing phenology across locations, understanding regional growing seasons, or studying how local climate affects species timing.
+
+Key applications:
+
+- Phenological calendars: Creating seasonal timing guides for specific locations
+- Growing season analysis: Quantifying length of active growing periods for sites/regions
+- Climate relationship studies: Investigating how phenological timing relates to temperature, precipitation, and seasonal patterns
+- Site comparisons: Comparing phenological timing across elevation gradients, latitude gradients, or different habitat types
+- Regional management: Planning for activities like controlled burns, invasive species management, or ecotourism
+- Agricultural applications: Understanding wild plant timing to inform crop management decisions
+
+Scientific context: Site phenometrics average out individual variation to reveal location-specific phenological signatures. Essential for understanding how climate drivers affect species timing at landscape scales.
+
+Research applications:
+
+- 'When do oak leaves typically emerge at Yellowstone vs. Great Smoky Mountains?'
+- 'How long is the typical growing season for maple species in Minnesota?'
+- 'When should we expect peak wildflower blooms in different Colorado elevation zones?'
+
+Data interpretation: Each record represents one species at one site for the specified time period. Start/end dates are averages across individuals. Sites represent uniform habitat areas ≤15 acres. Values of -9999 represent missing/null data.""",
         input_schema=SitePhenometricsQuery.model_json_schema(),
         endpoint="getSiteLevelData",
     )
     IndividualPhenometrics = NPNTool(
         name="individual-phenometrics",
-        description="Query NPN API for individual phenometrics aka summarized data (from getSummarizedData endpoint), results stored as readable Resource 'individual_phenometrics'",
+        description="""
+About the tool: Provides start and end dates of phenological activity for individual plants and animal species, derived from status data. Each record represents one 'phenological episode' - a period of continuous activity for a specific phenophase on an individual organism (like when one specific maple tree's leaves went from bud break to full leaf drop).
+
+When to use: To understand phenological patterns within species, analyze individual plant behavior, study variation between organisms of the same species, or investigate multiple episodes of activity within a single growing season.
+
+Key applications:
+
+- Studying phenological diversity within populations
+- Analyzing individual plant responses to local microclimates
+- Documenting multiple flowering/leafing episodes in water-limited ecosystems
+- Understanding species-specific phenological strategies
+- Quality control for site-level aggregations
+- Research on plant physiological responses to environmental triggers
+
+Important considerations:
+
+- For plants: Shows actual start/end dates for individual organisms
+- For animals: Shows presence/absence periods at species level (since individual animals aren't tracked)
+- Requires date range specification (typically calendar year)
+- Multiple episodes may occur for same individual/phenophase within one season (e.g., after frost damage or drought recovery)
+- Essential for understanding the biological basis of site-level patterns
+
+Data interpretation: Records show individual_id, phenophase onset/end dates, and episode duration. -9999 values indicate missing data.""",
         input_schema=IndividualPhenometricsQuery.model_json_schema(),
         endpoint="getSummarizedData",
     )
