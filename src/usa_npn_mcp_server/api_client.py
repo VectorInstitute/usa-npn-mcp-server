@@ -229,45 +229,61 @@ class APIClient:
 
                 # Check if the path is within this root
                 try:
-                    # Use os.path.commonpath for more robust comparison
-                    common = os.path.commonpath([abs_path, root_abs])
-                    # Path is within root if the common path equals the root
-                    if os.path.normpath(common) == os.path.normpath(root_abs):
+                    # Get relative path from root to target
+                    rel_path = os.path.relpath(abs_path, root_abs)
+                    # Check that the relative path doesn't escape the root with ..
+                    # and isn't an absolute path (indicating it's outside allowed roots)
+                    if not rel_path.startswith("..") and not os.path.isabs(rel_path):
                         return True
                 except ValueError:
                     # Different drives on Windows or other path issues
+                    # Ex if abs_path is not under root_abs
                     continue
         return False
 
     def _resolve_export_path(self, output_path: str, filename: str) -> str:
         """Resolve the full file path for export within allowed roots."""
+        # Normalize the filename to prevent path traversal
+        # Handle both Unix and Windows path separators
+        filename = filename.replace("\\", "/")  # Convert Windows separators
+        filename = os.path.basename(filename)
+
         if output_path:
             # Check if it's an absolute path
             if os.path.isabs(output_path):
-                # Validate it's within allowed roots
-                if not self._validate_path_in_roots(output_path):
-                    available_roots = [str(r.uri) for r in self.allowed_roots]
-                    raise ValueError(
-                        f"Output path '{output_path}' is not within allowed roots. "
-                        f"Available roots: {', '.join(available_roots)}"
-                    )
-                # Ensure the directory exists
-                os.makedirs(output_path, exist_ok=True)
-                return os.path.join(output_path, filename)
-            # Relative path - use the first root
+                full_path = os.path.join(output_path, filename)
+            else:
+                # Relative path - use the first root
+                root = self.allowed_roots[0]
+                if str(root.uri).startswith("file://"):
+                    base_path = str(root.uri)[7:]  # Remove file://
+                    full_dir = os.path.join(base_path, output_path)
+                    full_path = os.path.join(full_dir, filename)
+                else:
+                    raise ValueError(f"Invalid root URI format: {root.uri}")
+        else:
+            # No output path specified - use the first root directly
             root = self.allowed_roots[0]
             if str(root.uri).startswith("file://"):
                 base_path = str(root.uri)[7:]  # Remove file://
-                full_dir = os.path.join(base_path, output_path)
-                os.makedirs(full_dir, exist_ok=True)
-                return os.path.join(full_dir, filename)
-            raise ValueError(f"Invalid root URI format: {root.uri}")
-        # No output path specified - use the first root directly
-        root = self.allowed_roots[0]
-        if str(root.uri).startswith("file://"):
-            base_path = str(root.uri)[7:]  # Remove file://
-            return os.path.join(base_path, filename)
-        raise ValueError(f"Invalid root URI format: {root.uri}")
+                full_path = os.path.join(base_path, filename)
+            else:
+                raise ValueError(f"Invalid root URI format: {root.uri}")
+
+        # Normalize and validate the final path
+        full_path = os.path.abspath(os.path.normpath(full_path))
+
+        # Validate the final path is within allowed roots
+        if not self._validate_path_in_roots(full_path):
+            available_roots = [str(r.uri) for r in self.allowed_roots]
+            raise ValueError(
+                f"Final file path '{full_path}' is not within allowed roots. "
+                f"Available roots: {', '.join(available_roots)}"
+            )
+
+        # Ensure the directory exists
+        os.makedirs(os.path.dirname(full_path), exist_ok=True)
+        return full_path
 
     async def __aenter__(self) -> APIClient:
         """

@@ -669,3 +669,81 @@ class TestAPIClientCoreMethods:
             result_path = self.api_client._resolve_export_path("", "test.json")
             expected_path = os.path.join(temp_dir, "test.json")
             assert result_path == expected_path
+
+    def test_validate_path_traversal_attack(self):
+        """Test that path traversal attacks are prevented in _validate_path_in_roots."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Root(uri=f"file://{temp_dir}", name="test_root")
+            self.api_client.update_allowed_roots([root])
+
+            # Test various path traversal attempts
+            malicious_paths = [
+                os.path.join(temp_dir, "..", "etc", "passwd"),
+                os.path.join(temp_dir, "subdir", "..", "..", "etc"),
+                f"{temp_dir}/../../../etc/passwd",
+            ]
+
+            for path in malicious_paths:
+                assert self.api_client._validate_path_in_roots(path) is False
+
+    def test_resolve_export_path_traversal_in_filename(self):
+        """Test that path traversal in filename is prevented."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Root(uri=f"file://{temp_dir}", name="test_root")
+            self.api_client.update_allowed_roots([root])
+
+            # Path traversal in filename should be stripped to basename
+            test_cases = [
+                ("../../../etc/passwd", "passwd"),
+                ("..\\..\\windows\\system32\\config\\sam", "sam"),
+                ("subdir/../../../etc/shadow", "shadow"),
+            ]
+
+            for malicious_filename, expected_basename in test_cases:
+                result_path = self.api_client._resolve_export_path(
+                    "", malicious_filename
+                )
+                # Should only use the basename, stripping directory components
+                expected_path = os.path.join(temp_dir, expected_basename)
+                assert result_path == expected_path
+                # Verify the path is within allowed roots
+                assert temp_dir in result_path
+
+    def test_resolve_export_path_absolute_outside_roots(self):
+        """Test that absolute paths outside roots are rejected."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Root(uri=f"file://{temp_dir}", name="test_root")
+            self.api_client.update_allowed_roots([root])
+
+            # Absolute path outside of allowed roots
+            with pytest.raises(ValueError, match="not within allowed roots"):
+                self.api_client._resolve_export_path("/etc", "passwd")
+
+    def test_resolve_export_path_traversal_in_output_path(self):
+        """Test that path traversal in output_path is caught."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Root(uri=f"file://{temp_dir}", name="test_root")
+            self.api_client.update_allowed_roots([root])
+
+            # Path traversal in output_path that escapes root
+            with pytest.raises(ValueError, match="not within allowed roots"):
+                # This constructs a path that goes outside temp_dir
+                traversal_path = os.path.join(temp_dir, "..", "..", "etc")
+                self.api_client._resolve_export_path(traversal_path, "passwd")
+
+    def test_validate_path_edge_cases(self):
+        """Test edge cases in path validation."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Root(uri=f"file://{temp_dir}", name="test_root")
+            self.api_client.update_allowed_roots([root])
+
+            # Test exact root path
+            assert self.api_client._validate_path_in_roots(temp_dir) is True
+
+            # Test immediate parent directory (should fail)
+            parent_dir = os.path.dirname(temp_dir)
+            assert self.api_client._validate_path_in_roots(parent_dir) is False
+
+            # Test sibling directory (should fail)
+            sibling_dir = os.path.join(os.path.dirname(temp_dir), "sibling")
+            assert self.api_client._validate_path_in_roots(sibling_dir) is False

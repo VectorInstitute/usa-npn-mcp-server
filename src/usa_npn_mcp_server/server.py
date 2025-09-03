@@ -55,13 +55,13 @@ def _initialize_roots(allowed_dirs: tuple[str, ...], api_client: APIClient) -> N
     # Convert to Root objects for the API client
     if dirs_list:
         roots = []
-        for dir_path in dirs_list:
+        for idx, dir_path in enumerate(dirs_list):
             abs_path = os.path.abspath(dir_path)
             if os.path.exists(abs_path):
                 roots.append(
                     Root(
                         uri=FileUrl(f"file://{abs_path}"),
-                        name=os.path.basename(abs_path) or "Root",
+                        name=os.path.basename(abs_path) or f"Root_{idx}",
                     )
                 )
             else:
