@@ -55,6 +55,21 @@ def log_call(func: Any) -> Any:
 
     @wraps(func)
     async def wrapper(*args: Any, **kwargs: Any) -> Any:
+        """
+        Log the decorated function's execution details.
+
+        Parameters
+        ----------
+        *args : Any
+            Positional arguments passed to the wrapped function.
+        **kwargs : Any
+            Keyword arguments passed to the wrapped function.
+
+        Returns
+        -------
+        Any
+            The result of the wrapped function call.
+        """
         function_name = func.__name__
         start = datetime.now()
         logger.info(f"Calling {function_name} with args: {args[1:]} kwargs: {kwargs}")
@@ -75,18 +90,43 @@ def log_call(func: Any) -> Any:
 
 
 class CacheManager:
-    """Manages hash-based caching with size and time limits.
-
-    Default is 100 mb and 15 mins.
-    """
+    """Manages hash-based caching with size and time limits."""
 
     def __init__(self, max_size_mb: int = 100, max_age_minutes: int = 15):
+        """
+        Initialize the CacheManager.
+
+        Parameters
+        ----------
+        max_size_mb : int, optional
+            Maximum cache size in megabytes (default is 100).
+        max_age_minutes : int, optional
+            Maximum age of cache entries in minutes (default is 15).
+
+        Returns
+        -------
+        None
+        """
         self.cache: Dict[str, Dict[str, Any]] = {}
         self.max_size_bytes = max_size_mb * 1024 * 1024
         self.max_age = timedelta(minutes=max_age_minutes)
 
     def generate_hash(self, tool_name: str, params: Dict[str, Any]) -> str:
-        """Generate MD5 hash from tool name and parameters."""
+        """
+        Generate MD5 hash from tool name and parameters.
+
+        Parameters
+        ----------
+        tool_name : str
+            The name of the tool.
+        params : Dict[str, Any]
+            The parameters dictionary.
+
+        Returns
+        -------
+        str
+            The MD5 hash string.
+        """
         # Create consistent hash from tool name + sorted params
         content = f"{tool_name}:{json.dumps(params, sort_keys=True)}"
         return hashlib.md5(content.encode()).hexdigest()
@@ -98,7 +138,24 @@ class CacheManager:
         params: Dict[str, Any],
         raw_data: list[Dict[str, Any]],
     ) -> None:
-        """Add new cache entry with metadata."""
+        """
+        Add new cache entry with metadata.
+
+        Parameters
+        ----------
+        hash_id : str
+            The unique identifier for this cache entry.
+        tool_name : str
+            The name of the tool that generated this data.
+        params : Dict[str, Any]
+            The parameters used for the query.
+        raw_data : list[Dict[str, Any]]
+            The raw data to cache.
+
+        Returns
+        -------
+        None
+        """
         data_size = sys.getsizeof(json.dumps(raw_data))
 
         entry = {
@@ -116,7 +173,19 @@ class CacheManager:
         self.cleanup_cache()
 
     def get_entry(self, hash_id: str) -> Optional[Dict[str, Any]]:
-        """Get cache entry if it exists and hasn't expired."""
+        """
+        Get cache entry if it exists and hasn't expired.
+
+        Parameters
+        ----------
+        hash_id : str
+            The unique identifier for the cache entry.
+
+        Returns
+        -------
+        Optional[Dict[str, Any]]
+            The cache entry if found and not expired, None otherwise.
+        """
         if hash_id not in self.cache:
             return None
 
@@ -128,7 +197,13 @@ class CacheManager:
         return entry
 
     def cleanup_cache(self) -> None:
-        """Remove expired entries and enforce size limits."""
+        """
+        Remove expired entries and enforce size limits.
+
+        Returns
+        -------
+        None
+        """
         now = datetime.now()
 
         # Remove expired entries
@@ -149,11 +224,25 @@ class CacheManager:
             del self.cache[oldest_key]
 
     def get_total_size(self) -> int:
-        """Get total cache size in bytes."""
+        """
+        Get total cache size in bytes.
+
+        Returns
+        -------
+        int
+            The total size of all cached data in bytes.
+        """
         return sum(entry["metadata"]["size_bytes"] for entry in self.cache.values())
 
     def get_cache_stats(self) -> Dict[str, Any]:
-        """Get cache statistics for the recent-queries resource."""
+        """
+        Get cache statistics for the recent-queries resource.
+
+        Returns
+        -------
+        Dict[str, Any]
+            A dictionary containing cache statistics including entries and size info.
+        """
         entries_list: List[Dict[str, Any]] = []
 
         for hash_id, entry in self.cache.items():
@@ -191,6 +280,15 @@ class APIClient:
     API_BASE_URL: str = "https://services.usanpn.org/npn_portal/observations"
 
     def __init__(self) -> None:
+        """
+        Initialize the APIClient.
+
+        Sets up the HTTP client, tool list, cache manager, and allowed roots.
+
+        Returns
+        -------
+        None
+        """
         self.client = httpx.AsyncClient(timeout=180.0, base_url=self.API_BASE_URL)
         self._tool_list: list[NPNTool] = [
             NPNTools.StatusIntensity,
@@ -208,16 +306,46 @@ class APIClient:
         self.allowed_roots: list[Root] = []
 
     def get_allowed_roots(self) -> list[Root]:
-        """Get the current allowed roots."""
+        """
+        Get the current allowed roots.
+
+        Returns
+        -------
+        list[Root]
+            A list of currently allowed root directories.
+        """
         return self.allowed_roots
 
     def update_allowed_roots(self, roots: list[Root]) -> None:
-        """Update the allowed roots from client."""
+        """
+        Update the allowed roots from client.
+
+        Parameters
+        ----------
+        roots : list[Root]
+            A list of Root objects representing allowed directories.
+
+        Returns
+        -------
+        None
+        """
         self.allowed_roots = roots
         logger.info(f"Updated allowed roots: {len(roots)} roots available")
 
     def _validate_path_in_roots(self, path: str) -> bool:
-        """Check if a path is within the allowed roots."""
+        """
+        Check if a path is within the allowed roots.
+
+        Parameters
+        ----------
+        path : str
+            The file path to validate.
+
+        Returns
+        -------
+        bool
+            True if the path is within allowed roots, False otherwise.
+        """
         if not self.allowed_roots:
             return False
 
@@ -243,7 +371,21 @@ class APIClient:
         return False
 
     def _resolve_export_path(self, output_path: str, filename: str) -> str:
-        """Resolve the full file path for export within allowed roots."""
+        """
+        Resolve the full file path for export within allowed roots.
+
+        Parameters
+        ----------
+        output_path : str
+            The output directory path.
+        filename : str
+            The filename to resolve.
+
+        Returns
+        -------
+        str
+            The full resolved file path.
+        """
         # Normalize the filename to prevent path traversal
         # Handle both Unix and Windows path separators
         filename = filename.replace("\\", "/")  # Convert Windows separators
@@ -324,11 +466,24 @@ class APIClient:
         await self.close()
 
     async def close(self) -> None:
-        """Close the underlying HTTP client."""
+        """
+        Close the underlying HTTP client.
+
+        Returns
+        -------
+        None
+        """
         await self.client.aclose()
 
     def get_tool_list(self) -> list[NPNTool]:
-        """Get the list of available tools."""
+        """
+        Get the list of available tools.
+
+        Returns
+        -------
+        list[NPNTool]
+            A list of available NPN tools.
+        """
         return self._tool_list
 
     @log_call
@@ -401,7 +556,19 @@ class APIClient:
         return hash_id
 
     def summarize_response(self, hash_id: str) -> Dict[str, Any]:
-        """Get unique variables and entries from cached API response by hash ID."""
+        """
+        Get unique variables and entries from cached API response by hash ID.
+
+        Parameters
+        ----------
+        hash_id : str
+            The unique identifier for the cached response.
+
+        Returns
+        -------
+        Dict[str, Any]
+            A dictionary containing summary statistics of the cached response.
+        """
         logger.info(f"Summarizing response for hash ID: {hash_id}")
 
         entry = self.cache_manager.get_entry(hash_id)
@@ -431,7 +598,19 @@ class APIClient:
     def _collect_unique_keys(
         self, raw_data: list[Dict[str, Any]]
     ) -> tuple[Dict[str, set[Any]], Dict[str, list[Any]]]:
-        """Collect unique keys and their values from raw data."""
+        """
+        Collect unique keys and their values from raw data.
+
+        Parameters
+        ----------
+        raw_data : list[Dict[str, Any]]
+            The raw data to process.
+
+        Returns
+        -------
+        tuple[Dict[str, set[Any]], Dict[str, list[Any]]]
+            A tuple containing unique keys summary and full dataset.
+        """
         unique_keys_summary: Dict[str, set[Any]] = {}
         full_dataset: Dict[str, list[Any]] = {}
 
@@ -451,7 +630,22 @@ class APIClient:
         unique_keys_summary: Dict[str, set[Any]],
         full_dataset: Dict[str, list[Any]],
     ) -> tuple[Dict[str, Any], Dict[str, Dict[str, float]], List[str]]:
-        """Process unique values into discrete and continuous summaries."""
+        """
+        Process unique values into discrete and continuous summaries.
+
+        Parameters
+        ----------
+        unique_keys_summary : Dict[str, set[Any]]
+            Dictionary mapping keys to sets of unique values.
+        full_dataset : Dict[str, list[Any]]
+            Dictionary mapping keys to lists of all values.
+
+        Returns
+        -------
+        tuple[Dict[str, Any], Dict[str, Dict[str, float]], List[str]]
+            A tuple containing discrete summary, continuous summary,
+            and null-only fields.
+        """
         discrete_summary: Dict[str, Any] = {}
         continuous_summary: Dict[str, Dict[str, float]] = {}
         only_null: List[str] = []
@@ -504,7 +698,22 @@ class APIClient:
     def _process_id_like_variables(
         self, key: str, values: set[Any], discrete_summary: Dict[str, Any]
     ) -> None:
-        """Process ID-like variables for truncation."""
+        """
+        Process ID-like variables for truncation.
+
+        Parameters
+        ----------
+        key : str
+            The variable key name.
+        values : set[Any]
+            The set of unique values.
+        discrete_summary : Dict[str, Any]
+            The discrete summary dictionary to update.
+
+        Returns
+        -------
+        None
+        """
         values_list = list(values)
         if len(values_list) > 15:
             discrete_summary[key] = {
@@ -522,7 +731,22 @@ class APIClient:
         full_dataset: Dict[str, list[Any]],
         continuous_summary: Dict[str, Dict[str, float]],
     ) -> None:
-        """Process continuous variables for statistical summaries."""
+        """
+        Process continuous variables for statistical summaries.
+
+        Parameters
+        ----------
+        key : str
+            The variable key name.
+        full_dataset : Dict[str, list[Any]]
+            Dictionary mapping keys to lists of all values.
+        continuous_summary : Dict[str, Dict[str, float]]
+            The continuous summary dictionary to update.
+
+        Returns
+        -------
+        None
+        """
         values_list = [v for v in full_dataset[key] if v != -9999]
         if values_list:
             continuous_summary[key] = {
@@ -557,7 +781,19 @@ class APIClient:
         return json.dumps(result)
 
     def read_output_schema(self, hash_id: str) -> Dict[str, Any]:
-        """Get the schema from cached API response by hash ID."""
+        """
+        Get the schema from cached API response by hash ID.
+
+        Parameters
+        ----------
+        hash_id : str
+            The unique identifier for the cached response.
+
+        Returns
+        -------
+        Dict[str, Any]
+            A dictionary containing the output schema for the cached response.
+        """
         logger.info(f"Reading output schema for hash ID: {hash_id}")
 
         entry = self.cache_manager.get_entry(hash_id)
@@ -585,7 +821,19 @@ class APIClient:
     def query_response(
         self, hash_id: str
     ) -> list[Union[TextContent, ImageContent, EmbeddedResource]]:
-        """Get the Server response by query hash ID."""
+        """
+        Get the Server response by query hash ID.
+
+        Parameters
+        ----------
+        hash_id : str
+            The unique identifier for the cached query.
+
+        Returns
+        -------
+        list[Union[TextContent, ImageContent, EmbeddedResource]]
+            A list of content objects representing the query response.
+        """
         logger.info(f"Returning query response for hash ID: {hash_id}")
 
         entry = self.cache_manager.get_entry(hash_id)
@@ -626,7 +874,19 @@ class APIClient:
         return result
 
     async def get_raw_data(self, arguments: Dict[str, Any]) -> list[TextContent]:
-        """Get raw data from cache with size limits."""
+        """
+        Get raw data from cache with size limits.
+
+        Parameters
+        ----------
+        arguments : Dict[str, Any]
+            Dictionary containing the hash_id for the cached data.
+
+        Returns
+        -------
+        list[TextContent]
+            A list of text content objects containing the raw data.
+        """
         hash_id = arguments["hash_id"]
 
         entry = self.cache_manager.get_entry(hash_id)
@@ -768,7 +1028,21 @@ class APIClient:
     async def handle_call_tool(
         self, name: str, arguments: Union[Dict[str, str], None]
     ) -> Any:
-        """Client can call this to use a tool."""
+        """
+        Client can call this to use a tool.
+
+        Parameters
+        ----------
+        name : str
+            The name of the tool to call.
+        arguments : Union[Dict[str, str], None]
+            The arguments to pass to the tool.
+
+        Returns
+        -------
+        Any
+            The result of the tool execution.
+        """
         logger.info(f"Calling tool {name} with parameters: {arguments}")
         if arguments is None:
             raise ValueError("Arguments cannot be None")
@@ -789,7 +1063,21 @@ class APIClient:
         return await self._handle_regular_tool(name, arguments)
 
     async def _handle_special_tools(self, name: str, arguments: Dict[str, str]) -> Any:
-        """Handle special tools with unique logic."""
+        """
+        Handle special tools with unique logic.
+
+        Parameters
+        ----------
+        name : str
+            The name of the special tool.
+        arguments : Dict[str, str]
+            The arguments for the tool.
+
+        Returns
+        -------
+        Any
+            The result of the special tool execution.
+        """
         if name in {
             NPNTools.CheckReferenceMaterial.name,
             NPNTools.CheckLiterature.name,
@@ -805,7 +1093,19 @@ class APIClient:
         raise ValueError(f"No result generated for tool: {name}")
 
     async def _handle_mapping_tool(self, arguments: Dict[str, str]) -> Any:
-        """Handle the Mapping tool."""
+        """
+        Handle the Mapping tool.
+
+        Parameters
+        ----------
+        arguments : Dict[str, str]
+            The arguments for the mapping tool.
+
+        Returns
+        -------
+        Any
+            The result of the mapping tool execution.
+        """
         hash_id = arguments.get("hash_id")
         if not hash_id:
             raise ValueError(
@@ -820,7 +1120,21 @@ class APIClient:
         return await self.create_plot(data, arguments)
 
     async def _handle_regular_tool(self, name: str, arguments: Dict[str, str]) -> Any:
-        """Handle regular API query tools."""
+        """
+        Handle regular API query tools.
+
+        Parameters
+        ----------
+        name : str
+            The name of the tool.
+        arguments : Dict[str, str]
+            The arguments for the tool.
+
+        Returns
+        -------
+        Any
+            The result of the regular tool execution.
+        """
         tool = next(tool for tool in self.get_tool_list() if tool.name == name)
         hash_id = await self.query_api(tool.endpoint, arguments)
         return self.query_response(hash_id=hash_id)

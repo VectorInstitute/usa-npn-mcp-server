@@ -17,15 +17,15 @@ async def generate_map(data: list[Dict[str, Any]], colour_by: str) -> str:
 
     Parameters
     ----------
-    data : list[dict]
-        The input data containing latitude and longitude.
+    data : list[Dict[str, Any]]
+        The input data, with fields containing latitude and longitude coordinates.
     colour_by : str
-        The variable to color the points by.
+        The variable to color the points by. If empty string, uses default red color.
 
     Returns
     -------
     str
-        Base64 encoded image of the map.
+        Base64 encoded image of the map in JPEG format.
     """
     if not data:
         raise ValueError("Data cannot be empty.")
