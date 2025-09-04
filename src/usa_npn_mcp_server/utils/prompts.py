@@ -14,8 +14,10 @@ class PromptEntry(TypedDict):
 
     Attributes
     ----------
-        prompt (Prompt): The prompt object associated with the entry.
-        template (str): The template string for the prompt.
+    prompt : Prompt
+        The prompt object associated with the entry.
+    template : str
+        The template string for the prompt.
     """
 
     prompt: Prompt

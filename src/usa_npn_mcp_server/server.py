@@ -43,7 +43,20 @@ logger = logging.getLogger(__name__)
 
 
 def _initialize_roots(allowed_dirs: tuple[str, ...], api_client: APIClient) -> None:
-    """Initialize allowed directories/roots for the API client."""
+    """
+    Initialize allowed directories/roots for the API client.
+
+    Parameters
+    ----------
+    allowed_dirs : tuple[str, ...]
+        A tuple of directory paths to be initialized as allowed roots.
+    api_client : APIClient
+        The API client instance to update with the allowed roots.
+
+    Returns
+    -------
+    None
+    """
     # Check for allowed directories from parameters or environment
     dirs_list = list(allowed_dirs) if allowed_dirs else []
 
@@ -78,14 +91,30 @@ def _initialize_roots(allowed_dirs: tuple[str, ...], api_client: APIClient) -> N
 
 
 async def serve(allowed_dirs: tuple[str, ...] = ()) -> None:
-    """Start the MCP server for the NPN API."""
+    """
+    Start the MCP server for the NPN API.
+
+    Parameters
+    ----------
+    allowed_dirs : tuple[str, ...], optional
+        A tuple of directory paths that are allowed for file export operations.
+        If not provided, defaults to an empty tuple, and file export will be disabled
+        unless directories are specified with NPN_MCP_ALLOWED_DIRS environment variable.
+    """
     server: Server[None] = Server("usa-npn-mcp-server")
     logger.info("Starting MCP NPN Server...")
     api_client = APIClient()
 
     @server.list_tools()
     async def list_tools() -> list[Tool]:
-        """Client can call this to get a list of available tools."""
+        """
+        Client can call this to get a list of available tools.
+
+        Returns
+        -------
+        list[Tool]
+            A list of available tools with their names, descriptions, and input schemas.
+        """
         return [
             Tool(
                 name=tool.name,
@@ -97,7 +126,14 @@ async def serve(allowed_dirs: tuple[str, ...] = ()) -> None:
 
     @server.list_resources()
     async def handle_list_resources() -> list[Resource]:
-        """Client can call this to get a list of available resources."""
+        """
+        Client can call this to get a list of available resources.
+
+        Returns
+        -------
+        list[Resource]
+            A list of available resources including recent queries and available roots.
+        """
         return [
             Resource(
                 uri=AnyUrl("npn-mcp://recent-queries"),
@@ -117,7 +153,19 @@ async def serve(allowed_dirs: tuple[str, ...] = ()) -> None:
     async def handle_read_resource(
         uri: AnyUrl,
     ) -> Dict[str, list[TextResourceContents]]:
-        """Client can call this to read a resource."""
+        """
+        Client can call this to read a resource.
+
+        Parameters
+        ----------
+        uri : AnyUrl
+            The URI of the resource to read.
+
+        Returns
+        -------
+        Dict[str, list[TextResourceContents]]
+            A dictionary containing the resource contents.
+        """
         if uri.scheme != "npn-mcp":
             raise ValueError(f"Unsupported URI scheme: {uri.scheme}")
 
@@ -171,17 +219,54 @@ async def serve(allowed_dirs: tuple[str, ...] = ()) -> None:
     async def handle_call_tool(
         name: str, arguments: Union[Dict[str, str], None]
     ) -> Any:
-        """Client can call this to use a tool."""
+        """
+        Client can call this to use a tool.
+
+        Parameters
+        ----------
+        name : str
+            The name of the tool to call.
+        arguments : Union[Dict[str, str], None]
+            The arguments to pass to the tool.
+
+        Returns
+        -------
+        Any
+            The result of the tool execution.
+        """
         return await api_client.handle_call_tool(name=name, arguments=arguments)
 
     @server.list_prompts()
     async def handle_list_prompts() -> list[Prompt]:
+        """
+        Client can call this to get a list of available prompts.
+
+        Returns
+        -------
+        list[Prompt]
+            A list of available prompt objects.
+        """
         return get_prompts()
 
     @server.get_prompt()
     async def handle_get_prompt(
         prompt_name: str, arguments: Union[Dict[str, str], None]
     ) -> GetPromptResult:
+        """
+        Client can call this to get a prompt by name with formatted arguments.
+
+        Parameters
+        ----------
+        prompt_name : str
+            The name of the prompt to retrieve.
+        arguments : Union[Dict[str, str], None]
+            Arguments to format into the prompt template.
+
+        Returns
+        -------
+        GetPromptResult
+            A formatted prompt result ready for use.
+        """
         if prompt_name not in PROMPTS:
             raise ValueError(f"Prompt '{prompt_name}' not found.")
         if arguments is None:

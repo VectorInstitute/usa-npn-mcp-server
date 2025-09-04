@@ -71,15 +71,23 @@ class StatusIntensityQuery(BaseQuery):
     Input parameters for the getObservations endpoint.
 
     URL: https://services.usanpn.org/npn_portal/observations/getObservations
+
+    Inherits all attributes from BaseQuery.
     """
 
     pass
 
 
 class ObservationCommentQuery(BaseModel):
-    """Input parameters for the getObservationComment endpoint.
+    """
+    Input parameters for the getObservationComment endpoint.
 
     URL: https://services.usanpn.org/npn_portal/observations/getObservationComment
+
+    Attributes
+    ----------
+    observation_id : int
+        The ID of the observation for which to retrieve the comment.
     """
 
     observation_id: int = Field(
@@ -92,6 +100,12 @@ class IndividualPhenometricsQuery(BaseQuery):
     Input parameters for the getSummarizedData endpoint.
 
     URL: https://services.usanpn.org/npn_portal/observations/getSummarizedData
+
+    Attributes
+    ----------
+    individual_ids : Optional[List[int]], optional
+        List of unique individual identifiers.
+        Inherits all other attributes from BaseQuery.
     """
 
     individual_ids: Optional[List[int]] = Field(
@@ -105,6 +119,12 @@ class SitePhenometricsQuery(BaseQuery):
     Input parameters for the getSiteLevelData endpoint.
 
     URL: https://services.usanpn.org/npn_portal/observations/getSiteLevelData
+
+    Attributes
+    ----------
+    individual_ids : Optional[List[int]], optional
+        List of unique individual identifiers.
+        Inherits all other attributes from BaseQuery.
     """
 
     individual_ids: Optional[List[int]] = Field(
@@ -118,6 +138,13 @@ class MagnitudePhenometricsQuery(BaseQuery):
     Input parameters for the getMagnitudeData endpoint.
 
     URL: https://services.usanpn.org/npn_portal/observations/getMagnitudeData
+
+    Attributes
+    ----------
+    frequency : int
+        Number of days by which to delineate the period of time.
+        Should be less or equal to number of days between start_date and end_date.
+        Inherits all other attributes from BaseQuery.
     """
 
     frequency: int = Field(
@@ -223,7 +250,7 @@ class NPNTool(BaseModel):
         The name of the tool.
     description : str
         A description of the tool.
-    inputSchema : str
+    input_schema : dict[str, Any]
         The input schema for the tool.
     endpoint : str
         The exact API endpoint for the tool.
@@ -239,8 +266,8 @@ class NPNTools:
     """
     An enumeration of tools available for querying the NPN API.
 
-    Attributes
-    ----------
+    Class Attributes
+    ----------------
     StatusIntensity : NPNTool
         Tool for querying intensity and status data from the NPN API.
     ObservationComment : NPNTool
