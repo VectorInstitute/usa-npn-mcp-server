@@ -11,7 +11,7 @@
 
 - `status-intensity` - Fetches status and intensity data (raw observation data).
 - `individual-phenometrics` - Fetches individual phenometrics (summarized data).
-- `site_phenometrics` - Fetches site phenometrics (site-level data).
+- `site-phenometrics` - Fetches site phenometrics (site-level data).
 - `magnitude-phenometrics` - Fetches magnitude phenometrics (magnitude data).
 - `observation-comment` - Fetches observation comments based on observation_id.
 - `mapping` - Maps site phenometrics onto a map of the USA with optional colour labelling.
