@@ -27,5 +27,14 @@ htmlcov/
 # MacOS
 .DS_Store
 
+# NPM generated files
+node_modules/
+*.tgz
+package-lock.json
+
+# npm logs
+npm-debug.log*
+npm-error.log*
+
 # Auto-generated documentation
 docs/source/reference/api/
