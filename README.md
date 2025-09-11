@@ -226,6 +226,20 @@ If you do not configure permissions this way, the tools will be enabled by defau
 ![alt text](assets/tool_permission.png)
 
 
+### Recommended Complementary MCP Servers
+
+Additional MCP Servers can be added to Claude Desktop in `Settings` using the `Extensions` tab by clicking `Browse extensions`. For use together with the USA-NPN MCP Server, the two following MCP Servers are recommended:
+
+#### 1. **Filesystem**:
+- Let Claude access specified directories in your filesystem to read and write files.
+- Configure `filesystem` with matching allowed directories as `usa-npn-mcp-server` for making data available during data analysis - both from recent queries saved to file and for externally sourced data files.
+
+**Note**:  A more fully featured alternative is [Desktop Commander](https://desktopcommander.app/) but it is not available in the listed extensions and would need to be configured by clicking `add a custom one` and performing [custom installation and configuration](https://desktopcommander.app/#installation). However, adding advanced or too many different MCP Servers to Claude can bloat your context window with tool descriptions. If you are experiencing context limitations, consider disabling some or all additional MCP Servers.
+
+#### 2. **Context7**:
+- Let Claude access up-to-date code documentation for data analysis.
+
+
 ## File Export Configuration
 
 The server supports exporting data to files within specified directories. You can configure allowed export directories in two ways:
