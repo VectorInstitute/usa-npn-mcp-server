@@ -1,0 +1,232 @@
+name: Release
+
+permissions:
+  contents: write
+  id-token: write
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'package.json'
+      - 'pyproject.toml'
+      - 'src/**'
+      - 'index.js'
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Release type'
+        required: true
+        default: 'beta'
+        type: choice
+        options:
+          - beta
+          - stable
+      version:
+        description: 'Version (optional - will auto-increment if not provided)'
+        required: false
+        type: string
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Set up Python
+        run: uv python install
+
+      - name: Install dependencies
+        run: uv sync --dev
+
+      - name: Run tests
+        run: uv run pytest
+
+      - name: Run linting
+        run: uv run ruff check
+
+      - name: Run type checking
+        run: uv run mypy src/
+
+  sync-versions:
+    needs: test
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      release_type: ${{ steps.version.outputs.release_type }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Determine version and release type
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            RELEASE_TYPE="${{ github.event.inputs.release_type }}"
+            if [[ -n "${{ github.event.inputs.version }}" ]]; then
+              VERSION="${{ github.event.inputs.version }}"
+              # Update pyproject.toml with specified version
+              sed -i "s/^version = .*/version = \"$VERSION\"/" pyproject.toml
+            else
+              # Auto-increment based on release type in pyproject.toml
+              CURRENT=$(grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/')
+              if [[ "$RELEASE_TYPE" == "beta" ]]; then
+                # Increment beta version or add beta suffix
+                if [[ "$CURRENT" =~ -beta\.([0-9]+)$ ]]; then
+                  BETA_NUM=$(( ${BASH_REMATCH[1]} + 1 ))
+                  VERSION=$(echo "$CURRENT" | sed "s/-beta\.[0-9]\+$/-beta.$BETA_NUM/")
+                else
+                  VERSION="$CURRENT-beta.1"
+                fi
+              else
+                # Increment patch version, remove beta suffix if present
+                BASE_VERSION=$(echo "$CURRENT" | sed 's/-beta\.[0-9]\+$//')
+                IFS='.' read -ra VERSION_PARTS <<< "$BASE_VERSION"
+                PATCH=$(( ${VERSION_PARTS[2]} + 1 ))
+                VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.$PATCH"
+              fi
+              # Update pyproject.toml with new version
+              sed -i "s/^version = .*/version = \"$VERSION\"/" pyproject.toml
+            fi
+          else
+            # Push to main - stable release, increment patch in pyproject.toml
+            RELEASE_TYPE="stable"
+            CURRENT=$(grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/')
+            BASE_VERSION=$(echo "$CURRENT" | sed 's/-beta\.[0-9]\+$//')
+            IFS='.' read -ra VERSION_PARTS <<< "$BASE_VERSION"
+            PATCH=$(( ${VERSION_PARTS[2]} + 1 ))
+            VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.$PATCH"
+            # Update pyproject.toml with new version
+            sed -i "s/^version = .*/version = \"$VERSION\"/" pyproject.toml
+          fi
+
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "release_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION, Type: $RELEASE_TYPE"
+
+      - name: Sync package.json version
+        run: |
+          # Update package.json to match pyproject.toml
+          node scripts/sync-version.js
+
+      - name: Commit version updates
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add package.json pyproject.toml
+          git commit -m "chore: bump version to ${{ steps.version.outputs.version }}" || exit 0
+          git push
+
+  publish-npm:
+    needs: sync-versions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Pull latest changes
+        run: git pull origin ${{ github.ref_name }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Publish to npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [[ "${{ needs.sync-versions.outputs.release_type }}" == "beta" ]]; then
+            npm publish --tag beta
+          else
+            npm publish
+          fi
+
+  publish-pypi:
+    needs: sync-versions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Pull latest changes
+        run: git pull origin ${{ github.ref_name }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Set up Python
+        run: uv python install
+
+      - name: Build package
+        run: uv build
+
+      - name: Publish to PyPI
+        env:
+          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+        run: uv publish
+
+  create-release:
+    needs: [sync-versions, publish-npm, publish-pypi]
+    runs-on: ubuntu-latest
+    if: needs.sync-versions.outputs.release_type == 'stable'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Pull latest changes
+        run: git pull origin ${{ github.ref_name }}
+
+      - name: Create Git tag
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git tag "v${{ needs.sync-versions.outputs.version }}"
+          git push origin "v${{ needs.sync-versions.outputs.version }}"
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: "v${{ needs.sync-versions.outputs.version }}"
+          release_name: "Release v${{ needs.sync-versions.outputs.version }}"
+          body: |
+            ## Changes in v${{ needs.sync-versions.outputs.version }}
+
+            ### Installation
+            ```bash
+            # Via npm/npx
+            npx usa-npn-mcp-server
+
+            # Via pip
+            pip install usa-npn-mcp-server==${{ needs.sync-versions.outputs.version }}
+            ```
+
+            ### What's Changed
+            - Auto-generated release from main branch
+
+            **Full Changelog**: https://github.com/${{ github.repository }}/compare/v${{ needs.sync-versions.outputs.version }}...v${{ needs.sync-versions.outputs.version }}
+          draft: false
+          prerelease: false
