@@ -19,7 +19,7 @@
 - `site-phenometrics` - Fetches site phenometrics (site-level data).
 - `magnitude-phenometrics` - Fetches magnitude phenometrics (magnitude data).
 - `observation-comment` - Fetches observation comments based on observation_id.
-- `mapping` - Maps site phenometrics onto a map of the USA with optional colour labelling.
+- `mapping` - Maps site phenometrics onto a map of the USA with optional color labeling.
 - `check-reference-material` - Checks database containing NPN API reference material using a generated sql query.
 - `check-literature` - Queries database of structured summaries from 175 papers that use phenology and phenometrics data.
 - `export-raw-data` - Exports raw data to JSON or JSONL files in allowed directories.
@@ -208,7 +208,7 @@ How to find and modify claude_desktop_config.json:
 
 #
 
-After saving the changes, restart Claude Desktop. If you receive no error messages from the Claude UI, the USA-NPN MCP server is likely installed correctly. Clicking the two buttons in the bottom left of the new chat box should reveal new options with `npn` labelling.
+After saving the changes, restart Claude Desktop. If you receive no error messages from the Claude UI, the USA-NPN MCP server is likely installed correctly. Clicking the two buttons in the bottom left of the new chat box should reveal new options with `npn` labeling.
 
 ![alt text](assets/mcp_recognized2.png)
 ![alt text](assets/mcp_recognized1.png)

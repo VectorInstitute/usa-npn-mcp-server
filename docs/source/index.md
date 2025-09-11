@@ -36,7 +36,7 @@ The MCP Server is designed to support:
 - `site_phenometrics` - Fetches site phenometrics (site-level data).
 - `magnitude-phenometrics` - Fetches magnitude phenometrics (magnitude data).
 - `observation-comment` - Fetches observation comments based on observation_id.
-- `mapping` - Maps site phenometrics onto a map of the USA with optional colour labelling.
+- `mapping` - Maps site phenometrics onto a map of the USA with optional color labeling.
 - `check-reference-material` - Checks database containing NPN API reference material using a generated sql query.
 - `check-literature` - Queries database of structured summaries from 175 papers that use phenology and phenometrics data.
 - `export-raw-data` - Exports raw data to JSON or JSONL files in allowed directories.

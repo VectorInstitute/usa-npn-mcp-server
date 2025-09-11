@@ -590,7 +590,7 @@ class TestAPIClientCoreMethods:
         arguments = {
             "hash_id": hash_id,
             "plot_type": "map",
-            "colour_by": "elevation_in_meters",
+            "color_by": "elevation_in_meters",
             "tool_name": "status-intensity",
         }
 
@@ -607,7 +607,7 @@ class TestAPIClientCoreMethods:
     @pytest.mark.asyncio
     async def test_handle_mapping_tool_no_hash_id(self):
         """Test mapping tool handling without hash_id."""
-        arguments = {"plot_type": "map", "colour_by": "elevation"}
+        arguments = {"plot_type": "map", "color_by": "elevation"}
 
         with pytest.raises(
             ValueError, match="Mapping tool now requires hash_id parameter"

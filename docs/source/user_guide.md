@@ -51,7 +51,7 @@ There are [many other awesome MCP Servers](https://github.com/appcypher/awesome-
 
 ### Using these terms in a few sentences:
 
-The Claude AI **Agent** is empowered with various **LLMs** such as Claude 3.5 Sonnet trained by Anthropic. Using the **Host** (sometimes Client or Application) named Claude Desktop, you can chat with this Agent because it contains tools for conversation. Claude Desktop is an MCP Host because of its **MCP Client** capable of connecting to any MCP Servers. One interesting **MCP Server** is the NPN MCP Server for phenological data analysis.
+The Claude AI **Agent** is empowered with various **LLMs** such as Claude 3.7 Sonnet trained by Anthropic. Using the **Host** (sometimes Client or Application) named Claude Desktop, you can chat with this Agent because it contains tools for conversation. Claude Desktop is an MCP Host because of its **MCP Client** capable of connecting to any MCP Servers. One interesting **MCP Server** is the NPN MCP Server for phenological data analysis.
 
 ### MCP Tools, Resources, and Prompts
 

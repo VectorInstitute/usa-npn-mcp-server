@@ -994,12 +994,12 @@ class APIClient:
             raise ValueError("Plot type cannot be anything but map right now.")
         plot_result = await generate_map(
             data=data,
-            colour_by=arguments["colour_by"],
+            color_by=arguments["color_by"],
         )
         result: list[Union[TextContent, ImageContent]] = [
             TextContent(
                 type="text",
-                text=f"Map of {arguments['tool_name']} data coloured by {arguments['colour_by']}.",
+                text=f"Map of {arguments['tool_name']} data colored by {arguments['color_by']}.",
             ),
             ImageContent(type="image", data=plot_result, mimeType="image/jpeg"),
         ]

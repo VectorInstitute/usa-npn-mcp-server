@@ -162,9 +162,9 @@ class BasePlotModel(BaseModel):
     plot_type: Literal["bar", "line", "scatter", "map"] = Field(
         description="Type of plot to generate.",
     )
-    colour_by: str = Field(
+    color_by: str = Field(
         ...,
-        description="Variable to be used for colour coding the data points.",
+        description="Variable to be used for color coding the data points.",
     )
     title: Optional[str] = Field(
         description="Title for the plot.",
@@ -200,9 +200,9 @@ class MapModel(BasePlotModel):
     tool_name: Literal["site-phenometrics"] = Field(
         description="Name of the tool used to generate the data for the plot.",
     )
-    colour_by: str = Field(
+    color_by: str = Field(
         default="",
-        description="Variable to be used for colour coding the data points. Default is empty string for no colouring.",
+        description="Variable to be used for color coding the data points. Default is empty string for no coloring.",
     )
 
 
