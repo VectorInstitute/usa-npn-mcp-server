@@ -44,6 +44,12 @@
 
 ### Prerequisites
 
+- Node.js 18+ and npm
+- Python 3.12+
+- uv (Python package manager)
+
+The npm package will automatically use uv to manage Python dependencies from the bundled `pyproject.toml` and `uv.lock` files.
+
 `uv` will manage the virtual environment and dependencies for you.
 
 #
@@ -73,7 +79,27 @@ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | ie
 
 #
 
-### Clone the repository
+### Quick Start with npx (no installation needed)
+
+```bash
+# With verbosity
+npx usa-npn-mcp-server -v
+
+# With allowed export directories (MacOS/Linux)
+npx usa-npn-mcp-server /path/to/exports /another/path
+
+# Multiple verbosity levels and directory (Windows)
+npx usa-npn-mcp-server -vv 'C:\\absolute\\path\\to\\export\\directory'
+```
+
+### Global Installation via npm
+
+```bash
+npm install -g usa-npn-mcp-server
+usa-npn-mcp-server
+```
+
+### Altneratively, you can clone the repository
 
 Using HTTPS (recommended for most users):
    ```bash
@@ -132,6 +158,7 @@ After `uv` is installed, run:
 
 #
 
+
 These commands set up and activate the `.venv` environment as specified in the `pyproject.toml` and `uv.lock` files.
 
 ## Configuration
@@ -163,10 +190,10 @@ How to find and modify claude_desktop_config.json:
 {
   "mcpServers": {
     "npn": {
-      "command": "bash",
+      "command": "npx",
       "args": [
-        "-c",
-        "source /absolute/path/to/usa-npn-mcp-server/.venv/bin/activate && uv run usa_npn_mcp_server /absolute/path/to/export/directory"
+        "usa-npn-mcp-server",
+        "absolute/path/to/export/directory",
       ]
     }
   }
@@ -194,18 +221,18 @@ How to find and modify claude_desktop_config.json:
 ```json
 {
   "mcpServers": {
-  "npn": {
-    "command": "cmd.exe",
-    "args": [
-      "/c",
-      "C:\\absolute\\path\\to\\usa-npn-mcp-server\\.venv\\Scripts\\activate.bat && uv run usa_npn_mcp_server C:\\absolute\\path\\to\\export\\directory"
+    "npn": {
+      "command": "npx",
+      "args": [
+        "usa-npn-mcp-server",
+        "'C:\\absolute\\path\\to\\export\\directory'"
       ]
     }
   }
 }
 ```
 
-  **NOTE**: Replace `C:\\absolute\\path\\to\\usa-npn-mcp-server\\` with local path to repo dir and `C:\\absolute\\path\\to\\export\\directory` with local path to directory where you want exported files to be saved (or exclude this part to disable file export). You can specify multiple directories separated by spaces - be sure to use backslashes for Windows paths. For paths containing spaces and more details, see [File Export Configuration](#file-export-configuration).
+  **NOTE**: Replace `C:\\absolute\\path\\to\\export\\directory` with local path to directory where you want exported files to be saved (or exclude this part to disable file export). You can specify multiple directories separated by spaces - be sure to use backslashes for Windows paths. For paths containing spaces and more details, see [File Export Configuration](#file-export-configuration).
 
 </details>
 
