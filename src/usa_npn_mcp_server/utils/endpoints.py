@@ -250,6 +250,8 @@ class NPNTool(BaseModel):
         The name of the tool.
     description : str
         A description of the tool.
+    docs_one_liner : Optional[str]
+        A short one-line description for documentation purposes.
     input_schema : dict[str, Any]
         The input schema for the tool.
     endpoint : str
@@ -258,6 +260,10 @@ class NPNTool(BaseModel):
 
     name: str
     description: str
+    docs_one_liner: Optional[str] = Field(
+        default=None,
+        description="Short one-line description for documentation purposes (not exposed via MCP)",
+    )
     input_schema: dict[str, Any]
     endpoint: str
 
@@ -303,17 +309,20 @@ Key applications: Data validation, understanding observer reporting patterns, an
 Performance warning: This tool can return massive datasets (potentially millions of records). Always limit queries to small date ranges (≤30 days recommended) and specific geographic areas or species to prevent system crashes. Use aggregated tools (Individual/Site/Magnitude Phenometrics) for broader analyses.
 
 Data interpretation: Values of -9999 represent missing/null data. Records include observation date, individual ID, phenophase status, intensity measurements, and site metadata.""",
+        docs_one_liner="Fetches status and intensity data (raw observation data).",
         input_schema=StatusIntensityQuery.model_json_schema(),
         endpoint="getObservations",
     )
     ObservationComment = NPNTool(
         name="observation-comment",
         description="Retrieve the comment for a given observation (from getObservationComment endpoint), results store as readable Resource 'observation_comment'",
+        docs_one_liner="Fetches observation comments based on observation_id.",
         input_schema=ObservationCommentQuery.model_json_schema(),
         endpoint="getObservationComment",
     )
     MagnitudePhenometrics = NPNTool(
         name="magnitude-phenometrics",
+        docs_one_liner="Fetches magnitude phenometrics (magnitude data).",
         description="""
 About the tool: Summarizes the intensity and abundance of phenological activity across multiple individuals, sites, or time periods using aggregated status and intensity data. Shows 'how much' phenological activity is occurring (not just when), providing insights into the magnitude, synchrony, and temporal patterns of biological processes.
 
@@ -343,6 +352,7 @@ Data interpretation: Results show time-series data of phenological abundance/int
     )
     SitePhenometrics = NPNTool(
         name="site-phenometrics",
+        docs_one_liner="Fetches site phenometrics (site-level data).",
         description="""
 About the tool: Aggregates individual phenological data to provide average start and end dates of phenological activity for each species at each monitoring site. Represents the 'typical' timing for a species at a location by averaging across all individuals of that species at the site.
 
@@ -371,6 +381,7 @@ Data interpretation: Each record represents one species at one site for the spec
     )
     IndividualPhenometrics = NPNTool(
         name="individual-phenometrics",
+        docs_one_liner="Fetches individual phenometrics (summarized data).",
         description="""
 About the tool: Provides start and end dates of phenological activity for individual plants and animal species, derived from status data. Each record represents one 'phenological episode' - a period of continuous activity for a specific phenophase on an individual organism (like when one specific maple tree's leaves went from bud break to full leaf drop).
 
@@ -400,11 +411,13 @@ Data interpretation: Records show individual_id, phenophase onset/end dates, and
     Mapping = NPNTool(
         name="mapping",
         description="Construct a map from results of a previous Site Phenometrics query to the NPN API, using longitude, latitude and specified variables to plot onto map of USA.",
+        docs_one_liner="Maps site phenometrics onto a map of the USA with optional color labeling.",
         input_schema=MapModel.model_json_schema(),
         endpoint="",
     )
     CheckReferenceMaterial = NPNTool(
         name="check-reference-material",
+        docs_one_liner="Checks database containing NPN API reference material using a generated SQL query.",
         description="""
             Query an SQL database for reference material that can be used to translate natural language into specific ids and terms needed for querying the NPN API with other tools. There is no need to check the 'datasets' table unless specific observer groups are mentioned. The Tables have the following structure:
 
@@ -429,6 +442,7 @@ Data interpretation: Records show individual_id, phenophase onset/end dates, and
 
     CheckLiterature = NPNTool(
         name="check-literature",
+        docs_one_liner="Queries database of structured summaries from 175 papers that use phenology and phenometrics data.",
         description="""
             Query an SQL database for structured summaries of studies that used data collected by National Phenology Network. The tables have the following structure:
 
@@ -442,6 +456,7 @@ Data interpretation: Records show individual_id, phenophase onset/end dates, and
     GetRawData = NPNTool(
         name="get-raw-data",
         description="Retrieve raw data from cache using hash ID. Limited to 300 records with truncation message if exceeded. Use 'recent-queries' resource to see available hash IDs.",
+        docs_one_liner="Fetches raw data instead of summaries as from other tools.",
         input_schema=GetRawDataQuery.model_json_schema(),
         endpoint="",
     )
@@ -449,6 +464,7 @@ Data interpretation: Records show individual_id, phenophase onset/end dates, and
     ExportRawData = NPNTool(
         name="export-raw-data",
         description="Export cached raw data to JSON or JSONL file. Requires MCP client to provide roots (allowed directories) for file operations.",
+        docs_one_liner="Exports raw data to JSON or JSONL files in allowed directories.",
         input_schema=ExportRawDataQuery.model_json_schema(),
         endpoint="",
     )
