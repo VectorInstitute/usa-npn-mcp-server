@@ -1,0 +1,46 @@
+# Development files
+.git/
+.github/
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+**/__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# Test files
+tests/
+coverage.xml
+.coverage
+htmlcov/
+
+# Documentation source
+docs/
+assets/
+text/
+customize/
+
+# Development config
+.pre-commit-config.yaml
+.gitignore
+.python-version
+.DS_Store
+.claude/
+.clinerules/
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Dev docs but keep README
+*.md
+!README.md
+
+# Keep only essential files for running the server
+# The files list in package.json will override this
