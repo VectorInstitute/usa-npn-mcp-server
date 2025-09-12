@@ -290,17 +290,11 @@ class APIClient:
         None
         """
         self.client = httpx.AsyncClient(timeout=180.0, base_url=self.API_BASE_URL)
+        # Dynamically get all NPNTool instances from NPNTools class
         self._tool_list: list[NPNTool] = [
-            NPNTools.StatusIntensity,
-            NPNTools.ObservationComment,
-            NPNTools.MagnitudePhenometrics,
-            NPNTools.SitePhenometrics,
-            NPNTools.IndividualPhenometrics,
-            NPNTools.Mapping,
-            NPNTools.CheckReferenceMaterial,
-            NPNTools.CheckLiterature,
-            NPNTools.GetRawData,
-            NPNTools.ExportRawData,
+            getattr(NPNTools, attr)
+            for attr in dir(NPNTools)
+            if not attr.startswith("_") and isinstance(getattr(NPNTools, attr), NPNTool)
         ]
         self.cache_manager = CacheManager()
         self.allowed_roots: list[Root] = []
@@ -1006,10 +1000,10 @@ class APIClient:
         return result
 
     @log_call
-    async def check_reference_material(
+    async def query_reference_material(
         self, arguments: Dict[str, Any]
     ) -> list[TextContent]:
-        """Check references using a sql_query."""
+        """Query USA-NPN reference material using a SQL query."""
         if not arguments:
             raise ValueError("Arguments cannot be empty.")
         if not arguments["sql_query"]:
@@ -1051,8 +1045,8 @@ class APIClient:
             raise ValueError(f"Tool {name} not found.")
 
         if name in [
-            NPNTools.CheckReferenceMaterial.name,
-            NPNTools.CheckLiterature.name,
+            NPNTools.QueryReferenceMaterial.name,
+            NPNTools.QueryLiterature.name,
             NPNTools.GetRawData.name,
             NPNTools.ExportRawData.name,
             NPNTools.Mapping.name,
@@ -1079,10 +1073,10 @@ class APIClient:
             The result of the special tool execution.
         """
         if name in {
-            NPNTools.CheckReferenceMaterial.name,
-            NPNTools.CheckLiterature.name,
+            NPNTools.QueryReferenceMaterial.name,
+            NPNTools.QueryLiterature.name,
         }:
-            return await self.check_reference_material(arguments)
+            return await self.query_reference_material(arguments)
         if name == NPNTools.GetRawData.name:
             return await self.get_raw_data(arguments)
         if name == NPNTools.ExportRawData.name:

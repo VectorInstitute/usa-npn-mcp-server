@@ -485,14 +485,14 @@ class TestAPIClientCoreMethods:
 
     @pytest.mark.asyncio
     async def test_handle_special_tools_check_reference(self):
-        """Test special tool handling for check-reference-material."""
+        """Test special tool handling for query-reference-material."""
         arguments = {"sql_query": "SELECT * FROM species"}
 
-        with patch.object(self.api_client, "check_reference_material") as mock_check:
+        with patch.object(self.api_client, "query_reference_material") as mock_check:
             mock_check.return_value = [TextContent(type="text", text="Reference data")]
 
             result = await self.api_client._handle_special_tools(
-                "check-reference-material", arguments
+                "query-reference-material", arguments
             )
 
             mock_check.assert_called_once_with(arguments)
@@ -500,14 +500,14 @@ class TestAPIClientCoreMethods:
 
     @pytest.mark.asyncio
     async def test_handle_special_tools_check_literature(self):
-        """Test special tool handling for check-literature."""
+        """Test special tool handling for query-literature."""
         arguments = {"sql_query": "SELECT * FROM literature WHERE Year > 2020"}
 
-        with patch.object(self.api_client, "check_reference_material") as mock_check:
+        with patch.object(self.api_client, "query_reference_material") as mock_check:
             mock_check.return_value = [TextContent(type="text", text="Literature data")]
 
             result = await self.api_client._handle_special_tools(
-                "check-literature", arguments
+                "query-literature", arguments
             )
 
             mock_check.assert_called_once_with(arguments)

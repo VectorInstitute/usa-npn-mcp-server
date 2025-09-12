@@ -25,9 +25,9 @@ class PromptEntry(TypedDict):
 
 
 PROMPTS: dict[str, PromptEntry] = {
-    "map_data": {
+    "map-data": {
         "prompt": Prompt(
-            name="map_data",
+            name="map-data",
             description="Generate a map of the data using the NPN API.",
             arguments=[
                 PromptArgument(

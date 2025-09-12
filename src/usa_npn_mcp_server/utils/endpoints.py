@@ -207,7 +207,7 @@ class MapModel(BasePlotModel):
 
 
 class SQLQueryModel(BaseModel):
-    """Input parameters for checking reference material tool."""
+    """Input parameters for querying custom database."""
 
     sql_query: str = Field(
         ...,
@@ -286,11 +286,11 @@ class NPNTools:
         Tool for querying individual phenometrics data from the NPN API.
     Mapping : NPNTool
         Tool for constructing maps from site phenometrics data.
-    CheckReferenceMaterial : NPNTool
-        Tool for checking what reference material is available to translate natural
+    QueryReferenceMaterial : NPNTool
+        Tool for querying what reference material is available to translate natural
         language into specific ids and terms needed for querying the NPN API.
-    CheckLiterature : NPNTool
-        Tool for checking 175 structured summaries of studies that used data collected
+    QueryLiterature : NPNTool
+        Tool for querying 175 structured summaries of studies that used data collected
         by the National Phenology Network.
     GetRawData : NPNTool
         Tool for retrieving raw data from cache using a hash ID.
@@ -415,11 +415,11 @@ Data interpretation: Records show individual_id, phenophase onset/end dates, and
         input_schema=MapModel.model_json_schema(),
         endpoint="",
     )
-    CheckReferenceMaterial = NPNTool(
-        name="check-reference-material",
-        docs_one_liner="Checks database containing NPN API reference material using a generated SQL query.",
+    QueryReferenceMaterial = NPNTool(
+        name="query-reference-material",
+        docs_one_liner="Queries database containing NPN API reference material using a generated SQL query.",
         description="""
-            Query an SQL database for reference material that can be used to translate natural language into specific ids and terms needed for querying the NPN API with other tools. There is no need to check the 'datasets' table unless specific observer groups are mentioned. The Tables have the following structure:
+            Query an SQL database for reference material that can be used to translate natural language into specific ids and terms needed for querying the NPN API with other tools. There is no need to query the 'datasets' table unless specific observer groups are mentioned. The Tables have the following structure:
 
             Table: species, Length: 1882, Headers: ['species_id', 'common_name', 'genus', 'genus_id', 'genus_common_name', 'species', 'kingdom', 'itis_taxonomic_sn', 'functional_type', 'class_id', 'class_common_name', 'class_name', 'order_id', 'order_common_name', 'order_name', 'family_id', 'family_name', 'family_common_name', 'species_type']
             Description: Contains info on species
@@ -440,8 +440,8 @@ Data interpretation: Records show individual_id, phenophase onset/end dates, and
         endpoint="",
     )
 
-    CheckLiterature = NPNTool(
-        name="check-literature",
+    QueryLiterature = NPNTool(
+        name="query-literature",
         docs_one_liner="Queries database of structured summaries from 175 papers that use phenology and phenometrics data.",
         description="""
             Query an SQL database for structured summaries of studies that used data collected by National Phenology Network. The tables have the following structure:
