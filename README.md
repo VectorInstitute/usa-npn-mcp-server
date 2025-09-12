@@ -15,16 +15,29 @@
 ### Available MCP Tools
 
 <!-- MCP-TOOLS-START -->
+- `export-raw-data` - Exports raw data to JSON or JSONL files in allowed directories.
+- `get-raw-data` - Fetches raw data instead of summaries as from other tools. Limited to 300 records with truncation message if exceeded.
+- `individual-phenometrics` - Fetches individual phenometrics (summarized data).
+- `magnitude-phenometrics` - Fetches magnitude phenometrics (magnitude data).
+- `mapping` - Maps site phenometrics onto a map of the USA with optional color labeling.
+- `observation-comment` - Fetches observation comments based on observation_id.
+- `query-literature` - Queries database of structured summaries from 175 papers that use phenology and phenometrics data.
+- `query-reference-material` - Queries database containing NPN API reference material using a generated SQL query.
+- `site-phenometrics` - Fetches site phenometrics (site-level data).
+- `status-intensity` - Fetches status and intensity data (raw observation data). Use sparingly (can return massive datasets), prioritize phenometrics tools.
 <!-- MCP-TOOLS-END -->
 
 ### Available MCP Resources
 
 <!-- MCP-RESOURCES-START -->
+- `recent-queries` - List of recent query hash IDs and metadata for cached data access.
+- `available-roots` - List of available root directories for file export operations.
 <!-- MCP-RESOURCES-END -->
 
 ### Available MCP Prompts
 
 <!-- MCP-PROMPTS-START -->
+- `map-data` - Generate a map of the data using the NPN API.
 <!-- MCP-PROMPTS-END -->
 
 ## 🧑🏿‍💻 Developing
