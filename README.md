@@ -14,26 +14,18 @@
 
 ### Available MCP Tools
 
-- `status-intensity` - Fetches status and intensity data (raw observation data).
-- `individual-phenometrics` - Fetches individual phenometrics (summarized data).
-- `site-phenometrics` - Fetches site phenometrics (site-level data).
-- `magnitude-phenometrics` - Fetches magnitude phenometrics (magnitude data).
-- `observation-comment` - Fetches observation comments based on observation_id.
-- `mapping` - Maps site phenometrics onto a map of the USA with optional colour labelling.
-- `check-reference-material` - Checks database containing NPN API reference material using a generated sql query.
-- `check-literature` - Queries database of structured summaries from 175 papers that use phenology and phenometrics data.
-- `export-raw-data` - Exports raw data to JSON or JSONL files in allowed directories.
-- `get-raw-data` - Fetches raw data instead of summaries as from other tools.
+<!-- MCP-TOOLS-START -->
+<!-- MCP-TOOLS-END -->
 
 ### Available MCP Resources
 
-- `recent-queries` - List of recent query hash IDs and metadata for cached data access.
-- `available-roots` - List of available root directories for file export operations.
+<!-- MCP-RESOURCES-START -->
+<!-- MCP-RESOURCES-END -->
 
 ### Available MCP Prompts
 
-- `map_data` - Structured workflow for working interactively with user to query site phenometrics and map the results, initialized with start-date and end-date.
-
+<!-- MCP-PROMPTS-START -->
+<!-- MCP-PROMPTS-END -->
 
 ## 🧑🏿‍💻 Developing
 
@@ -168,7 +160,7 @@ How to find and modify claude_desktop_config.json:
 }
 ```
 
-  **NOTE**: Replace `/absolute/path/to/usa-npn-mcp-server/` with local path to repo dir and `/absolute/path/to/export/directory` with local path to directory where you want exported files to be saved (or exclude this part to disable file export). You can specify multiple directories separated by spaces.
+  **NOTE**: Replace `/absolute/path/to/usa-npn-mcp-server/` with local path to repo dir and `/absolute/path/to/export/directory` with local path to directory where you want exported files to be saved (or exclude this part to disable file export). You can specify multiple directories separated by spaces. For more info, see [File Export Configuration](#file-export-configuration).
 
 </details>
 </details>
@@ -200,7 +192,7 @@ How to find and modify claude_desktop_config.json:
 }
 ```
 
-  **NOTE**: Replace `C:\\absolute\\path\\to\\usa-npn-mcp-server\\` with local path to repo dir and `'C:\\absolute\\path\\to\\export\\directory'` (including the single quotes) with local path to directory where you want exported files to be saved (or exclude this part to disable file export). You can specify multiple directories separated by spaces - be sure to use backslashes for Windows paths.
+  **NOTE**: Replace `C:\\absolute\\path\\to\\usa-npn-mcp-server\\` with local path to repo dir and `'C:\\absolute\\path\\to\\export\\directory'` (including the single quotes) with local path to directory where you want exported files to be saved (or exclude this part to disable file export). You can specify multiple directories separated by spaces - be sure to use backslashes for Windows paths. For more info, see [File Export Configuration](#file-export-configuration).
 
 </details>
 
@@ -208,7 +200,7 @@ How to find and modify claude_desktop_config.json:
 
 #
 
-After saving the changes, restart Claude Desktop. If you receive no error messages from the Claude UI, the USA-NPN MCP server is likely installed correctly. Clicking the two buttons in the bottom left of the new chat box should reveal new options with `npn` labelling.
+After saving the changes, restart Claude Desktop. If you receive no error messages from the Claude UI, the USA-NPN MCP server is likely installed correctly. Clicking the two buttons in the bottom left of the new chat box should reveal new options with `npn` labeling.
 
 ![alt text](assets/mcp_recognized2.png)
 ![alt text](assets/mcp_recognized1.png)
@@ -224,6 +216,20 @@ To enable tool use, you can click "Configure" (seen in the image above) and adju
 If you do not configure permissions this way, the tools will be enabled by default and permissions will be set to "Always ask permission" and each tool use will ask with an in-chat pop-up as below.
 
 ![alt text](assets/tool_permission.png)
+
+
+### Recommended Complementary MCP Servers
+
+Additional MCP Servers can be added to Claude Desktop in `Settings` using the `Extensions` tab by clicking `Browse extensions`. For use together with the USA-NPN MCP Server, the two following MCP Servers are recommended:
+
+#### 1. **Filesystem**:
+- Let Claude access specified directories in your filesystem to read and write files.
+- Configure `filesystem` with matching allowed directories as `usa-npn-mcp-server` for making data available during data analysis - both from recent queries saved to file and for externally sourced data files.
+
+**Note**:  A more fully featured alternative is [Desktop Commander](https://desktopcommander.app/) but it is not available in the listed extensions and would need to be configured by clicking `add a custom one` and performing [custom installation and configuration](https://desktopcommander.app/#installation). However, adding advanced or too many different MCP Servers to Claude can bloat your context window with tool descriptions. If you are experiencing context limitations, consider disabling some or all additional MCP Servers.
+
+#### 2. **Context7**:
+- Let Claude access up-to-date code documentation for data analysis.
 
 
 ## File Export Configuration

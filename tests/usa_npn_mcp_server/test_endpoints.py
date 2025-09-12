@@ -91,7 +91,7 @@ def test_magnitude_phenometrics_query_model():
 
 
 def test_sql_query_model():
-    """Test SQLQueryModel used by CheckLiterature and CheckReferenceMaterial tools."""
+    """Test SQLQueryModel used by QueryLiterature and QueryReferenceMaterial tools."""
     query1 = SQLQueryModel(
         sql_query="SELECT * FROM phenoclasses WHERE phenophase_category LIKE '%Flowers'"
     )

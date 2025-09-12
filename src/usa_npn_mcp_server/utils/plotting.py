@@ -11,7 +11,7 @@ from matplotlib.colors import to_hex
 from shapely.geometry import Point
 
 
-async def generate_map(data: list[Dict[str, Any]], colour_by: str) -> str:
+async def generate_map(data: list[Dict[str, Any]], color_by: str) -> str:
     """
     Generate a map with lat/long as axes, overlaying a US map with state outlines.
 
@@ -19,7 +19,7 @@ async def generate_map(data: list[Dict[str, Any]], colour_by: str) -> str:
     ----------
     data : list[Dict[str, Any]]
         The input data, with fields containing latitude and longitude coordinates.
-    colour_by : str
+    color_by : str
         The variable to color the points by. If empty string, uses default red color.
 
     Returns
@@ -49,14 +49,14 @@ async def generate_map(data: list[Dict[str, Any]], colour_by: str) -> str:
     ]
     gdf = gpd.GeoDataFrame(data, geometry=points)
 
-    if colour_by:
+    if color_by:
         # Extract unique categories and assign colors
-        cats = {entry.get(colour_by) for entry in data if colour_by in entry}
+        cats = {entry.get(color_by) for entry in data if color_by in entry}
         colormap = cm.get_cmap("tab10", len(cats))
         cats_colors = {sp: to_hex(colormap(i)) for i, sp in enumerate(cats)}
         # Plot the data points
         for sp in cats:
-            subset = gdf[gdf[colour_by] == sp]
+            subset = gdf[gdf[color_by] == sp]
             subset.plot(
                 ax=ax,
                 marker="o",
@@ -65,7 +65,7 @@ async def generate_map(data: list[Dict[str, Any]], colour_by: str) -> str:
                 markersize=14,
             )
         plt.legend(
-            title=colour_by,
+            title=color_by,
             bbox_to_anchor=(1.05, 1),  # Position legend outside the plot
             loc="upper left",
             borderaxespad=0,
@@ -91,8 +91,8 @@ async def generate_map(data: list[Dict[str, Any]], colour_by: str) -> str:
     # Customize the plot
     plt.xlabel("Longitude")
     plt.ylabel("Latitude")
-    if colour_by:
-        plt.title(f"Map of Observations Colored by {colour_by}")
+    if color_by:
+        plt.title(f"Map of Observations Colored by {color_by}")
     plt.grid(True)
 
     # Adjust layout to make space for the legend

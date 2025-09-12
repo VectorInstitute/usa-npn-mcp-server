@@ -70,7 +70,7 @@ class TestGenerateMap:
     @pytest.mark.asyncio
     async def test_generate_map_with_color_by(self, sample_data, mock_geopandas):
         """Test generate_map with color_by parameter."""
-        result = await generate_map(sample_data, colour_by="species")
+        result = await generate_map(sample_data, color_by="species")
 
         # Verify the result is a base64 encoded string
         assert isinstance(result, str)
@@ -87,7 +87,7 @@ class TestGenerateMap:
     @pytest.mark.asyncio
     async def test_generate_map_without_color_by(self, sample_data, mock_geopandas):
         """Test generate_map without color_by parameter."""
-        result = await generate_map(sample_data, colour_by=None)
+        result = await generate_map(sample_data, color_by=None)
 
         # Verify the result is a base64 encoded string
         assert isinstance(result, str)
@@ -100,14 +100,14 @@ class TestGenerateMap:
     async def test_generate_map_empty_data_raises_error(self):
         """Test that generate_map raises error for empty data."""
         with pytest.raises(ValueError, match="Data cannot be empty"):
-            await generate_map([], colour_by="species")
+            await generate_map([], color_by="species")
 
     @pytest.mark.asyncio
     async def test_generate_map_no_coordinates_raises_error(self):
         """Test that generate_map raises error when data lacks coordinates."""
         data = [{"species": "Oak"}, {"species": "Pine"}]
         with pytest.raises(ValueError, match="Latitude and Longitude cannot be empty"):
-            await generate_map(data, colour_by="species")
+            await generate_map(data, color_by="species")
 
     @pytest.mark.asyncio
     async def test_generate_map_partial_coordinates(self, mock_geopandas):
@@ -118,7 +118,7 @@ class TestGenerateMap:
             {"latitude": 41.8781, "longitude": -87.6298, "species": "Maple"},
         ]
 
-        result = await generate_map(data, colour_by="species")
+        result = await generate_map(data, color_by="species")
 
         # Should still work with partial data
         assert isinstance(result, str)
@@ -164,7 +164,7 @@ class TestGenerateMap:
             with patch(
                 "usa_npn_mcp_server.utils.plotting.io.BytesIO", return_value=mock_buffer
             ):
-                await generate_map(sample_data, colour_by="species")
+                await generate_map(sample_data, color_by="species")
 
             # Verify colormap was created
             mock_cm.get_cmap.assert_called_once_with("tab10", 2)  # 2 unique species
@@ -174,7 +174,7 @@ class TestGenerateMap:
     @pytest.mark.asyncio
     async def test_generate_map_plot_customization(self, sample_data, mock_geopandas):
         """Test that plot customization methods are called."""
-        await generate_map(sample_data, colour_by="species")
+        await generate_map(sample_data, color_by="species")
 
         # Verify plot customization calls
         mock_geopandas["ax"].set_xlim.assert_called_once_with(-121, -69)
@@ -189,7 +189,7 @@ class TestGenerateMap:
     @pytest.mark.asyncio
     async def test_generate_map_saves_correct_format(self, sample_data, mock_geopandas):
         """Test that the map is saved in the correct format."""
-        await generate_map(sample_data, colour_by=None)
+        await generate_map(sample_data, color_by=None)
 
         # Verify savefig was called with correct format
         call_args = mock_geopandas["plt"].savefig.call_args

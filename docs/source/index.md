@@ -31,25 +31,18 @@ The MCP Server is designed to support:
 
 ### Available MCP Tools
 
-- `status-intensity` - Fetches status and intensity data (raw observation data).
-- `individual-phenometrics` - Fetches individual phenometrics (summarized data).
-- `site_phenometrics` - Fetches site phenometrics (site-level data).
-- `magnitude-phenometrics` - Fetches magnitude phenometrics (magnitude data).
-- `observation-comment` - Fetches observation comments based on observation_id.
-- `mapping` - Maps site phenometrics onto a map of the USA with optional colour labelling.
-- `check-reference-material` - Checks database containing NPN API reference material using a generated sql query.
-- `check-literature` - Queries database of structured summaries from 175 papers that use phenology and phenometrics data.
-- `export-raw-data` - Exports raw data to JSON or JSONL files in allowed directories.
-- `get-raw-data` - Fetches raw data instead of summaries as from other tools.
+<!-- MCP-TOOLS-START -->
+<!-- MCP-TOOLS-END -->
 
 ### Available MCP Resources
 
-- `recent-queries` - List of recent query hash IDs and metadata for cached data access.
-- `available-roots` - List of available root directories for file export operations.
+<!-- MCP-RESOURCES-START -->
+<!-- MCP-RESOURCES-END -->
 
 ### Available MCP Prompts
 
-- `map_data` - Structured workflow for working interactively with user to query site phenometrics and map the results, initialized with start-date and end-date.
+<!-- MCP-PROMPTS-START -->
+<!-- MCP-PROMPTS-END -->
 
 ## Overview
 

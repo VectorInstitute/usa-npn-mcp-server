@@ -297,8 +297,8 @@ class APIClient:
             NPNTools.SitePhenometrics,
             NPNTools.IndividualPhenometrics,
             NPNTools.Mapping,
-            NPNTools.CheckReferenceMaterial,
-            NPNTools.CheckLiterature,
+            NPNTools.QueryReferenceMaterial,
+            NPNTools.QueryLiterature,
             NPNTools.GetRawData,
             NPNTools.ExportRawData,
         ]
@@ -994,22 +994,22 @@ class APIClient:
             raise ValueError("Plot type cannot be anything but map right now.")
         plot_result = await generate_map(
             data=data,
-            colour_by=arguments["colour_by"],
+            color_by=arguments["color_by"],
         )
         result: list[Union[TextContent, ImageContent]] = [
             TextContent(
                 type="text",
-                text=f"Map of {arguments['tool_name']} data coloured by {arguments['colour_by']}.",
+                text=f"Map of {arguments['tool_name']} data colored by {arguments['color_by']}.",
             ),
             ImageContent(type="image", data=plot_result, mimeType="image/jpeg"),
         ]
         return result
 
     @log_call
-    async def check_reference_material(
+    async def query_reference_material(
         self, arguments: Dict[str, Any]
     ) -> list[TextContent]:
-        """Check references using a sql_query."""
+        """Query USA-NPN reference material using a SQL query."""
         if not arguments:
             raise ValueError("Arguments cannot be empty.")
         if not arguments["sql_query"]:
@@ -1051,8 +1051,8 @@ class APIClient:
             raise ValueError(f"Tool {name} not found.")
 
         if name in [
-            NPNTools.CheckReferenceMaterial.name,
-            NPNTools.CheckLiterature.name,
+            NPNTools.QueryReferenceMaterial.name,
+            NPNTools.QueryLiterature.name,
             NPNTools.GetRawData.name,
             NPNTools.ExportRawData.name,
             NPNTools.Mapping.name,
@@ -1079,10 +1079,10 @@ class APIClient:
             The result of the special tool execution.
         """
         if name in {
-            NPNTools.CheckReferenceMaterial.name,
-            NPNTools.CheckLiterature.name,
+            NPNTools.QueryReferenceMaterial.name,
+            NPNTools.QueryLiterature.name,
         }:
-            return await self.check_reference_material(arguments)
+            return await self.query_reference_material(arguments)
         if name == NPNTools.GetRawData.name:
             return await self.get_raw_data(arguments)
         if name == NPNTools.ExportRawData.name:

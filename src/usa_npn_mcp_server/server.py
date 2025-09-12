@@ -33,6 +33,7 @@ from pydantic import AnyUrl, FileUrl
 
 from usa_npn_mcp_server.api_client import APIClient
 from usa_npn_mcp_server.utils.prompts import PROMPTS, get_prompts
+from usa_npn_mcp_server.utils.resources import MCP_RESOURCES
 
 
 logging.basicConfig(
@@ -132,22 +133,9 @@ async def serve(allowed_dirs: tuple[str, ...] = ()) -> None:
         Returns
         -------
         list[Resource]
-            A list of available resources including recent queries and available roots.
+            A list of available resources.
         """
-        return [
-            Resource(
-                uri=AnyUrl("npn-mcp://recent-queries"),
-                name="recent-queries-resource",
-                description="List of recent query hash IDs and metadata for cached data access.",
-                mimeType="application/json",
-            ),
-            Resource(
-                uri=AnyUrl("npn-mcp://available-roots"),
-                name="available-roots-resource",
-                description="List of available root directories for file export operations.",
-                mimeType="application/json",
-            ),
-        ]
+        return MCP_RESOURCES
 
     @server.read_resource()
     async def handle_read_resource(

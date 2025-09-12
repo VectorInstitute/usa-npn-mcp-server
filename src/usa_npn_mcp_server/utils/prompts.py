@@ -25,9 +25,9 @@ class PromptEntry(TypedDict):
 
 
 PROMPTS: dict[str, PromptEntry] = {
-    "map_data": {
+    "map-data": {
         "prompt": Prompt(
-            name="map_data",
+            name="map-data",
             description="Generate a map of the data using the NPN API.",
             arguments=[
                 PromptArgument(
@@ -52,8 +52,8 @@ PROMPTS: dict[str, PromptEntry] = {
         4. Present the data summary to the user, and ask if they would like to refine the parameters or perform additional analysis before mapping.
         5. If they would like to adjust their search parameters, ask for the parameters to refine the search on and return to step 2. If the user would like to proceed, move to the next step.
         6. Determine whether null results need to be filtered from the data that is mapped (ex. values of -9999 often mean null).
-        7. Using the hash_id from a previous site phenometrics query, start by producing a map with None (default) for the colour_by argument to get a sense of where observations occur.
-        8. Think about what parameters would fit best for the mapping, particularly the variable to colour by. It is best to use a variable with not too many distinct values and something that is categorical. Don't use state.
+        7. Using the hash_id from a previous site phenometrics query, start by producing a map with None (default) for the color_by argument to get a sense of where observations occur.
+        8. Think about what parameters would fit best for the mapping, particularly the variable to color by. It is best to use a variable with not too many distinct values and something that is categorical. Don't use state.
         9. Use the Mapping tool with the appropriate parameters to generate a map of the site phenometrics data.
         10. Present the map to the user, and ask if they would like to perform any further analysis or adjustments. Recommend the user visit https://data.usanpn.org/vis-tool/#/ for more comprehensive and interactive visualization of NPN Data.
         """,
