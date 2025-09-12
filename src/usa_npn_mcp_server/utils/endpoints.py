@@ -309,7 +309,7 @@ Key applications: Data validation, understanding observer reporting patterns, an
 Performance warning: This tool can return massive datasets (potentially millions of records). Always limit queries to small date ranges (≤30 days recommended) and specific geographic areas or species to prevent system crashes. Use aggregated tools (Individual/Site/Magnitude Phenometrics) for broader analyses.
 
 Data interpretation: Values of -9999 represent missing/null data. Records include observation date, individual ID, phenophase status, intensity measurements, and site metadata.""",
-        docs_one_liner="Fetches status and intensity data (raw observation data).",
+        docs_one_liner="Fetches status and intensity data (raw observation data). Use sparingly (can return massive datasets), prioritize phenometrics tools.",
         input_schema=StatusIntensityQuery.model_json_schema(),
         endpoint="getObservations",
     )
@@ -456,7 +456,7 @@ Data interpretation: Records show individual_id, phenophase onset/end dates, and
     GetRawData = NPNTool(
         name="get-raw-data",
         description="Retrieve raw data from cache using hash ID. Limited to 300 records with truncation message if exceeded. Use 'recent-queries' resource to see available hash IDs.",
-        docs_one_liner="Fetches raw data instead of summaries as from other tools.",
+        docs_one_liner="Fetches raw data instead of summaries as from other tools. Limited to 300 records with truncation message if exceeded.",
         input_schema=GetRawDataQuery.model_json_schema(),
         endpoint="",
     )
