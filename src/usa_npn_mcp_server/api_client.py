@@ -290,11 +290,17 @@ class APIClient:
         None
         """
         self.client = httpx.AsyncClient(timeout=180.0, base_url=self.API_BASE_URL)
-        # Dynamically get all NPNTool instances from NPNTools class
         self._tool_list: list[NPNTool] = [
-            getattr(NPNTools, attr)
-            for attr in dir(NPNTools)
-            if not attr.startswith("_") and isinstance(getattr(NPNTools, attr), NPNTool)
+            NPNTools.StatusIntensity,
+            NPNTools.ObservationComment,
+            NPNTools.MagnitudePhenometrics,
+            NPNTools.SitePhenometrics,
+            NPNTools.IndividualPhenometrics,
+            NPNTools.Mapping,
+            NPNTools.QueryReferenceMaterial,
+            NPNTools.QueryLiterature,
+            NPNTools.GetRawData,
+            NPNTools.ExportRawData,
         ]
         self.cache_manager = CacheManager()
         self.allowed_roots: list[Root] = []
