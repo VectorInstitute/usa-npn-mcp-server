@@ -160,7 +160,7 @@ How to find and modify claude_desktop_config.json:
 }
 ```
 
-  **NOTE**: Replace `/absolute/path/to/usa-npn-mcp-server/` with local path to repo dir and `/absolute/path/to/export/directory` with local path to directory where you want exported files to be saved (or exclude this part to disable file export). You can specify multiple directories separated by spaces.
+  **NOTE**: Replace `/absolute/path/to/usa-npn-mcp-server/` with local path to repo dir and `/absolute/path/to/export/directory` with local path to directory where you want exported files to be saved (or exclude this part to disable file export). You can specify multiple directories separated by spaces. For more info, see [File Export Configuration](#file-export-configuration).
 
 </details>
 </details>
@@ -192,7 +192,7 @@ How to find and modify claude_desktop_config.json:
 }
 ```
 
-  **NOTE**: Replace `C:\\absolute\\path\\to\\usa-npn-mcp-server\\` with local path to repo dir and `'C:\\absolute\\path\\to\\export\\directory'` (including the single quotes) with local path to directory where you want exported files to be saved (or exclude this part to disable file export). You can specify multiple directories separated by spaces - be sure to use backslashes for Windows paths.
+  **NOTE**: Replace `C:\\absolute\\path\\to\\usa-npn-mcp-server\\` with local path to repo dir and `'C:\\absolute\\path\\to\\export\\directory'` (including the single quotes) with local path to directory where you want exported files to be saved (or exclude this part to disable file export). You can specify multiple directories separated by spaces - be sure to use backslashes for Windows paths. For more info, see [File Export Configuration](#file-export-configuration).
 
 </details>
 
