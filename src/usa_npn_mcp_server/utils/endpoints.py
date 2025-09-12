@@ -272,8 +272,8 @@ class NPNTools:
     """
     An enumeration of tools available for querying the NPN API.
 
-    Class Attributes
-    ----------------
+    Attributes
+    ----------
     StatusIntensity : NPNTool
         Tool for querying intensity and status data from the NPN API.
     ObservationComment : NPNTool
