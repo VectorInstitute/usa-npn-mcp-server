@@ -34,14 +34,14 @@ async def test_query_tool_integration(mocker):
 
 @pytest.mark.integration_test
 @pytest.mark.asyncio
-async def test_check_reference_material_integration(mocker):
-    """Test the check_reference_material function in the server."""
+async def test_query_reference_material_integration(mocker):
+    """Test the query_reference_material function in the server."""
     mocker.patch(
         "usa_npn_mcp_server.api_client.APIClient.read_ancillary_file",
         return_value='[{"species_id": 1, "common_name": "Oak"}]',
     )
     async with APIClient() as client:
-        result = await client.check_reference_material(
+        result = await client.query_reference_material(
             arguments={"sql_query": "SELECT * FROM species WHERE species_id = 1"}
         )
         assert len(result) == 1
