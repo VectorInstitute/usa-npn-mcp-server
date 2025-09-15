@@ -198,14 +198,14 @@ How to find and modify claude_desktop_config.json:
     "command": "cmd.exe",
     "args": [
       "/c",
-      "C:\\absolute\\path\\to\\usa-npn-mcp-server\\.venv\\Scripts\\activate.bat && uv run usa_npn_mcp_server 'C:\\absolute\\path\\to\\export\\directory'"
+      "C:\\absolute\\path\\to\\usa-npn-mcp-server\\.venv\\Scripts\\activate.bat && uv run usa_npn_mcp_server C:\\absolute\\path\\to\\export\\directory"
       ]
     }
   }
 }
 ```
 
-  **NOTE**: Replace `C:\\absolute\\path\\to\\usa-npn-mcp-server\\` with local path to repo dir and `'C:\\absolute\\path\\to\\export\\directory'` (including the single quotes) with local path to directory where you want exported files to be saved (or exclude this part to disable file export). You can specify multiple directories separated by spaces - be sure to use backslashes for Windows paths. For more info, see [File Export Configuration](#file-export-configuration).
+  **NOTE**: Replace `C:\\absolute\\path\\to\\usa-npn-mcp-server\\` with local path to repo dir and `C:\\absolute\\path\\to\\export\\directory` with local path to directory where you want exported files to be saved (or exclude this part to disable file export). You can specify multiple directories separated by spaces - be sure to use backslashes for Windows paths. For paths containing spaces and more details, see [File Export Configuration](#file-export-configuration).
 
 </details>
 
@@ -267,6 +267,38 @@ export NPN_MCP_ALLOWED_DIRS="/path/to/exports:/path/to/another/dir"
 
 # Windows (semicolon-separated)
 set NPN_MCP_ALLOWED_DIRS="C:\path\to\exports;D:\another\dir"
+```
+
+#### Windows Paths with Spaces (Escaped Quotes Method)
+For paths containing spaces, wrap each path with escaped double quotes (`\"`):
+```json
+{
+  "mcpServers": {
+    "npn": {
+      "command": "cmd.exe",
+      "args": [
+        "/c",
+        "\\"C:\\\\Users\\\\John Doe\\\\Documents\\\\usa-npn-mcp-server\\\\.venv\\\\Scripts\\\\activate.bat\\" && uv run usa_npn_mcp_server \\"C:\\\\Program Files\\\\Data Export\\""
+      ]
+    }
+  }
+}
+```
+
+#### Multiple Windows Paths with Spaces
+Quote each path individually when specifying multiple directories:
+```json
+{
+  "mcpServers": {
+    "npn": {
+      "command": "cmd.exe",
+      "args": [
+        "/c",
+        "\\"C:\\\\Company Software\\\\NPN Tools\\\\usa-npn-mcp-server\\\\.venv\\\\Scripts\\\\activate.bat\\" && uv run usa_npn_mcp_server \\"D:\\\\Shared Data\\\\Research Projects\\" \\"E:\\\\Export Results\\\\Team Analysis\\""
+      ]
+    }
+  }
+}
 ```
 
 **Security Note**: The server will only allow file operations within the specified directories for security.
