@@ -11,7 +11,7 @@ assignees: ''
 A clear and concise description of what the bug is.
 
 ### To Reproduce
-Code snippet or clear steps to reproduce behaviour.
+Code snippet or clear steps to reproduce behavior.
 
 ### Expected behavior
 A clear and concise description of what you expected to happen.

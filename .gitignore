@@ -14,8 +14,18 @@ wheels/
 .pytest_cache/
 .ruff_cache/
 
+# Coverage files
+.coverage
+coverage.xml
+htmlcov/
+*.cover
+.hypothesis/
+
 # Vscode
 .vscode
 
 # MacOS
 .DS_Store
+
+# Auto-generated documentation
+docs/source/reference/api/

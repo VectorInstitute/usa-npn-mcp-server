@@ -11,6 +11,7 @@ from typing import List
 
 
 sys.path.insert(0, os.path.abspath("../../src/usa_npn_mcp_server"))
+sys.path.insert(0, os.path.abspath("_ext"))
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
@@ -40,12 +41,25 @@ extensions = [
     "myst_parser",
     "sphinx_design",
     "sphinx_copybutton",
+    "npn_mcp_docs",  # Our custom extension for documentation of MCP assets
 ]
+
+# Autodoc settings
+autodoc_typehints = "description"
+autodoc_class_signature = "separated"
+autodoc_member_order = "bysource"
+autodoc_inherit_docstrings = False
+
+# Numpydoc settings
 numpydoc_show_inherited_class_members = False
 numpydoc_show_class_members = False
+
+# Napoleon settings
 napoleon_google_docstring = False
 napoleon_numpy_docstring = True
 napoleon_include_init_with_doc = True
+
+# Other settings
 add_module_names = False
 autosectionlabel_prefix_document = True
 copybutton_prompt_text = r">>> |\.\.\. "

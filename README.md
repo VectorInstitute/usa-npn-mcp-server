@@ -3,28 +3,42 @@
 ----------------------------------------------------------------------------------------
 
 [![code checks](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/code_checks.yml/badge.svg)](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/code_checks.yml)
+[![unit tests](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/unit_tests.yml/badge.svg)](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/unit_tests.yml)
 [![integration tests](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/integration_tests.yml/badge.svg)](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/integration_tests.yml)
 [![docs](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/docs_deploy.yml/badge.svg)](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/docs_deploy.yml)
-![GitHub License](https://img.shields.io/github/license/VectorInstitute/usa-npn-mcp-server)
+![coverage](./.github/coverage.svg)
+[![GitHub License](https://img.shields.io/badge/license-MIT-blue)](https://github.com/VectorInstitute/usa-npn-mcp-server/blob/main/LICENSE)
+
+#
+![alt text](assets/example_usage.gif)
 
 ### Available MCP Tools
 
-- `status-intensity` - Fetches status and intensity data (raw observation data).
+<!-- MCP-TOOLS-START -->
+- `export-raw-data` - Exports raw data to JSON or JSONL files in allowed directories.
+- `get-raw-data` - Fetches raw data instead of summaries as from other tools. Limited to 300 records with truncation message if exceeded.
 - `individual-phenometrics` - Fetches individual phenometrics (summarized data).
-- `site_phenometrics` - Fetches site phenometrics (site-level data).
 - `magnitude-phenometrics` - Fetches magnitude phenometrics (magnitude data).
+- `mapping` - Maps site phenometrics onto a map of the USA with optional color labeling.
 - `observation-comment` - Fetches observation comments based on observation_id.
-- `mapping` - Maps site phenometrics onto a map of the USA with optional colour labelling.
-- `check-reference-material` - Checks database containing NPN API reference material using a generated sql query.
+- `query-literature` - Queries database of structured summaries from 175 papers that use phenology and phenometrics data.
+- `query-reference-material` - Queries database containing NPN API reference material using a generated SQL query.
+- `site-phenometrics` - Fetches site phenometrics (site-level data).
+- `status-intensity` - Fetches status and intensity data (raw observation data). Use sparingly (can return massive datasets), prioritize phenometrics tools.
+<!-- MCP-TOOLS-END -->
+
+### Available MCP Resources
+
+<!-- MCP-RESOURCES-START -->
+- `recent-queries` - List of recent query hash IDs and metadata for cached data access.
+- `available-roots` - List of available root directories for file export operations.
+<!-- MCP-RESOURCES-END -->
 
 ### Available MCP Prompts
 
-- `map_data` - Structured workflow for working interactively with user to query site phenometrics and map the results, initialized with start-date and end-date.
-
-#
-
-![alt text](assets/example_usage.gif)
-
+<!-- MCP-PROMPTS-START -->
+- `map-data` - Generate a map of the data using the NPN API.
+<!-- MCP-PROMPTS-END -->
 
 ## 🧑🏿‍💻 Developing
 
@@ -136,7 +150,7 @@ How to find and modify claude_desktop_config.json:
 <summary>macOS and Linux</summary>
 
 1. Open Claude Desktop app
-2. Click on "Claude" in the menu bar and select "Settings" - you may need to enable "Developer Mode" to proceed
+2. Click on "Claude" in the menu bar and select "Settings"
 3. In the Settings window, click on the "Developer" tab in the left sidebar
 4. Click the "Edit Config" button
 5. This will open a Finder window showing the location of the `claude_desktop_config.json` file
@@ -152,14 +166,14 @@ How to find and modify claude_desktop_config.json:
       "command": "bash",
       "args": [
         "-c",
-        "source /absolute/path/to/usa-npn-mcp-server/.venv/bin/activate && uv run usa_npn_mcp_server"
+        "source /absolute/path/to/usa-npn-mcp-server/.venv/bin/activate && uv run usa_npn_mcp_server /absolute/path/to/export/directory"
       ]
     }
   }
 }
 ```
 
-  **NOTE**: Replace "/absolute/path/to/usa-npn-mcp-server/" with local path to repo dir
+  **NOTE**: Replace `/absolute/path/to/usa-npn-mcp-server/` with local path to repo dir and `/absolute/path/to/export/directory` with local path to directory where you want exported files to be saved (or exclude this part to disable file export). You can specify multiple directories separated by spaces. For more info, see [File Export Configuration](#file-export-configuration).
 
 </details>
 </details>
@@ -168,7 +182,7 @@ How to find and modify claude_desktop_config.json:
 <summary>Windows</summary>
 
 1. Open Claude Desktop app
-2. CTRL+Comma or Open the menu bar (three bar symbol top-left) and select "File" and "Settings" - you may need to enable "Developer Mode" to proceed
+2. CTRL+Comma or Open the menu bar (three bar symbol top-left) and select "File" and "Settings"
 3. In the Settings window, click on the "Developer" tab in the left sidebar
 4. Click the "Edit Config" button
 5. This will open a window showing the location of the `claude_desktop_config.json` file
@@ -184,14 +198,14 @@ How to find and modify claude_desktop_config.json:
     "command": "cmd.exe",
     "args": [
       "/c",
-      "C:\\absolute\\path\\to\\usa-npn-mcp-server\\.venv\\Scripts\\activate.bat && uv run usa_npn_mcp_server"
+      "C:\\absolute\\path\\to\\usa-npn-mcp-server\\.venv\\Scripts\\activate.bat && uv run usa_npn_mcp_server C:\\absolute\\path\\to\\export\\directory"
       ]
     }
   }
 }
 ```
 
-  **NOTE**: Replace "C:\\absolute\\path\\to\\usa-npn-mcp-server\\" with local absolute path to repo dir and be sure to use forward backslashes
+  **NOTE**: Replace `C:\\absolute\\path\\to\\usa-npn-mcp-server\\` with local path to repo dir and `C:\\absolute\\path\\to\\export\\directory` with local path to directory where you want exported files to be saved (or exclude this part to disable file export). You can specify multiple directories separated by spaces - be sure to use backslashes for Windows paths. For paths containing spaces and more details, see [File Export Configuration](#file-export-configuration).
 
 </details>
 
@@ -199,20 +213,106 @@ How to find and modify claude_desktop_config.json:
 
 #
 
-After saving the changes, restart Claude Desktop. You should see a new :electric_plug: icon and/or :hammer: icons in your chat prompt that confirms the MCP Server is detected.
+After saving the changes, restart Claude Desktop. If you receive no error messages from the Claude UI, the USA-NPN MCP server is likely installed correctly. Clicking the two buttons in the bottom left of the new chat box should reveal new options with `npn` labeling.
 
-![alt text](assets/mcp_recognized.png)
+![alt text](assets/mcp_recognized2.png)
+![alt text](assets/mcp_recognized1.png)
 
-Each time you create a new chat that uses a Tool from the MCP Server, you will have to agree to permit access to the MCP Server's Tool.
+You should see a new local MCP server in the "Connectors" section of the Settings as below. This example has Filesystem and npn (usa-npn-mcp-server) MCP Servers enabled.
 
-![alt text](assets/accept_tool.png)
+![alt text](assets/mcp_recognized3.png)
+
+To enable tool use, you can click "Configure" (seen in the image above) and adjust which tools are enabled using the blue sliders and the permissions for each tool.
+
+![alt text](assets/mcp_recognized4.png)
+
+If you do not configure permissions this way, the tools will be enabled by default and permissions will be set to "Always ask permission" and each tool use will ask with an in-chat pop-up as below.
+
+![alt text](assets/tool_permission.png)
+
+
+### Recommended Complementary MCP Servers
+
+Additional MCP Servers can be added to Claude Desktop in `Settings` using the `Extensions` tab by clicking `Browse extensions`. For use together with the USA-NPN MCP Server, the two following MCP Servers are recommended:
+
+#### 1. **Filesystem**:
+- Let Claude access specified directories in your filesystem to read and write files.
+- Configure `filesystem` with matching allowed directories as `usa-npn-mcp-server` for making data available during data analysis - both from recent queries saved to file and for externally sourced data files.
+
+**Note**:  A more fully featured alternative is [Desktop Commander](https://desktopcommander.app/) but it is not available in the listed extensions and would need to be configured by clicking `add a custom one` and performing [custom installation and configuration](https://desktopcommander.app/#installation). However, adding advanced or too many different MCP Servers to Claude can bloat your context window with tool descriptions. If you are experiencing context limitations, consider disabling some or all additional MCP Servers.
+
+#### 2. **Context7**:
+- Let Claude access up-to-date code documentation for data analysis.
+
+
+## File Export Configuration
+
+The server supports exporting data to files within specified directories. You can configure allowed export directories in two ways:
+
+#### Command-line Arguments (Recommended)
+Pass directory paths as arguments when starting the server:
+```bash
+# Single directory
+uv run usa_npn_mcp_server /path/to/exports
+
+# Multiple directories
+uv run usa_npn_mcp_server /path/to/exports /path/to/another/dir
+```
+
+#### Environment Variable
+Set the `NPN_MCP_ALLOWED_DIRS` environment variable:
+```bash
+# Unix/macOS (colon-separated)
+export NPN_MCP_ALLOWED_DIRS="/path/to/exports:/path/to/another/dir"
+
+# Windows (semicolon-separated)
+set NPN_MCP_ALLOWED_DIRS="C:\path\to\exports;D:\another\dir"
+```
+
+#### Windows Paths with Spaces (Escaped Quotes Method)
+For paths containing spaces, wrap each path with escaped double quotes (`\"`):
+```json
+{
+  "mcpServers": {
+    "npn": {
+      "command": "cmd.exe",
+      "args": [
+        "/c",
+        "\\"C:\\\\Users\\\\John Doe\\\\Documents\\\\usa-npn-mcp-server\\\\.venv\\\\Scripts\\\\activate.bat\\" && uv run usa_npn_mcp_server \\"C:\\\\Program Files\\\\Data Export\\""
+      ]
+    }
+  }
+}
+```
+
+#### Multiple Windows Paths with Spaces
+Quote each path individually when specifying multiple directories:
+```json
+{
+  "mcpServers": {
+    "npn": {
+      "command": "cmd.exe",
+      "args": [
+        "/c",
+        "\\"C:\\\\Company Software\\\\NPN Tools\\\\usa-npn-mcp-server\\\\.venv\\\\Scripts\\\\activate.bat\\" && uv run usa_npn_mcp_server \\"D:\\\\Shared Data\\\\Research Projects\\" \\"E:\\\\Export Results\\\\Team Analysis\\""
+      ]
+    }
+  }
+}
+```
+
+**Security Note**: The server will only allow file operations within the specified directories for security.
 
 ## Debugging
 
 **Debugging with MCP Inspector (Currently only macOS and Linux)**: To run a locally hosted MCP interpreter for debugging, use:
 
    ```bash
+   # Without file export
    npx @modelcontextprotocol/inspector uv run usa_npn_mcp_server
+
+   # With file export to a specific directory
+   npx @modelcontextprotocol/inspector uv run usa_npn_mcp_server /path/to/exports
    ```
 
 The first time you run this command you'll be prompted to download `@modelcontextprotocol/inspector`.

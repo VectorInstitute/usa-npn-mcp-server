@@ -1,6 +1,6 @@
 name: docs (build)
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
 
 on:
@@ -39,6 +39,18 @@ jobs:
 
       - name: Install the project
         run: uv sync --all-extras --all-groups
+
+      - name: Update README with generated content
+        run: |
+          uv run python .github/scripts/update_readme.py
+
+      - name: Commit README changes
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git diff --staged --quiet || (git commit -m "Auto-update README.md with generated MCP content" && git push)
 
       - name: Build docs
         run: cd docs && rm -rf source/reference/api/_autosummary && uv run make html

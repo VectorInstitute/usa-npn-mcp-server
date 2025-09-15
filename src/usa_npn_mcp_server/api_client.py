@@ -2,25 +2,28 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
+import os
 import sqlite3
+import sys
 import traceback
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import wraps
 from pathlib import Path
 from statistics import mean, median
 from types import TracebackType
-from typing import Any, Dict, Optional, Type, Union
+from typing import Any, Dict, List, Optional, Type, Union
 from urllib.parse import urlencode
 
 import httpx
 import numpy as np
 import pandas as pd
 from mcp.types import (
-    BlobResourceContents,
     EmbeddedResource,
     ImageContent,
+    Root,
     TextContent,
     TextResourceContents,
 )
@@ -52,6 +55,21 @@ def log_call(func: Any) -> Any:
 
     @wraps(func)
     async def wrapper(*args: Any, **kwargs: Any) -> Any:
+        """
+        Log the decorated function's execution details.
+
+        Parameters
+        ----------
+        *args : Any
+            Positional arguments passed to the wrapped function.
+        **kwargs : Any
+            Keyword arguments passed to the wrapped function.
+
+        Returns
+        -------
+        Any
+            The result of the wrapped function call.
+        """
         function_name = func.__name__
         start = datetime.now()
         logger.info(f"Calling {function_name} with args: {args[1:]} kwargs: {kwargs}")
@@ -71,6 +89,190 @@ def log_call(func: Any) -> Any:
     return wrapper
 
 
+class CacheManager:
+    """Manages hash-based caching with size and time limits."""
+
+    def __init__(self, max_size_mb: int = 100, max_age_minutes: int = 15):
+        """
+        Initialize the CacheManager.
+
+        Parameters
+        ----------
+        max_size_mb : int, optional
+            Maximum cache size in megabytes (default is 100).
+        max_age_minutes : int, optional
+            Maximum age of cache entries in minutes (default is 15).
+
+        Returns
+        -------
+        None
+        """
+        self.cache: Dict[str, Dict[str, Any]] = {}
+        self.max_size_bytes = max_size_mb * 1024 * 1024
+        self.max_age = timedelta(minutes=max_age_minutes)
+
+    def generate_hash(self, tool_name: str, params: Dict[str, Any]) -> str:
+        """
+        Generate MD5 hash from tool name and parameters.
+
+        Parameters
+        ----------
+        tool_name : str
+            The name of the tool.
+        params : Dict[str, Any]
+            The parameters dictionary.
+
+        Returns
+        -------
+        str
+            The MD5 hash string.
+        """
+        # Create consistent hash from tool name + sorted params
+        content = f"{tool_name}:{json.dumps(params, sort_keys=True)}"
+        return hashlib.md5(content.encode()).hexdigest()
+
+    def add_entry(
+        self,
+        hash_id: str,
+        tool_name: str,
+        params: Dict[str, Any],
+        raw_data: list[Dict[str, Any]],
+    ) -> None:
+        """
+        Add new cache entry with metadata.
+
+        Parameters
+        ----------
+        hash_id : str
+            The unique identifier for this cache entry.
+        tool_name : str
+            The name of the tool that generated this data.
+        params : Dict[str, Any]
+            The parameters used for the query.
+        raw_data : list[Dict[str, Any]]
+            The raw data to cache.
+
+        Returns
+        -------
+        None
+        """
+        data_size = sys.getsizeof(json.dumps(raw_data))
+
+        entry = {
+            "raw_data": raw_data,
+            "metadata": {
+                "tool_name": tool_name,
+                "params": params,
+                "timestamp": datetime.now(),
+                "size_bytes": data_size,
+                "record_count": len(raw_data),
+            },
+        }
+
+        self.cache[hash_id] = entry
+        self.cleanup_cache()
+
+    def get_entry(self, hash_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Get cache entry if it exists and hasn't expired.
+
+        Parameters
+        ----------
+        hash_id : str
+            The unique identifier for the cache entry.
+
+        Returns
+        -------
+        Optional[Dict[str, Any]]
+            The cache entry if found and not expired, None otherwise.
+        """
+        if hash_id not in self.cache:
+            return None
+
+        entry = self.cache[hash_id]
+        if datetime.now() - entry["metadata"]["timestamp"] > self.max_age:
+            del self.cache[hash_id]
+            return None
+
+        return entry
+
+    def cleanup_cache(self) -> None:
+        """
+        Remove expired entries and enforce size limits.
+
+        Returns
+        -------
+        None
+        """
+        now = datetime.now()
+
+        # Remove expired entries
+        expired_keys = [
+            key
+            for key, entry in self.cache.items()
+            if now - entry["metadata"]["timestamp"] > self.max_age
+        ]
+        for key in expired_keys:
+            del self.cache[key]
+
+        # Check total size and remove oldest if necessary
+        while self.get_total_size() > self.max_size_bytes and self.cache:
+            oldest_key = min(
+                self.cache.keys(),
+                key=lambda k: self.cache[k]["metadata"]["timestamp"],
+            )
+            del self.cache[oldest_key]
+
+    def get_total_size(self) -> int:
+        """
+        Get total cache size in bytes.
+
+        Returns
+        -------
+        int
+            The total size of all cached data in bytes.
+        """
+        return sum(entry["metadata"]["size_bytes"] for entry in self.cache.values())
+
+    def get_cache_stats(self) -> Dict[str, Any]:
+        """
+        Get cache statistics for the recent-queries resource.
+
+        Returns
+        -------
+        Dict[str, Any]
+            A dictionary containing cache statistics including entries and size info.
+        """
+        entries_list: List[Dict[str, Any]] = []
+
+        for hash_id, entry in self.cache.items():
+            metadata = entry["metadata"]
+            entries_list.append(
+                {
+                    "hash_id": hash_id,
+                    "tool_name": metadata["tool_name"],
+                    "timestamp": metadata["timestamp"].isoformat(),
+                    "record_count": metadata["record_count"],
+                    "size_kb": round(metadata["size_bytes"] / 1024, 2),
+                    "params_summary": {
+                        k: v
+                        for k, v in metadata["params"].items()
+                        if k in ["start_date", "end_date", "species_id", "state"]
+                    },
+                }
+            )
+
+        # Sort by timestamp, newest first
+        entries_list.sort(key=lambda x: x["timestamp"], reverse=True)
+
+        stats: Dict[str, Any] = {
+            "total_entries": len(self.cache),
+            "total_size_mb": round(self.get_total_size() / (1024 * 1024), 2),
+            "entries": entries_list,
+        }
+        return stats
+
+
 class APIClient:
     """API Client for mediating MCP server and NPN API interactions."""
 
@@ -78,7 +280,16 @@ class APIClient:
     API_BASE_URL: str = "https://services.usanpn.org/npn_portal/observations"
 
     def __init__(self) -> None:
-        self.client = httpx.AsyncClient(timeout=60.0, base_url=self.API_BASE_URL)
+        """
+        Initialize the APIClient.
+
+        Sets up the HTTP client, tool list, cache manager, and allowed roots.
+
+        Returns
+        -------
+        None
+        """
+        self.client = httpx.AsyncClient(timeout=180.0, base_url=self.API_BASE_URL)
         self._tool_list: list[NPNTool] = [
             NPNTools.StatusIntensity,
             NPNTools.ObservationComment,
@@ -86,26 +297,136 @@ class APIClient:
             NPNTools.SitePhenometrics,
             NPNTools.IndividualPhenometrics,
             NPNTools.Mapping,
-            NPNTools.CheckReferenceMaterial,
+            NPNTools.QueryReferenceMaterial,
+            NPNTools.QueryLiterature,
+            NPNTools.GetRawData,
+            NPNTools.ExportRawData,
         ]
-        self._cache: Dict[
-            str,
-            Dict[
-                str,
-                Any,
-            ],
-        ] = {
-            str(tool.name): {
-                "raw": list[Dict[str, Any]](),
-                "responses": list[
-                    list[Union[TextContent, ImageContent, EmbeddedResource]]
-                ](),
-                "maps": list[
-                    list[Union[TextContent, ImageContent, EmbeddedResource]]
-                ](),
-            }
-            for tool in self._tool_list
-        }
+        self.cache_manager = CacheManager()
+        self.allowed_roots: list[Root] = []
+
+    def get_allowed_roots(self) -> list[Root]:
+        """
+        Get the current allowed roots.
+
+        Returns
+        -------
+        list[Root]
+            A list of currently allowed root directories.
+        """
+        return self.allowed_roots
+
+    def update_allowed_roots(self, roots: list[Root]) -> None:
+        """
+        Update the allowed roots from client.
+
+        Parameters
+        ----------
+        roots : list[Root]
+            A list of Root objects representing allowed directories.
+
+        Returns
+        -------
+        None
+        """
+        self.allowed_roots = roots
+        logger.info(f"Updated allowed roots: {len(roots)} roots available")
+
+    def _validate_path_in_roots(self, path: str) -> bool:
+        """
+        Check if a path is within the allowed roots.
+
+        Parameters
+        ----------
+        path : str
+            The file path to validate.
+
+        Returns
+        -------
+        bool
+            True if the path is within allowed roots, False otherwise.
+        """
+        if not self.allowed_roots:
+            return False
+
+        abs_path = os.path.abspath(os.path.normpath(path))
+        for root in self.allowed_roots:
+            # Extract the path from the file:// URI
+            if str(root.uri).startswith("file://"):
+                root_path = str(root.uri)[7:]  # Remove file://
+                root_abs = os.path.abspath(os.path.normpath(root_path))
+
+                # Check if the path is within this root
+                try:
+                    # Get relative path from root to target
+                    rel_path = os.path.relpath(abs_path, root_abs)
+                    # Check that the relative path doesn't escape the root with ..
+                    # and isn't an absolute path (indicating it's outside allowed roots)
+                    if not rel_path.startswith("..") and not os.path.isabs(rel_path):
+                        return True
+                except ValueError:
+                    # Different drives on Windows or other path issues
+                    # Ex if abs_path is not under root_abs
+                    continue
+        return False
+
+    def _resolve_export_path(self, output_path: str, filename: str) -> str:
+        """
+        Resolve the full file path for export within allowed roots.
+
+        Parameters
+        ----------
+        output_path : str
+            The output directory path.
+        filename : str
+            The filename to resolve.
+
+        Returns
+        -------
+        str
+            The full resolved file path.
+        """
+        # Normalize the filename to prevent path traversal
+        # Handle both Unix and Windows path separators
+        filename = filename.replace("\\", "/")  # Convert Windows separators
+        filename = os.path.basename(filename)
+
+        if output_path:
+            # Check if it's an absolute path
+            if os.path.isabs(output_path):
+                full_path = os.path.join(output_path, filename)
+            else:
+                # Relative path - use the first root
+                root = self.allowed_roots[0]
+                if str(root.uri).startswith("file://"):
+                    base_path = str(root.uri)[7:]  # Remove file://
+                    full_dir = os.path.join(base_path, output_path)
+                    full_path = os.path.join(full_dir, filename)
+                else:
+                    raise ValueError(f"Invalid root URI format: {root.uri}")
+        else:
+            # No output path specified - use the first root directly
+            root = self.allowed_roots[0]
+            if str(root.uri).startswith("file://"):
+                base_path = str(root.uri)[7:]  # Remove file://
+                full_path = os.path.join(base_path, filename)
+            else:
+                raise ValueError(f"Invalid root URI format: {root.uri}")
+
+        # Normalize and validate the final path
+        full_path = os.path.abspath(os.path.normpath(full_path))
+
+        # Validate the final path is within allowed roots
+        if not self._validate_path_in_roots(full_path):
+            available_roots = [str(r.uri) for r in self.allowed_roots]
+            raise ValueError(
+                f"Final file path '{full_path}' is not within allowed roots. "
+                f"Available roots: {', '.join(available_roots)}"
+            )
+
+        # Ensure the directory exists
+        os.makedirs(os.path.dirname(full_path), exist_ok=True)
+        return full_path
 
     async def __aenter__(self) -> APIClient:
         """
@@ -145,11 +466,24 @@ class APIClient:
         await self.close()
 
     async def close(self) -> None:
-        """Close the underlying HTTP client."""
+        """
+        Close the underlying HTTP client.
+
+        Returns
+        -------
+        None
+        """
         await self.client.aclose()
 
     def get_tool_list(self) -> list[NPNTool]:
-        """Get the list of available tools."""
+        """
+        Get the list of available tools.
+
+        Returns
+        -------
+        list[NPNTool]
+            A list of available NPN tools.
+        """
         return self._tool_list
 
     @log_call
@@ -193,51 +527,139 @@ class APIClient:
             raise Exception(response.json().get("error", str(ex))) from ex
         return response.json()
 
-    async def query_api(self, endpoint: str, arguments: Dict[str, Any]) -> None:
+    async def query_api(self, endpoint: str, arguments: Dict[str, Any]) -> str:
         """
-        Query the API and store the response.
+        Query the API and store the response with hash-based caching.
 
         Parameters
         ----------
             endpoint (str): The API endpoint to query.
             arguments (Dict[str, Any]): The arguments to pass to the API.
+
+        Returns
+        -------
+            str: The hash ID of the cached response.
         """
         name = next(
             (tool.name for tool in self._tool_list if tool.endpoint == endpoint), None
         )
         if not name:
             raise ValueError(f"No matching tool name found for endpoint: {endpoint}")
-        response = await self._get(endpoint, params=arguments)
-        self._cache[name]["raw"].append(response)
-        logger.info(f"Response stored for {name}.")
 
-    def summarize_response(self, name: str) -> Dict[str, Any]:
-        """Get unique variables and entries from last API response by tool name."""
-        logger.info(f"Summarizing {name} response")
-        if name not in self._cache:
-            raise ValueError(f"Tool not in cache: {name}")
-        if "raw" not in self._cache[name]:
-            raise ValueError(f"No cached response found for {name}")
-        last_response = self._cache[name]["raw"][-1:]
-        if not last_response:
+        response = await self._get(endpoint, params=arguments)
+
+        # Generate hash and store in new cache system
+        hash_id = self.cache_manager.generate_hash(name, arguments)
+        self.cache_manager.add_entry(hash_id, name, arguments, response)
+
+        logger.info(f"Response stored for {name} with hash ID: {hash_id}")
+        return hash_id
+
+    def summarize_response(self, hash_id: str) -> Dict[str, Any]:
+        """
+        Get unique variables and entries from cached API response by hash ID.
+
+        Parameters
+        ----------
+        hash_id : str
+            The unique identifier for the cached response.
+
+        Returns
+        -------
+        Dict[str, Any]
+            A dictionary containing summary statistics of the cached response.
+        """
+        logger.info(f"Summarizing response for hash ID: {hash_id}")
+
+        entry = self.cache_manager.get_entry(hash_id)
+        if not entry:
+            raise ValueError(f"No cached data found for hash ID: {hash_id}")
+
+        raw_data = entry["raw_data"]
+        if not raw_data:
             return {"result": None}
 
-        unique_keys_summary: dict[str, set[Any]] = {}
-        full_dataset: dict[str, list[Any]] = {}
-        discrete_summary: dict[str, list[Any]] = {}
-        continuous_summary: dict[str, dict[str, float]] = {}
-        only_null: list[str] = []
+        unique_keys_summary, full_dataset = self._collect_unique_keys(raw_data)
+        discrete_summary, continuous_summary, only_null = self._process_unique_values(
+            unique_keys_summary, full_dataset
+        )
 
-        # Collect unique keys and their values
-        for entry in last_response[0]:  # Ensure entry is a dictionary
-            if isinstance(entry, dict):
-                for key, value in entry.items():
+        summary: dict[str, Any] = {
+            "discrete": {
+                key: val
+                for key, val in discrete_summary.items()
+                if key not in continuous_summary and key not in only_null
+            },
+            "continuous": continuous_summary,
+            "only_null": only_null,
+        }
+        return {"result": summary}
+
+    def _collect_unique_keys(
+        self, raw_data: list[Dict[str, Any]]
+    ) -> tuple[Dict[str, set[Any]], Dict[str, list[Any]]]:
+        """
+        Collect unique keys and their values from raw data.
+
+        Parameters
+        ----------
+        raw_data : list[Dict[str, Any]]
+            The raw data to process.
+
+        Returns
+        -------
+        tuple[Dict[str, set[Any]], Dict[str, list[Any]]]
+            A tuple containing unique keys summary and full dataset.
+        """
+        unique_keys_summary: Dict[str, set[Any]] = {}
+        full_dataset: Dict[str, list[Any]] = {}
+
+        for entry_data in raw_data:
+            if isinstance(entry_data, dict):
+                for key, value in entry_data.items():
                     if key not in unique_keys_summary:
                         unique_keys_summary[key] = set()
                         full_dataset[key] = []
                     unique_keys_summary[key].add(value)
                     full_dataset[key].append(value)
 
+        return unique_keys_summary, full_dataset
+
+    def _process_unique_values(
+        self,
+        unique_keys_summary: Dict[str, set[Any]],
+        full_dataset: Dict[str, list[Any]],
+    ) -> tuple[Dict[str, Any], Dict[str, Dict[str, float]], List[str]]:
+        """
+        Process unique values into discrete and continuous summaries.
+
+        Parameters
+        ----------
+        unique_keys_summary : Dict[str, set[Any]]
+            Dictionary mapping keys to sets of unique values.
+        full_dataset : Dict[str, list[Any]]
+            Dictionary mapping keys to lists of all values.
+
+        Returns
+        -------
+        tuple[Dict[str, Any], Dict[str, Dict[str, float]], List[str]]
+            A tuple containing discrete summary, continuous summary,
+            and null-only fields.
+        """
+        discrete_summary: Dict[str, Any] = {}
+        continuous_summary: Dict[str, Dict[str, float]] = {}
+        only_null: List[str] = []
+
+        id_like_variables = [
+            "observation_id",
+            "individual_id",
+            "station_id",
+            "site_id",
+            "species_id",
+            "phenophase_id",
+            "dataset_id",
+            "network_id",
+        ]
         int_encoded = ["phenophase_status", "patch", "itis_number", "year"]
         continuous = [
             "elevation_in_meters",
@@ -254,39 +676,88 @@ class APIClient:
             "mean_numdays_until_next_no",
             "se_numdays_until_next_no",
         ]
-        # Process unique values to identify continuous variables and null-only variables
+
         for key, values in unique_keys_summary.items():
             if values == {-9999}:
                 only_null.append(key)
+            elif key in id_like_variables:
+                self._process_id_like_variables(key, values, discrete_summary)
             elif "_id" in key or key in int_encoded:
                 discrete_summary[key] = list(values)
             elif key in continuous or all(
                 isinstance(v, (int, float)) and v != -9999 for v in values
             ):
-                values_list = [v for v in full_dataset[key] if v != -9999]
-                continuous_summary[key] = {
-                    "length": len(values_list),
-                    "min": min(values_list),
-                    "max": max(values_list),
-                    "mean": mean(values_list),
-                    "median": median(values_list),
-                    "1st_quartile": np.percentile(values_list, 25),
-                    "3rd_quartile": np.percentile(values_list, 75),
-                }
+                self._process_continuous_variables(
+                    key, full_dataset, continuous_summary
+                )
             else:
                 discrete_summary[key] = list(values)
 
-        # Convert sets to lists for JSON serialization compatibility
-        summary: dict[str, Any] = {
-            "discrete": {
-                key: list(val)
-                for key, val in discrete_summary.items()
-                if key not in continuous_summary and key not in only_null
-            },
-            "continuous": continuous_summary,
-            "only_null": only_null,
-        }
-        return {"result": summary}
+        return discrete_summary, continuous_summary, only_null
+
+    def _process_id_like_variables(
+        self, key: str, values: set[Any], discrete_summary: Dict[str, Any]
+    ) -> None:
+        """
+        Process ID-like variables for truncation.
+
+        Parameters
+        ----------
+        key : str
+            The variable key name.
+        values : set[Any]
+            The set of unique values.
+        discrete_summary : Dict[str, Any]
+            The discrete summary dictionary to update.
+
+        Returns
+        -------
+        None
+        """
+        values_list = list(values)
+        if len(values_list) > 15:
+            discrete_summary[key] = {
+                "sample": values_list[:15],
+                "total_count": len(values_list),
+                "truncated": True,
+                "message": f"Showing first 15 of {len(values_list)} unique values",
+            }
+        else:
+            discrete_summary[key] = values_list
+
+    def _process_continuous_variables(
+        self,
+        key: str,
+        full_dataset: Dict[str, list[Any]],
+        continuous_summary: Dict[str, Dict[str, float]],
+    ) -> None:
+        """
+        Process continuous variables for statistical summaries.
+
+        Parameters
+        ----------
+        key : str
+            The variable key name.
+        full_dataset : Dict[str, list[Any]]
+            Dictionary mapping keys to lists of all values.
+        continuous_summary : Dict[str, Dict[str, float]]
+            The continuous summary dictionary to update.
+
+        Returns
+        -------
+        None
+        """
+        values_list = [v for v in full_dataset[key] if v != -9999]
+        if values_list:
+            continuous_summary[key] = {
+                "length": len(values_list),
+                "min": min(values_list),
+                "max": max(values_list),
+                "mean": mean(values_list),
+                "median": median(values_list),
+                "1st_quartile": np.percentile(values_list, 25),
+                "3rd_quartile": np.percentile(values_list, 75),
+            }
 
     def read_ancillary_file(self, sql_query: str) -> str:
         """
@@ -309,65 +780,193 @@ class APIClient:
             raise ValueError(f"No results found for query: {sql_query}")
         return json.dumps(result)
 
-    def read_output_schema(self, name: str) -> Dict[str, Any]:
-        """Get the schema from the last API response by tool name."""
-        logger.info(f"Reading {name} output_schema resource")
-        if name not in self._cache:
-            raise ValueError(f"Tool not in cache: {name}")
-        if "raw" not in self._cache[name]:
-            raise ValueError(f"No cached response found for {name}")
+    def read_output_schema(self, hash_id: str) -> Dict[str, Any]:
+        """
+        Get the schema from cached API response by hash ID.
+
+        Parameters
+        ----------
+        hash_id : str
+            The unique identifier for the cached response.
+
+        Returns
+        -------
+        Dict[str, Any]
+            A dictionary containing the output schema for the cached response.
+        """
+        logger.info(f"Reading output schema for hash ID: {hash_id}")
+
+        entry = self.cache_manager.get_entry(hash_id)
+        if not entry:
+            raise ValueError(f"No cached data found for hash ID: {hash_id}")
+
+        tool_name = entry["metadata"]["tool_name"]
+        raw_data = entry["raw_data"]
+
+        if not raw_data:
+            return {"result": None}
+
         # Get the full schema for the tool
-        full_schema = API_SCHEMAS[name]["properties"]
-        last_response = self._cache[name]["raw"][-1:]
-        if not last_response:
-            return {"result": None}
-        if not last_response[0]:
-            return {"result": None}
-        if isinstance(last_response[0][0], dict):
-            keys = [key for key, val in last_response[0][0].items() if val]
+        full_schema = API_SCHEMAS[tool_name]["properties"]
+
+        if isinstance(raw_data[0], dict):
+            keys = [key for key, val in raw_data[0].items() if val]
         else:
             keys = []
+
         select_schema = {key: full_schema[key] for key in keys if key in full_schema}
         logger.info(f"Output schema keys: {keys}")
         return {"result": select_schema} if select_schema else {"result": None}
 
     def query_response(
-        self, name: str
+        self, hash_id: str
     ) -> list[Union[TextContent, ImageContent, EmbeddedResource]]:
-        """Get the Server response by query Tool name."""
-        logger.info(f"Returning {name} query Tool response.")
-        summary = self.summarize_response(name=name)
-        schema = self.read_output_schema(name=name)
+        """
+        Get the Server response by query hash ID.
+
+        Parameters
+        ----------
+        hash_id : str
+            The unique identifier for the cached query.
+
+        Returns
+        -------
+        list[Union[TextContent, ImageContent, EmbeddedResource]]
+            A list of content objects representing the query response.
+        """
+        logger.info(f"Returning query response for hash ID: {hash_id}")
+
+        entry = self.cache_manager.get_entry(hash_id)
+        if not entry:
+            raise ValueError(f"No cached data found for hash ID: {hash_id}")
+
+        tool_name = entry["metadata"]["tool_name"]
+        summary = self.summarize_response(hash_id=hash_id)
+        schema = self.read_output_schema(hash_id=hash_id)
+
         result: list[Union[TextContent, ImageContent, EmbeddedResource]] = [
             TextContent(
                 type="text",
-                text=f"Output variables of API response for {name} tool",
+                text=f"Output variables of API response for {tool_name} tool (Hash: {hash_id})",
             ),
             EmbeddedResource(
                 type="resource",
                 resource=TextResourceContents(
-                    uri=AnyUrl(f"npn-mcp://{name}_output_schema"),
+                    uri=AnyUrl(f"npn-mcp://{tool_name}_output_schema"),
                     mimeType="plain/text",
                     text=json.dumps(schema),
                 ),
             ),
             TextContent(
                 type="text",
-                text=f"Summary of unique entries across API response for {name} tool",
+                text=f"Summary of unique entries across API response for {tool_name} tool",
             ),
             EmbeddedResource(
                 type="resource",
                 resource=TextResourceContents(
-                    uri=AnyUrl(f"npn-mcp://{name}"),
+                    uri=AnyUrl(f"npn-mcp://{tool_name}"),
                     mimeType="plain/text",
                     text=json.dumps(summary),
                 ),
             ),
         ]
-        self._cache[name]["responses"].append(
-            result
-        )  # Ensure type matches cache definition
+
         return result
+
+    async def get_raw_data(self, arguments: Dict[str, Any]) -> list[TextContent]:
+        """
+        Get raw data from cache with size limits.
+
+        Parameters
+        ----------
+        arguments : Dict[str, Any]
+            Dictionary containing the hash_id for the cached data.
+
+        Returns
+        -------
+        list[TextContent]
+            A list of text content objects containing the raw data.
+        """
+        hash_id = arguments["hash_id"]
+
+        entry = self.cache_manager.get_entry(hash_id)
+        if not entry:
+            raise ValueError(f"No cached data found for hash ID: {hash_id}")
+
+        raw_data = entry["raw_data"]
+        metadata = entry["metadata"]
+
+        # Apply 300 record limit
+        if len(raw_data) > 300:
+            truncated_data = raw_data[:300]
+            result = [
+                TextContent(
+                    type="text",
+                    text=f"Raw data for {metadata['tool_name']} (TRUNCATED)",
+                ),
+                TextContent(
+                    type="text",
+                    text=f"Warning: Data truncated to 300 records out of {len(raw_data)} total records.",
+                ),
+                TextContent(
+                    type="text",
+                    text=json.dumps(truncated_data, indent=2),
+                ),
+            ]
+        else:
+            result = [
+                TextContent(
+                    type="text",
+                    text=f"Raw data for {metadata['tool_name']} ({len(raw_data)} records)",
+                ),
+                TextContent(
+                    type="text",
+                    text=json.dumps(raw_data, indent=2),
+                ),
+            ]
+
+        return result
+
+    @log_call
+    async def export_raw_data(self, arguments: Dict[str, Any]) -> list[TextContent]:
+        """Export raw data to file."""
+        # Check if we have any roots available
+        if not self.allowed_roots:
+            raise ValueError(
+                "No roots available. File export requires MCP client to provide roots. "
+                "Please ensure your MCP client supports roots and has configured allowed directories."
+            )
+
+        hash_id = arguments["hash_id"]
+        file_format = arguments["file_format"]
+        filename = arguments.get("filename", f"{hash_id}.{file_format}")
+        output_path = arguments.get("output_path", "")
+
+        entry = self.cache_manager.get_entry(hash_id)
+        if not entry:
+            raise ValueError(f"No cached data found for hash ID: {hash_id}")
+
+        raw_data = entry["raw_data"]
+
+        # Determine the full file path using helper method
+        filepath = self._resolve_export_path(output_path, filename)
+
+        try:
+            with open(filepath, "w") as f:
+                if file_format == "json":
+                    json.dump(raw_data, f, indent=2)
+                else:  # jsonl
+                    for record in raw_data:
+                        f.write(json.dumps(record) + "\n")
+
+            return [
+                TextContent(
+                    type="text",
+                    text=f"Successfully exported {len(raw_data)} records to: {filepath}",
+                )
+            ]
+        except Exception as e:
+            raise ValueError(f"Failed to export data: {str(e)}") from e
 
     @log_call
     async def create_plot(
@@ -395,23 +994,22 @@ class APIClient:
             raise ValueError("Plot type cannot be anything but map right now.")
         plot_result = await generate_map(
             data=data,
-            colour_by=arguments["colour_by"],
+            color_by=arguments["color_by"],
         )
         result: list[Union[TextContent, ImageContent]] = [
             TextContent(
                 type="text",
-                text=f"Map of {arguments['tool_name']} data coloured by {arguments['colour_by']}.",
+                text=f"Map of {arguments['tool_name']} data colored by {arguments['color_by']}.",
             ),
             ImageContent(type="image", data=plot_result, mimeType="image/jpeg"),
         ]
-        self._cache[arguments["tool_name"]]["maps"].append(result)
         return result
 
     @log_call
-    async def check_reference_material(
+    async def query_reference_material(
         self, arguments: Dict[str, Any]
     ) -> list[TextContent]:
-        """Check references using a sql_query."""
+        """Query USA-NPN reference material using a SQL query."""
         if not arguments:
             raise ValueError("Arguments cannot be empty.")
         if not arguments["sql_query"]:
@@ -424,78 +1022,119 @@ class APIClient:
                 text=self.read_ancillary_file(sql_query=sql_query),
             )
         ]
-        self._cache[NPNTools.CheckReferenceMaterial.name]["responses"].append(result)
+        # Note: Reference material results are returned directly, not cached
         return result
-
-    async def _get_last_raw_data(self, name: str) -> list[Dict[str, Any]]:
-        """Get the last raw data for a specific tool name."""
-        logger.info(f"Getting last raw data for {name}.")
-        if name not in self._cache:
-            raise ValueError(f"Tool not in cache: {name}")
-        if "raw" not in self._cache[name]:
-            raise ValueError(f"No cached response found for {name}")
-        if not self._cache[name]["raw"]:
-            raise ValueError(f"No raw data found for {name}")
-        result: list[list[Dict[str, Any]]] = self._cache[name]["raw"][-1:]
-        if not result:
-            raise ValueError(f"No raw data found for {name}")
-        return result[0]
-
-    async def get_cached(
-        self, name: str
-    ) -> list[Union[TextContent, ImageContent, EmbeddedResource]]:
-        """Get the cached response for a specific tool name."""
-        logger.info(f"Getting cached response for {name}.")
-        if name not in self._cache:
-            raise ValueError(f"Tool not in cache: {name}")
-        if "responses" not in self._cache[name]:
-            raise ValueError(f"No cached response found for {name}")
-        last_resource = self._cache[name]["responses"][-1]
-        contents: list[Union[TextContent, ImageContent, EmbeddedResource]] = []
-        for item in last_resource:
-            if isinstance(item, ImageContent):
-                contents.append(
-                    EmbeddedResource(
-                        type="resource",
-                        resource=BlobResourceContents(
-                            uri=AnyUrl(f"npn-mcp://{name}"),
-                            mimeType=item.mimeType,
-                            blob=item.data,
-                        ),
-                    )
-                )
-            elif isinstance(item, TextContent):
-                contents.append(
-                    TextContent(
-                        type="text",
-                        text=item.text,
-                    )
-                )
-            elif isinstance(item, EmbeddedResource):
-                contents.append(item)
-        return contents  # Ensure return type matches function definition
 
     async def handle_call_tool(
         self, name: str, arguments: Union[Dict[str, str], None]
     ) -> Any:
-        """Client can call this to use a tool."""
+        """
+        Client can call this to use a tool.
+
+        Parameters
+        ----------
+        name : str
+            The name of the tool to call.
+        arguments : Union[Dict[str, str], None]
+            The arguments to pass to the tool.
+
+        Returns
+        -------
+        Any
+            The result of the tool execution.
+        """
         logger.info(f"Calling tool {name} with parameters: {arguments}")
         if arguments is None:
             raise ValueError("Arguments cannot be None")
-        result = None
+
         if name not in [tool.name for tool in self.get_tool_list()]:
             raise ValueError(f"Tool {name} not found.")
+
+        if name in [
+            NPNTools.QueryReferenceMaterial.name,
+            NPNTools.QueryLiterature.name,
+            NPNTools.GetRawData.name,
+            NPNTools.ExportRawData.name,
+            NPNTools.Mapping.name,
+        ]:
+            return await self._handle_special_tools(name, arguments)
+
+        # Regular API query tools - return hash ID
+        return await self._handle_regular_tool(name, arguments)
+
+    async def _handle_special_tools(self, name: str, arguments: Dict[str, str]) -> Any:
+        """
+        Handle special tools with unique logic.
+
+        Parameters
+        ----------
+        name : str
+            The name of the special tool.
+        arguments : Dict[str, str]
+            The arguments for the tool.
+
+        Returns
+        -------
+        Any
+            The result of the special tool execution.
+        """
+        if name in {
+            NPNTools.QueryReferenceMaterial.name,
+            NPNTools.QueryLiterature.name,
+        }:
+            return await self.query_reference_material(arguments)
+        if name == NPNTools.GetRawData.name:
+            return await self.get_raw_data(arguments)
+        if name == NPNTools.ExportRawData.name:
+            return await self.export_raw_data(arguments)
+        if name == NPNTools.Mapping.name:
+            return await self._handle_mapping_tool(arguments)
+
+        raise ValueError(f"No result generated for tool: {name}")
+
+    async def _handle_mapping_tool(self, arguments: Dict[str, str]) -> Any:
+        """
+        Handle the Mapping tool.
+
+        Parameters
+        ----------
+        arguments : Dict[str, str]
+            The arguments for the mapping tool.
+
+        Returns
+        -------
+        Any
+            The result of the mapping tool execution.
+        """
+        hash_id = arguments.get("hash_id")
+        if not hash_id:
+            raise ValueError(
+                "Mapping tool now requires hash_id parameter from cached query"
+            )
+
+        entry = self.cache_manager.get_entry(hash_id)
+        if not entry:
+            raise ValueError(f"No cached data found for hash ID: {hash_id}")
+
+        data = entry["raw_data"]
+        return await self.create_plot(data, arguments)
+
+    async def _handle_regular_tool(self, name: str, arguments: Dict[str, str]) -> Any:
+        """
+        Handle regular API query tools.
+
+        Parameters
+        ----------
+        name : str
+            The name of the tool.
+        arguments : Dict[str, str]
+            The arguments for the tool.
+
+        Returns
+        -------
+        Any
+            The result of the regular tool execution.
+        """
         tool = next(tool for tool in self.get_tool_list() if tool.name == name)
-        if name == NPNTools.CheckReferenceMaterial.name:
-            result = await self.check_reference_material(arguments)
-        elif name == NPNTools.Mapping.name:
-            data = await self._get_last_raw_data(name=arguments["tool_name"])
-            if not data:
-                raise ValueError(f"No data found for {name}")
-            result = await self.create_plot(data, arguments)
-        else:
-            await self.query_api(tool.endpoint, arguments)
-        if result:  # Return reference check or image if available
-            return result
-        # Otherwise return summary of response from valid query tool
-        return self.query_response(name=name)
+        hash_id = await self.query_api(tool.endpoint, arguments)
+        return self.query_response(hash_id=hash_id)
