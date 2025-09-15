@@ -173,7 +173,8 @@ testpaths = ["tests"]
 [tool.typos]
 files.extend-exclude = [
   '**/data/**',
-  '**/*.log'
+  '**/*.log',
+  '**/.github/db_sources/**'
 ]
 
 # Ensure py.typed is included
