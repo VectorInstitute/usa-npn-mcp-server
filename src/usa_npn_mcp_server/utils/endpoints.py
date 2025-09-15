@@ -427,7 +427,7 @@ Data interpretation: Records show individual_id, phenophase onset/end dates, and
             Table: phenophases, Length: 383, Headers: ['definition_id', 'dataset_id', 'phenophase_id', 'phenophase_name', 'definition', 'start_date', 'end_date', 'comments']
             Description: Contains info on phenophases
 
-            Table: phenoclasses, Length: 199, Headers: ['phenophase_id', 'phenophase_name', 'phenophase_category', 'pheno_class_id']
+            Table: phenoclasses, Length: 199, Headers: ['phenophase_id', 'phenophase_names', 'phenophase_category', 'pheno_class_id']
             Description: Contains info on phenoclasses (a grouping of phenophases)
 
             Table: datasets, Length: 14, Headers: ['dataset_id', 'dataset_name', 'dataset_description', 'dataset_comments', 'dataset_documentation_url']
