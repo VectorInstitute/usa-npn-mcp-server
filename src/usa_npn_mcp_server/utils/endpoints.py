@@ -75,7 +75,17 @@ class StatusIntensityQuery(BaseQuery):
     Inherits all attributes from BaseQuery.
     """
 
-    pass
+    additional_field: Optional[
+        Literal[
+            "observedby_person_id",
+            "partner_group",
+            "species_functional_type",
+            "species_category",
+        ]
+    ] = Field(
+        default=None,
+        description="Additional fields to include in output.",
+    )
 
 
 class ObservationCommentQuery(BaseModel):
@@ -112,6 +122,17 @@ class IndividualPhenometricsQuery(BaseQuery):
         default=None,
         description="List of unique identifiers of the individuals for which the observations are made.",
     )
+    additional_field: Optional[
+        Literal[
+            "observedby_person_id",
+            "partner_group",
+            "species_functional_type",
+            "species_category",
+        ]
+    ] = Field(
+        default=None,
+        description="Additional fields to include in output.",
+    )
 
 
 class SitePhenometricsQuery(BaseQuery):
@@ -130,6 +151,12 @@ class SitePhenometricsQuery(BaseQuery):
     individual_ids: Optional[List[int]] = Field(
         default=None,
         description="List of unique identifiers of the individuals for which the observations are made.",
+    )
+    additional_field: Optional[
+        Literal["partner_group", "species_functional_type", "species_category"]
+    ] = Field(
+        default=None,
+        description="Additional fields to include in output.",
     )
 
 
@@ -150,6 +177,12 @@ class MagnitudePhenometricsQuery(BaseQuery):
     frequency: int = Field(
         ...,
         description="Number of days by which to delineate the period of time. Should be less or equal to number of days between start_date and end_date.",
+    )
+    additional_field: Optional[
+        Literal["species_functional_type", "species_category"]
+    ] = Field(
+        default=None,
+        description="Additional fields to include in output.",
     )
 
 
