@@ -8,6 +8,7 @@ Combines API data fetching, CSV processing, database building, and refinement.
 import csv
 import json
 import logging
+import re
 import sqlite3
 import sys
 from pathlib import Path
@@ -300,54 +301,29 @@ def update_endpoints_file() -> None:
             content = f.read()
 
         # Update QueryReferenceMaterial description
-        if "species" in table_info:
-            # Update species table info
-            species_info = table_info["species"]
-            old_species_line = "Table: species, Length: \\d+, Headers:"
-            new_species_line = (
-                f"Table: species, Length: {species_info['length']}, Headers:"
-            )
-            content = __import__("re").sub(old_species_line, new_species_line, content)
+        # Update each table (excluding literature which is static)
+        tables_to_update = [
+            "species",
+            "phenophases",
+            "phenoclasses",
+            "datasets",
+            "networks",
+        ]
 
-        if "phenophases" in table_info:
-            # Update phenophases table info
-            pheno_info = table_info["phenophases"]
-            old_pheno_line = "Table: phenophases, Length: \\d+, Headers:"
-            new_pheno_line = (
-                f"Table: phenophases, Length: {pheno_info['length']}, Headers:"
-            )
-            content = __import__("re").sub(old_pheno_line, new_pheno_line, content)
+        for table_name in tables_to_update:
+            if table_name in table_info:
+                info = table_info[table_name]
+                # Pattern to match the entire table line including headers
+                # Example: Table: species, Length: 1882, Headers: ['col1', 'col2', ...]
+                pattern = rf"Table: {table_name}, Length: \d+, Headers: \[.*?\]"
 
-        if "phenoclasses" in table_info:
-            # Update phenoclasses table info
-            classes_info = table_info["phenoclasses"]
-            old_classes_line = "Table: phenoclasses, Length: \\d+, Headers:"
-            new_classes_line = (
-                f"Table: phenoclasses, Length: {classes_info['length']}, Headers:"
-            )
-            content = __import__("re").sub(old_classes_line, new_classes_line, content)
+                # Build replacement string with current length and headers
+                headers_str = str(info["headers"])
+                replacement = f"Table: {table_name}, Length: {info['length']}, Headers: {headers_str}"
 
-        if "datasets" in table_info:
-            # Update datasets table info
-            datasets_info = table_info["datasets"]
-            old_datasets_line = "Table: datasets, Length: \\d+, Headers:"
-            new_datasets_line = (
-                f"Table: datasets, Length: {datasets_info['length']}, Headers:"
-            )
-            content = __import__("re").sub(
-                old_datasets_line, new_datasets_line, content
-            )
-
-        if "networks" in table_info:
-            # Update networks table info
-            networks_info = table_info["networks"]
-            old_networks_line = "Table: networks, Length: \\d+, Headers:"
-            new_networks_line = (
-                f"Table: networks, Length: {networks_info['length']}, Headers:"
-            )
-            content = __import__("re").sub(
-                old_networks_line, new_networks_line, content
-            )
+                # Replace the old line with the new one
+                content = re.sub(pattern, replacement, content)
+                logger.info(f"Updated {table_name} table info in endpoints.py")
 
         # Write updated content back
         with open(endpoints_path, "w", encoding="utf-8") as f:
