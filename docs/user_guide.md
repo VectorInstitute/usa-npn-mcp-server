@@ -11,13 +11,13 @@ More detail about the Agent, Client, and MCP Server architecture are also [provi
 ### Prerequisites
 Host: Recommended is [Claude Desktop App](https://claude.ai/download) but any AI Agent (IDE, AI Tool etc) that supports the Model Context Protocol (MCP) can be used as a Host.
 
-1. **Install MCP Server**: Refer to the [README.md](../../README.md) in the GitHub repository for instructions on installing the MCP Server.
-2. **Configure Server with MCP Host**: Configuration with Claude Desktop App is also found in the [README.md](../../README.md) but this Server can be configured with any MCP-compliant host (like this [Copilot MCP Extension in VSCode](https://marketplace.visualstudio.com/items?itemName=AutomataLabs.copilot-mcp)).
+1. **Install MCP Server**: Refer to the [README.md](https://github.com/VectorInstitute/usa-npn-mcp-server/blob/main/README.md) in the GitHub repository for instructions on installing the MCP Server.
+2. **Configure Server with MCP Host**: Configuration with Claude Desktop App is also found in the [README.md](https://github.com/VectorInstitute/usa-npn-mcp-server/blob/main/README.md) but this Server can be configured with any MCP-compliant host (like this [Copilot MCP Extension in VSCode](https://marketplace.visualstudio.com/items?itemName=AutomataLabs.copilot-mcp)).
 3. **Launch Host**: You are ready to use the MCP Server in the host application. See below.
 
 ### Example Usage
 
-![Example usage of the MCP Server in action](../../assets/example_usage.gif)
+![Example usage of the MCP Server in action](assets/example_usage.gif)
 
 ### This example includes:
 1. **Basic Queries**: Natural language queries for retrieving phenological data.
@@ -37,15 +37,15 @@ There are [many other awesome MCP Servers](https://github.com/appcypher/awesome-
 
 ### Agentic Systems and Model Content Protocol (MCP)
 
-<img src="../assets/architecture.png" alt="🖥️">
+<img src="assets/architecture.png" alt="🖥️">
 
 | Symbol | Term          | Description                                                                                                                                                                                                |
 |--------|---------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| <img src="../assets/llm.png" alt="🖥️" width="48" height="48"> | **LLM**       | A Large Language Model, such as Claude 3.5 Sonnet or GPT-4o, that can "understand" and generate text. These models are often pre-trained to perform well on a diversity of tasks. A model serves as the core AI "brain" for reasoning, natural language processing, and conversation. |
-| <img src="../assets/Host.png" alt="🖥️" width="48" height="48"> | **Host**      | An overarching application client that users interact with — such as a chat assistant (e.g., Claude Desktop) or an IDE-integrated tool. It manages workflows and connects to MCP Servers using MCP Clients. These often come with custom tooling like chatting or resource-attach integration. |
-| <img src="../assets/MCPClient.png" alt="🖥️" width="48" height="48"> | **MCP Client**| Embedded within the Host, the MCP Client establishes and maintains a connection with MCP Servers through the Model Context Protocol (MCP), translating tool requests into protocol messages and managing stateful connections. |
-| <img src="../assets/MCPServer.png" alt="🖥️" width="48" height="48"> | **MCP Server**| A lightweight server that runs locally and exposes specific capabilities to the MCP Client through MCP. The USA-NPN MCP Server described here provides Tools, Resources, and Prompts for orchestrating tasks like NPN API calls, data visualization, and phenology workflows. |
-| <img src="../assets/agent.png" alt="🖥️" width="48" height="48"> | **Agent**     | An entity empowered with an LLM for reasoning, decision-making, and language processing that is capable of tool use and orchestration (deciding when to use a tool). It performs tasks using connected tools and resources, managing multi-step interactions and complex workflows.|
+| <img src="assets/llm.png" alt="🖥️" width="48" height="48"> | **LLM**       | A Large Language Model, such as Claude 3.5 Sonnet or GPT-4o, that can "understand" and generate text. These models are often pre-trained to perform well on a diversity of tasks. A model serves as the core AI "brain" for reasoning, natural language processing, and conversation. |
+| <img src="assets/Host.png" alt="🖥️" width="48" height="48"> | **Host**      | An overarching application client that users interact with — such as a chat assistant (e.g., Claude Desktop) or an IDE-integrated tool. It manages workflows and connects to MCP Servers using MCP Clients. These often come with custom tooling like chatting or resource-attach integration. |
+| <img src="assets/MCPClient.png" alt="🖥️" width="48" height="48"> | **MCP Client**| Embedded within the Host, the MCP Client establishes and maintains a connection with MCP Servers through the Model Context Protocol (MCP), translating tool requests into protocol messages and managing stateful connections. |
+| <img src="assets/MCPServer.png" alt="🖥️" width="48" height="48"> | **MCP Server**| A lightweight server that runs locally and exposes specific capabilities to the MCP Client through MCP. The USA-NPN MCP Server described here provides Tools, Resources, and Prompts for orchestrating tasks like NPN API calls, data visualization, and phenology workflows. |
+| <img src="assets/agent.png" alt="🖥️" width="48" height="48"> | **Agent**     | An entity empowered with an LLM for reasoning, decision-making, and language processing that is capable of tool use and orchestration (deciding when to use a tool). It performs tasks using connected tools and resources, managing multi-step interactions and complex workflows.|
 
 
 
