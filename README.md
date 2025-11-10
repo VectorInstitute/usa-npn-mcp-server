@@ -5,7 +5,7 @@
 [![code checks](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/code_checks.yml/badge.svg)](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/code_checks.yml)
 [![unit tests](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/unit_tests.yml/badge.svg)](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/unit_tests.yml)
 [![integration tests](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/integration_tests.yml/badge.svg)](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/integration_tests.yml)
-[![docs](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/docs_deploy.yml/badge.svg)](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/docs_deploy.yml)
+[![docs](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/docs.yml/badge.svg)](https://github.com/VectorInstitute/usa-npn-mcp-server/actions/workflows/docs.yml)
 ![coverage](./.github/coverage.svg)
 [![GitHub License](https://img.shields.io/badge/license-MIT-blue)](https://github.com/VectorInstitute/usa-npn-mcp-server/blob/main/LICENSE)
 
