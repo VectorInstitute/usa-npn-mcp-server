@@ -28,6 +28,7 @@ def test_status_intensity_query_model():
         phenophase_id=1,
         functional_type="annual",
         climate_data=1,
+        additional_field="partner_group",
     )
     assert query.model_dump() == {
         "start_date": "2025-01-01",
@@ -45,6 +46,7 @@ def test_status_intensity_query_model():
         "phenophase_id": 1,
         "functional_type": "annual",
         "climate_data": 1,
+        "additional_field": "partner_group",
     }
 
 
@@ -60,10 +62,12 @@ def test_individual_phenometrics_query_model():
         start_date="2025-01-01",
         end_date="2025-01-31",
         individual_ids=[1, 2, 3],
+        additional_field="species_functional_type",
     )
     assert query.start_date == "2025-01-01"
     assert query.end_date == "2025-01-31"
     assert query.individual_ids == [1, 2, 3]
+    assert query.additional_field == "species_functional_type"
 
 
 def test_site_phenometrics_query_model():
@@ -72,10 +76,12 @@ def test_site_phenometrics_query_model():
         start_date="2025-01-01",
         end_date="2025-01-31",
         individual_ids=[4, 5, 6],
+        additional_field="species_category",
     )
     assert query.start_date == "2025-01-01"
     assert query.end_date == "2025-01-31"
     assert query.individual_ids == [4, 5, 6]
+    assert query.additional_field == "species_category"
 
 
 def test_magnitude_phenometrics_query_model():
@@ -84,10 +90,12 @@ def test_magnitude_phenometrics_query_model():
         start_date="2025-01-01",
         end_date="2025-01-31",
         frequency=7,
+        additional_field="species_functional_type",
     )
     assert query.start_date == "2025-01-01"
     assert query.end_date == "2025-01-31"
     assert query.frequency == 7
+    assert query.additional_field == "species_functional_type"
 
 
 def test_sql_query_model():
