@@ -454,19 +454,19 @@ Data interpretation: Records show individual_id, phenophase onset/end dates, and
         description="""
             Query an SQL database for reference material that can be used to translate natural language into specific ids and terms needed for querying the NPN API with other tools. There is no need to query the 'datasets' table unless specific observer groups are mentioned. The Tables have the following structure:
 
-            Table: species, Length: 1882, Headers: ['species_id', 'common_name', 'genus', 'genus_id', 'genus_common_name', 'species', 'kingdom', 'itis_taxonomic_sn', 'functional_type', 'class_id', 'class_common_name', 'class_name', 'order_id', 'order_common_name', 'order_name', 'family_id', 'family_name', 'family_common_name', 'species_type']
+            Table: species, Length: 1940, Headers: ['species_id', 'common_name', 'genus', 'genus_id', 'genus_common_name', 'species', 'kingdom', 'itis_taxonomic_sn', 'functional_type', 'class_id', 'class_common_name', 'class_name', 'order_id', 'order_common_name', 'order_name', 'family_id', 'family_name', 'family_common_name', 'species_type']
             Description: Contains info on species
 
-            Table: phenophases, Length: 383, Headers: ['definition_id', 'dataset_id', 'phenophase_id', 'phenophase_name', 'definition', 'start_date', 'end_date', 'comments']
+            Table: phenophases, Length: 400, Headers: ['definition_id', 'dataset_id', 'phenophase_id', 'phenophase_name', 'definition', 'start_date', 'end_date', 'comments']
             Description: Contains info on phenophases
 
-            Table: phenoclasses, Length: 226, Headers: ['phenophase_id', 'phenophase_description', 'definition_ids', 'phenophase_names']
+            Table: phenoclasses, Length: 230, Headers: ['phenophase_id', 'phenophase_description', 'definition_ids', 'phenophase_names']
             Description: Contains info on phenoclasses (a grouping of phenophases)
 
             Table: datasets, Length: 14, Headers: ['dataset_id', 'dataset_name', 'dataset_description', 'dataset_comments', 'dataset_documentation_url']
             Description: Contains info on datasets and their contributors
 
-            Table: networks, Length: 854, Headers: ['network_id', 'network_name']
+            Table: networks, Length: 905, Headers: ['network_id', 'network_name']
             Description: Contains info on observation groups or networks (aka partner groups)
 """,
         input_schema=SQLQueryModel.model_json_schema(),
