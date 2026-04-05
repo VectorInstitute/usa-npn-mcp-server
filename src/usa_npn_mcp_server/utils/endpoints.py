@@ -466,7 +466,7 @@ Data interpretation: Records show individual_id, phenophase onset/end dates, and
             Table: datasets, Length: 14, Headers: ['dataset_id', 'dataset_name', 'dataset_description', 'dataset_comments', 'dataset_documentation_url']
             Description: Contains info on datasets and their contributors
 
-            Table: networks, Length: 912, Headers: ['network_id', 'network_name']
+            Table: networks, Length: 914, Headers: ['network_id', 'network_name']
             Description: Contains info on observation groups or networks (aka partner groups)
 """,
         input_schema=SQLQueryModel.model_json_schema(),
