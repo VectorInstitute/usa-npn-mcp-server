@@ -457,7 +457,7 @@ Data interpretation: Records show individual_id, phenophase onset/end dates, and
             Table: species, Length: 1940, Headers: ['species_id', 'common_name', 'genus', 'genus_id', 'genus_common_name', 'species', 'kingdom', 'itis_taxonomic_sn', 'functional_type', 'class_id', 'class_common_name', 'class_name', 'order_id', 'order_common_name', 'order_name', 'family_id', 'family_name', 'family_common_name', 'species_type']
             Description: Contains info on species
 
-            Table: phenophases, Length: 400, Headers: ['definition_id', 'dataset_id', 'phenophase_id', 'phenophase_name', 'definition', 'start_date', 'end_date', 'comments']
+            Table: phenophases, Length: 400, Headers: ['definition_id', 'phenophase_id', 'phenophase_name', 'definition', 'start_date', 'end_date', 'dataset_id', 'comments']
             Description: Contains info on phenophases
 
             Table: phenoclasses, Length: 230, Headers: ['phenophase_id', 'phenophase_description', 'definition_ids', 'phenophase_names']
